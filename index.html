@@ -1,1034 +1,321 @@
-import React, { useState, useEffect } from 'react';
-import { 
-  Box, 
-  Scan, 
-  Printer, 
-  MapPin, 
-  Search, 
-  ArrowRight, 
-  Menu, 
-  X,
-  Clock,
-  Zap,
-  Cpu,
-  Activity,
-  Terminal,
-  Sun,
-  Moon,
-  Layers,
-  Send,
-  User,
-  LogOut,
-  MessageCircle
-} from 'lucide-react';
-
-// --- КОНФИГУРАЦИЯ TELEGRAM ---
-const TELEGRAM_BOT_TOKEN = "8453938307:AAGcU3fQdoPZC7I5y5ueFFnK3HZLAfg680Q";
-const ADMIN_CHAT_ID = "334485676";
-
-// --- ДАННЫЕ ---
-const INITIAL_DATA = [
-  {
-    id: 1,
-    title: "Печать шестерни // GEAR_V2",
-    titleModern: "Изготовление шестерни для редуктора",
-    type: "3D-печать",
-    location: "Чебоксары :: СЕК_01",
-    locationModern: "Чебоксары, Центр",
-    budget: "1 500 ₽",
-    status: "active",
-    date: "2ч назад",
-    tags: ["FDM", "PETG"]
-  },
-  {
-    id: 2,
-    title: "Сканирование детали авто",
-    titleModern: "Сканирование детали бампера",
-    type: "3D-сканирование",
-    location: "Новочебоксарск :: СЕК_02",
-    locationModern: "Новочебоксарск",
-    budget: "5 000 ₽",
-    status: "active",
-    date: "5ч назад",
-    tags: ["СКАН", "РЕВЕРС"]
-  },
-  {
-    id: 4,
-    title: "Партия чипов (корпуса)",
-    titleModern: "Серийная печать корпусов (100 шт)",
-    type: "Серийное производство",
-    location: "Чебоксары :: ПРОМ_ЗОНА",
-    locationModern: "Чебоксары, Промзона",
-    budget: "Договорная",
-    status: "active",
-    date: "1д назад",
-    tags: ["SLA", "СМОЛА"]
-  }
-];
-
-const SERVICES = [
-  {
-    title: "3D ПЕЧАТЬ",
-    desc: "Материализация цифровых объектов. Протоколы FDM, SLA, SLS.",
-    descModern: "Печать пластиком, фотополимером и металлом. От прототипа до серии.",
-    icon: <Printer size={32} />,
-    color: "text-cyan-400",
-    colorModern: "text-indigo-600 bg-indigo-50",
-    border: "border-cyan-500/50 hover:border-cyan-400"
-  },
-  {
-    title: "3D СКАНИРОВАНИЕ",
-    desc: "Оцифровка реальности. Перенос физических объектов в Матрицу.",
-    descModern: "Высокоточное сканирование объектов для реверс-инжиниринга.",
-    icon: <Scan size={32} />,
-    color: "text-fuchsia-400",
-    colorModern: "text-violet-600 bg-violet-50",
-    border: "border-fuchsia-500/50 hover:border-fuchsia-400"
-  },
-  {
-    title: "3D МОДЕЛИРОВАНИЕ",
-    desc: "Архитектура виртуальных миров. CAD-проектирование и скульптинг.",
-    descModern: "Создание 3D моделей по чертежам, эскизам или образцам.",
-    icon: <Box size={32} />,
-    color: "text-yellow-400",
-    colorModern: "text-amber-600 bg-amber-50",
-    border: "border-yellow-500/50 hover:border-yellow-400"
-  }
-];
-
-// --- КОМПОНЕНТЫ ---
-
-const GlitchText = ({ text, theme, className = "" }) => {
-  if (theme === 'modern') return <span className={`font-bold text-slate-900 ${className}`}>{text}</span>;
-  return (
-    <span className={`relative inline-block ${className} font-mono tracking-tighter`}>
-      <span className="relative z-10">{text}</span>
-      <span className="absolute top-0 left-[2px] -z-10 opacity-70 text-fuchsia-500 mix-blend-screen animate-pulse">{text}</span>
-      <span className="absolute top-0 -left-[2px] -z-10 opacity-70 text-cyan-500 mix-blend-screen animate-pulse delay-75">{text}</span>
-    </span>
-  );
-};
-
-const ThemeButton = ({ children, primary, onClick, theme, className = "" }) => {
-  if (theme === 'modern') {
-    return (
-      <button 
-        onClick={onClick}
-        className={`px-6 py-3 rounded-xl font-bold transition-all duration-200 transform hover:scale-105 active:scale-95 shadow-sm ${
-          primary 
-            ? "bg-indigo-600 text-white hover:bg-indigo-700 shadow-indigo-200" 
-            : "bg-white text-slate-700 border border-slate-200 hover:border-indigo-300 hover:bg-slate-50"
-        } ${className}`}
-      >
-        {children}
-      </button>
-    );
-  }
-  return (
-    <button 
-      onClick={onClick}
-      className={`
-        relative px-6 py-3 font-bold font-mono uppercase tracking-widest text-sm
-        transition-all duration-200 group overflow-hidden
-        ${primary 
-          ? "bg-cyan-600 text-black hover:bg-cyan-400" 
-          : "bg-transparent text-cyan-400 border border-cyan-500/50 hover:border-cyan-400 hover:text-cyan-300 hover:bg-cyan-950/30"
-        }
-        ${className}
-      `}
-      style={{ clipPath: 'polygon(10% 0, 100% 0, 100% 70%, 90% 100%, 0 100%, 0 30%)' }}
-    >
-      <div className="relative z-10 flex items-center justify-center gap-2">{children}</div>
-      {primary && <div className="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>}
-    </button>
-  );
-};
-
-const Badge = ({ children, theme, className, colorModern }) => {
-  if (theme === 'modern') {
-    return (
-      <span className={`px-3 py-1 rounded-full text-xs font-semibold ${colorModern || 'bg-slate-100 text-slate-600'} ${className}`}>
-        {children}
-      </span>
-    );
-  }
-  return (
-    <span className={`px-2 py-1 text-[10px] uppercase tracking-widest font-mono border ${className}`}>
-      {children}
-    </span>
-  );
-};
-
-const TelegramLogin = ({ theme, onLogin }) => {
-  const isCyber = theme === 'cyberpunk';
-  // Используем inline-стили для цветов, чтобы избежать проблем с парсингом
-  const cyberStyle = { backgroundColor: 'rgba(36, 161, 222, 0.2)', borderColor: '#24A1DE', color: '#24A1DE' };
-  const modernStyle = { backgroundColor: '#24A1DE', color: 'white' };
-
-  return (
-    <button 
-      onClick={onLogin}
-      style={isCyber ? cyberStyle : modernStyle}
-      className="flex items-center gap-2 px-4 py-2 rounded-full font-bold transition-all transform hover:scale-105 active:scale-95 border shadow-md"
-    >
-      <Send size={16} className={isCyber ? "" : "-ml-1"} />
-      <span className="text-xs">{isCyber ? "LOGIN_TG" : "Войти через Telegram"}</span>
-    </button>
-  );
-};
-
-const UserProfile = ({ user, theme, onLogout }) => {
-  const isCyber = theme === 'cyberpunk';
-  return (
-    <div className={`flex items-center gap-3 px-3 py-1.5 rounded-full ${
-      isCyber ? 'border border-cyan-900/50 bg-black' : 'bg-slate-100'
-    }`}>
-      <div className={`w-8 h-8 rounded-full flex items-center justify-center overflow-hidden ${
-        isCyber ? 'bg-cyan-900 text-cyan-400' : 'bg-indigo-100 text-indigo-600'
-      }`}>
-        <User size={16} />
-      </div>
-      <div className="hidden sm:block">
-        <div className={`text-xs font-bold leading-none ${isCyber ? 'text-white font-mono' : 'text-slate-900'}`}>
-          {user.first_name}
-        </div>
-        <div className={`text-[10px] leading-none ${isCyber ? 'text-cyan-500 font-mono' : 'text-slate-500'}`}>
-          @{user.username}
-        </div>
-      </div>
-      <button 
-        onClick={onLogout}
-        className={`ml-2 p-1.5 rounded-full transition-colors ${
-          isCyber ? 'hover:bg-red-900/50 text-slate-500 hover:text-red-400' : 'hover:bg-white text-slate-400 hover:text-red-500'
-        }`}
-      >
-        <LogOut size={14} />
-      </button>
-    </div>
-  );
-};
-
-const Navbar = ({ onOpenModal, theme, toggleTheme, user, onLogin, onLogout }) => {
-  const [isOpen, setIsOpen] = useState(false);
-  const isCyber = theme === 'cyberpunk';
-
-  return (
-    <nav className={`fixed top-0 w-full z-50 transition-colors duration-500 ${
-      isCyber ? 'bg-black/80 border-cyan-900/50' : 'bg-white/80 border-slate-200'
-    } backdrop-blur-md border-b`}>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-20">
-          <div className="flex items-center gap-3 group cursor-pointer">
-            <div className={`w-10 h-10 flex items-center justify-center transition-all ${
-              isCyber 
-                ? 'bg-black border border-cyan-500 text-cyan-400 shadow-[0_0_15px_rgba(6,182,212,0.3)]' 
-                : 'bg-indigo-600 rounded-xl text-white shadow-lg shadow-indigo-200'
-            }`}>
-              {isCyber ? <Zap size={20} /> : <Layers size={20} />}
-            </div>
-            <div className="flex flex-col">
-              <span className={`font-bold text-xl leading-none transition-colors ${
-                isCyber ? 'text-white font-mono tracking-tighter uppercase' : 'text-slate-900 tracking-tight'
-              }`}>
-                Чувашия<span className={isCyber ? "text-cyan-400" : "text-indigo-600"}>{isCyber ? "2077" : "Tech"}</span>
-              </span>
-              <span className={`text-[10px] leading-none mt-1 transition-colors ${
-                isCyber ? "text-cyan-700 font-mono tracking-[0.2em]" : "text-slate-500 font-medium"
-              }`}>
-                {isCyber ? "СИСТЕМА_ОНЛАЙН" : "Биржа 3D-услуг"}
-              </span>
-            </div>
-          </div>
-          
-          <div className={`hidden md:flex items-center gap-8 text-sm font-medium transition-colors ${
-             isCyber ? 'font-mono text-slate-400 uppercase tracking-wide' : 'text-slate-600'
-          }`}>
-            <a href="#services" className={`${isCyber ? "hover:text-cyan-400" : "hover:text-indigo-600"} transition-colors`}>Услуги</a>
-            <a href="#market" className={`${isCyber ? "hover:text-fuchsia-400" : "hover:text-indigo-600"} transition-colors`}>Биржа</a>
-            <a href="#map" className={`${isCyber ? "hover:text-yellow-400" : "hover:text-indigo-600"} transition-colors`}>Карта</a>
-          </div>
-
-          <div className="hidden md:flex items-center gap-4">
-            <button 
-              onClick={toggleTheme}
-              className={`flex items-center gap-2 px-3 py-2 rounded-full font-bold transition-all border transform hover:scale-105 active:scale-95 ${
-                isCyber 
-                  ? 'bg-slate-900 border-yellow-400 text-yellow-400 hover:bg-yellow-400 hover:text-black shadow-[0_0_15px_rgba(250,204,21,0.3)] hover:shadow-[0_0_25px_rgba(250,204,21,0.6)] font-mono uppercase tracking-wider' 
-                  : 'bg-white border-indigo-100 text-indigo-600 hover:bg-indigo-50 shadow-sm'
-              }`}
-              title={isCyber ? "Переключить на Светлую тему" : "Переключить на Киберпанк"}
-            >
-              {isCyber ? <Sun size={16} /> : <Moon size={16} />}
-            </button>
-
-            {user ? (
-              <UserProfile user={user} theme={theme} onLogout={onLogout} />
-            ) : (
-              <TelegramLogin theme={theme} onLogin={onLogin} />
-            )}
-            
-            <ThemeButton primary onClick={onOpenModal} theme={theme}>
-              {isCyber ? "Новый_Заказ" : "Создать заказ"}
-            </ThemeButton>
-          </div>
-
-          <div className="md:hidden flex items-center gap-4">
-            <button 
-              onClick={toggleTheme} 
-              className={`p-2 rounded-lg border transition-all ${
-                isCyber 
-                  ? "text-yellow-400 border-yellow-400/50 bg-slate-900 shadow-[0_0_10px_rgba(250,204,21,0.2)]" 
-                  : "text-indigo-600 border-indigo-200 bg-indigo-50"
-              }`}
-            >
-               {isCyber ? <Sun size={24} /> : <Moon size={24} />}
-            </button>
-            <button onClick={() => setIsOpen(!isOpen)} className={isCyber ? "text-cyan-500" : "text-slate-700"}>
-              {isOpen ? <X /> : <Menu />}
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {isOpen && (
-        <div className={`md:hidden border-b p-4 flex flex-col gap-4 ${
-          isCyber ? 'bg-black border-cyan-900/50 font-mono text-slate-300' : 'bg-white border-slate-100 text-slate-600'
-        }`}>
-          <a href="#services" onClick={() => setIsOpen(false)}>Услуги</a>
-          <a href="#market" onClick={() => setIsOpen(false)}>Биржа</a>
-          <div className="flex flex-col gap-3 pt-2 border-t border-slate-700">
-             {user ? (
-               <div className="flex justify-between items-center">
-                  <UserProfile user={user} theme={theme} onLogout={onLogout} />
-               </div>
-             ) : (
-               <TelegramLogin theme={theme} onLogin={onLogin} />
-             )}
-             <ThemeButton primary onClick={() => { setIsOpen(false); onOpenModal(); }} theme={theme} className="w-full">
-                {isCyber ? "Создать Заказ" : "Разместить заказ"}
-             </ThemeButton>
-          </div>
-        </div>
-      )}
-    </nav>
-  );
-};
-
-const OrderModal = ({ isOpen, onClose, onSubmit, theme, user }) => {
-  if (!isOpen) return null;
-  const isCyber = theme === 'cyberpunk';
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    const formData = new FormData(e.target);
-    const data = {
-      title: formData.get('title'),
-      type: formData.get('type'),
-      budget: formData.get('budget'),
-      location: formData.get('location'),
-      desc: formData.get('desc')
-    };
-    onSubmit(data);
-  };
-
-  return (
-    <div className={`fixed inset-0 z-[60] flex items-center justify-center p-4 backdrop-blur-sm ${
-      isCyber ? 'bg-black/90' : 'bg-slate-900/40'
-    }`}>
-      <div className={`w-full max-w-lg p-1 relative transition-all duration-300 ${
-        isCyber 
-          ? 'bg-slate-900 border border-cyan-500/50 shadow-[0_0_50px_rgba(6,182,212,0.2)]' 
-          : 'bg-white rounded-2xl shadow-2xl'
-      }`}>
-         {isCyber && (
-           <>
-             <div className="absolute top-0 left-0 w-4 h-4 border-t-2 border-l-2 border-cyan-500"></div>
-             <div className="absolute top-0 right-0 w-4 h-4 border-t-2 border-r-2 border-cyan-500"></div>
-             <div className="absolute bottom-0 left-0 w-4 h-4 border-b-2 border-l-2 border-cyan-500"></div>
-             <div className="absolute bottom-0 right-0 w-4 h-4 border-b-2 border-r-2 border-cyan-500"></div>
-           </>
-         )}
-
-        <div className={`p-8 ${isCyber ? 'bg-black/50 backdrop-blur-xl' : 'bg-white rounded-2xl'}`}>
-          <div className={`flex justify-between items-center mb-8 pb-4 ${isCyber ? 'border-b border-slate-800' : ''}`}>
-            <h3 className={`text-2xl font-bold flex items-center gap-2 ${
-              isCyber ? 'font-mono text-cyan-400 uppercase tracking-widest' : 'text-slate-900'
-            }`}>
-              {isCyber ? <><Terminal size={20} /> ЗАПУСК_ЗАДАЧИ</> : "Новая заявка"}
-            </h3>
-            <button onClick={onClose} className={`transition-colors ${
-              isCyber ? 'text-slate-500 hover:text-fuchsia-500' : 'text-slate-400 hover:text-slate-600'
-            }`}>
-              <X size={24} />
-            </button>
-          </div>
-          
-          <form onSubmit={handleSubmit} className={`space-y-6 ${isCyber ? 'font-mono' : ''}`}>
-            {user && (
-              <div className={`p-3 rounded-lg flex items-center gap-3 ${
-                isCyber ? 'bg-cyan-950/30 border border-cyan-900' : 'bg-blue-50 border border-blue-100'
-              }`}>
-                <MessageCircle size={18} className={isCyber ? "text-cyan-400" : "text-blue-600"} />
-                <span className={`text-xs ${isCyber ? 'text-cyan-200' : 'text-blue-800'}`}>
-                   Уведомления отправляются в систему (Админ-чат)
-                </span>
-              </div>
-            )}
-          
-            <div>
-              <label className={`block text-xs uppercase mb-2 ${
-                isCyber ? 'text-cyan-700 tracking-widest' : 'text-slate-500 font-bold tracking-wide'
-              }`}>
-                {isCyber ? "Цель / Задача" : "Что нужно сделать?"}
-              </label>
-              <input 
-                name="title"
-                required
-                type="text" 
-                placeholder={isCyber ? "ВВЕДИТЕ_НАЗВАНИЕ_ЗАДАЧИ" : "Например: Печать корпуса"} 
-                className={`w-full p-3 transition-all focus:outline-none ${
-                  isCyber 
-                    ? 'bg-black border border-slate-700 text-white focus:border-cyan-500 focus:shadow-[0_0_15px_rgba(6,182,212,0.3)] placeholder:text-slate-700' 
-                    : 'bg-slate-50 border border-slate-200 rounded-xl text-slate-900 focus:ring-2 focus:ring-indigo-500 focus:bg-white'
-                }`} 
-              />
-            </div>
-            
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className={`block text-xs uppercase mb-2 ${isCyber ? 'text-cyan-700 tracking-widest' : 'text-slate-500 font-bold'}`}>
-                  {isCyber ? "Тип Протокола" : "Услуга"}
-                </label>
-                <select name="type" className={`w-full p-3 focus:outline-none appearance-none ${
-                  isCyber 
-                    ? 'bg-black border border-slate-700 text-white focus:border-cyan-500' 
-                    : 'bg-slate-50 border border-slate-200 rounded-xl text-slate-900 focus:ring-2 focus:ring-indigo-500'
-                }`}>
-                  <option>3D ПЕЧАТЬ</option>
-                  <option>3D СКАНИРОВАНИЕ</option>
-                  <option>3D МОДЕЛИРОВАНИЕ</option>
-                </select>
-              </div>
-              <div>
-                <label className={`block text-xs uppercase mb-2 ${isCyber ? 'text-cyan-700 tracking-widest' : 'text-slate-500 font-bold'}`}>
-                  {isCyber ? "Лимит Кредитов" : "Бюджет"}
-                </label>
-                <input 
-                  name="budget"
-                  type="text" 
-                  placeholder="РУБ" 
-                  className={`w-full p-3 focus:outline-none ${
-                    isCyber 
-                      ? 'bg-black border border-slate-700 text-white focus:border-cyan-500' 
-                      : 'bg-slate-50 border border-slate-200 rounded-xl text-slate-900 focus:ring-2 focus:ring-indigo-500'
-                  }`} 
-                />
-              </div>
-            </div>
-
-            <div>
-              <label className={`block text-xs uppercase mb-2 ${isCyber ? 'text-cyan-700 tracking-widest' : 'text-slate-500 font-bold'}`}>
-                {isCyber ? "Сектор (Город)" : "Город"}
-              </label>
-              <select name="location" className={`w-full p-3 focus:outline-none appearance-none ${
-                 isCyber 
-                   ? 'bg-black border border-slate-700 text-white focus:border-cyan-500' 
-                   : 'bg-slate-50 border border-slate-200 rounded-xl text-slate-900 focus:ring-2 focus:ring-indigo-500'
-              }`}>
-                <option>Чебоксары</option>
-                <option>Новочебоксарск</option>
-                <option>Удаленно</option>
-              </select>
-            </div>
-
-            <div>
-               <label className={`block text-xs uppercase mb-2 ${
-                 isCyber ? 'text-cyan-700 tracking-widest' : 'text-slate-500 font-bold'
-               }`}>
-                 {isCyber ? "Пакет Данных (Описание)" : "Описание задачи"}
-               </label>
-               <textarea 
-                 name="desc"
-                 rows={3} 
-                 className={`w-full p-3 focus:outline-none resize-none ${
-                   isCyber 
-                     ? 'bg-black border border-slate-700 text-white focus:border-cyan-500' 
-                     : 'bg-slate-50 border border-slate-200 rounded-xl text-slate-900 focus:ring-2 focus:ring-indigo-500'
-                 }`}
-               ></textarea>
-            </div>
-
-            <ThemeButton primary theme={theme} className="w-full py-4 mt-4">
-              {isCyber ? "ИНИЦИИРОВАТЬ ЗАГРУЗКУ" : "Разместить заказ"}
-            </ThemeButton>
-          </form>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-export default function App() {
-  const [theme, setTheme] = useState('cyberpunk'); 
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [orders, setOrders] = useState(INITIAL_DATA);
-  const [user, setUser] = useState(null);
-
-  const isCyber = theme === 'cyberpunk';
-
-  // --- Функционал отправки в Telegram ---
-  
-  const sendTelegramMessage = async (text) => {
-    if (!TELEGRAM_BOT_TOKEN) {
-      console.error("Нет токена бота");
-      return;
-    }
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Биржа 3D-услуг Чувашия 2077</title>
     
-    if (!ADMIN_CHAT_ID) {
-      alert("ОШИБКА НАСТРОЙКИ: Не указан ADMIN_CHAT_ID в коде.");
-      console.error("ADMIN_CHAT_ID is empty");
-      return;
-    }
-
-    try {
-      const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
-      const response = await fetch(url, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          chat_id: ADMIN_CHAT_ID,
-          text: text,
-          parse_mode: 'HTML'
-        })
-      });
-      
-      const data = await response.json();
-      if (!data.ok) {
-        console.error("Ошибка Telegram API:", data);
-        alert("Ошибка отправки в Telegram: " + data.description);
-      } else {
-        console.log("Сообщение успешно отправлено в Telegram");
-      }
-    } catch (error) {
-      console.error("Ошибка сети:", error);
-    }
-  };
-
-  const handleTelegramLogin = () => {
-    // В этом демо мы "симулируем" получение данных от виджета
-    // Но отправляем РЕАЛЬНОЕ уведомление в бот
+    <!-- Подключаем Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
     
-    const mockUser = {
-      id: 12345678,
-      first_name: "DemoUser",
-      username: "demo_maker",
-      photo_url: null 
-    };
+    <!-- Подключаем React и ReactDOM -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     
-    setTimeout(() => {
-      setUser(mockUser);
-      
-      const message = `
-<b>🔐 Новая авторизация на сайте</b>
-Пользователь: ${mockUser.first_name} (@${mockUser.username})
-Статус: <i>Онлайн</i>
-Время: ${new Date().toLocaleTimeString()}
-      `;
-      sendTelegramMessage(message);
-      
-      alert(`Авторизация успешна! Уведомление отправлено в Telegram.`);
-    }, 500);
-  };
+    <!-- Подключаем Babel для обработки JSX -->
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
-  const handleLogout = () => {
-    setUser(null);
-  };
-
-  const handleCreateOrder = (formData) => {
-    // Unique ID generation to fix key error
-    const newId = orders.length > 0 ? Math.max(...orders.map(o => o.id)) + 1 : 1;
-
-    const newOrder = {
-      id: newId,
-      title: formData.title || "НОВАЯ_ЗАДАЧА",
-      titleModern: formData.title || "Новый заказ",
-      type: formData.type || "3D-печать",
-      location: formData.location || "ЧЕБОКСАРЫ",
-      locationModern: formData.location || "Чебоксары",
-      budget: formData.budget || "ДОГОВОРНАЯ",
-      status: "new",
-      date: "СЕЙЧАС",
-      tags: ["ЗАГРУЗКА"]
-    };
-    
-    setOrders([newOrder, ...orders]);
-    setIsModalOpen(false);
-    
-    // Формируем сообщение о заказе
-    const message = `
-<b>📦 Новый заказ на бирже!</b>
-
-<b>Задача:</b> ${formData.title}
-<b>Тип:</b> ${formData.type}
-<b>Бюджет:</b> ${formData.budget}
-<b>Локация:</b> ${formData.location}
-<b>Описание:</b> ${formData.desc || "Нет описания"}
-<b>Заказчик:</b> ${user ? `@${user.username}` : "Гость"}
-
-<i>Открыть панель управления, чтобы принять заказ.</i>
-    `;
-    
-    sendTelegramMessage(message);
-    alert(`Заказ создан! Уведомление отправлено администратору в Telegram.`);
-  };
-
-  const toggleTheme = () => {
-    setTheme(prev => prev === 'cyberpunk' ? 'modern' : 'cyberpunk');
-  };
-
-  return (
-    <div className={`min-h-screen font-sans transition-colors duration-500 overflow-x-hidden ${
-      isCyber 
-        ? 'bg-black text-slate-300 selection:bg-cyan-900 selection:text-cyan-100' 
-        : 'bg-slate-50 text-slate-600 selection:bg-indigo-100 selection:text-indigo-900'
-    }`}>
-      
-      {/* Background Effects */}
-      {isCyber ? (
-        <div className="fixed inset-0 z-0 pointer-events-none transition-opacity duration-1000" 
-             style={{ 
-               backgroundImage: 'linear-gradient(rgba(6,182,212,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(6,182,212,0.1) 1px, transparent 1px)', 
-               backgroundSize: '40px 40px',
-               maskImage: 'radial-gradient(circle at center, black 40%, transparent 100%)'
-             }}>
-        </div>
-      ) : (
-        <div className="fixed inset-0 z-0 pointer-events-none opacity-50 transition-opacity duration-1000">
-           <div className="absolute top-0 right-0 -mr-20 -mt-20 w-96 h-96 bg-indigo-200/40 rounded-full blur-3xl"></div>
-           <div className="absolute bottom-0 left-0 -ml-20 -mb-20 w-80 h-80 bg-violet-200/40 rounded-full blur-3xl"></div>
-        </div>
-      )}
-      
-      <Navbar 
-        onOpenModal={() => setIsModalOpen(true)} 
-        theme={theme} 
-        toggleTheme={toggleTheme} 
-        user={user}
-        onLogin={handleTelegramLogin}
-        onLogout={handleLogout}
-      />
-      
-      <OrderModal 
-        isOpen={isModalOpen} 
-        onClose={() => setIsModalOpen(false)} 
-        onSubmit={handleCreateOrder}
-        theme={theme}
-        user={user}
-      />
-
-      {/* Hero Section */}
-      <section className="pt-40 pb-20 px-4 relative overflow-hidden transition-all duration-500">
-        {/* Glow Orbs for Cyberpunk */}
-        {isCyber && (
-          <>
-            <div className="absolute top-20 right-0 w-[500px] h-[500px] bg-cyan-600/20 rounded-full blur-[120px] mix-blend-screen animate-pulse"></div>
-            <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-fuchsia-600/20 rounded-full blur-[120px] mix-blend-screen"></div>
-          </>
-        )}
-
-        <div className="max-w-7xl mx-auto text-center relative z-10">
-          <div className={`inline-block mb-6 px-4 py-2 transition-all ${
-             isCyber 
-               ? 'border border-cyan-500/30 bg-cyan-950/20 backdrop-blur-sm rounded-sm' 
-               : 'bg-white shadow-sm rounded-full border border-indigo-100'
-          }`}>
-             <span className={`text-xs font-bold flex items-center gap-2 ${
-               isCyber ? 'text-cyan-400 font-mono uppercase tracking-[0.3em]' : 'text-indigo-600 tracking-wide'
-             }`}>
-               <span className={`w-2 h-2 rounded-full ${isCyber ? 'bg-cyan-400 animate-ping' : 'bg-indigo-600'}`}></span>
-               {isCyber ? "Система №1 в Регионе 21" : "#1 Платформа аддитивных технологий Чувашии"}
-             </span>
-          </div>
-          
-          <h1 className={`text-5xl md:text-8xl font-black mb-8 leading-none transition-all ${
-            isCyber ? 'text-white tracking-tighter uppercase glitch-container' : 'text-slate-900 tracking-tight'
-          }`}>
-            {isCyber ? "Будущее" : "Производство"}<br /> 
-            <span className={`text-transparent bg-clip-text bg-gradient-to-r ${
-              isCyber ? 'from-cyan-400 via-white to-fuchsia-500 animate-gradient-x' : 'from-indigo-600 to-violet-600'
-            }`}>
-              {isCyber ? "Производства" : "будущего рядом"}
-            </span>
-          </h1>
-          
-          <p className={`text-lg md:text-xl max-w-2xl mx-auto mb-12 leading-relaxed transition-colors ${
-            isCyber ? 'text-slate-400 font-mono' : 'text-slate-600'
-          }`}>
-            Децентрализованная сеть аддитивного производства. 
-            Соединяем заказчиков и инженеров Чувашии в единый цифровой хаб.
-          </p>
-          
-          <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
-            <ThemeButton primary onClick={() => setIsModalOpen(true)} theme={theme} className="w-full sm:w-auto px-10 py-4 text-lg">
-              {isCyber ? "Инициировать Заказ" : "Разместить заказ"}
-            </ThemeButton>
-            <ThemeButton theme={theme} className="w-full sm:w-auto px-10 py-4 text-lg">
-              {isCyber ? "Вступить в Сеть" : "Стать исполнителем"}
-            </ThemeButton>
-          </div>
-
-          {/* Stats HUD */}
-          <div className={`mt-20 border-t backdrop-blur-md max-w-5xl mx-auto grid grid-cols-2 md:grid-cols-4 transition-all duration-500 ${
-            isCyber 
-              ? 'border-slate-800 bg-black/40 divide-x divide-slate-800 border-b border-l border-r text-white' 
-              : 'border-slate-200 bg-white/60 rounded-2xl shadow-xl divide-x divide-slate-100 text-slate-900'
-          }`}>
-            {[
-              { label: "Активные Узлы", labelModern: "Мастерских", val: "150+" },
-              { label: "Сетевые Инженеры", labelModern: "Инженеров", val: "42" },
-              { label: "Пинг", labelModern: "Отклик", val: "15мс", valModern: "15 мин" },
-              { label: "Общий Выход", labelModern: "Заказов", val: "2.5к" },
-            ].map((stat, i) => (
-              <div key={i} className="p-6">
-                <div className={`text-3xl font-bold ${isCyber ? 'font-mono' : ''}`}>{isCyber ? stat.val : (stat.valModern || stat.val)}</div>
-                <div className={`text-xs mt-1 ${isCyber ? 'text-cyan-600 font-mono uppercase tracking-widest' : 'text-slate-500 font-medium uppercase tracking-wide'}`}>
-                  {isCyber ? stat.label : stat.labelModern}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Services Section */}
-      <section id="services" className={`py-24 transition-colors duration-500 ${isCyber ? 'bg-black' : 'bg-white'}`}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className={`flex items-end justify-between mb-16 border-b pb-4 transition-colors ${isCyber ? 'border-slate-800' : 'border-slate-100'}`}>
-            <div>
-              <h2 className={`text-3xl md:text-4xl font-bold mb-2 ${isCyber ? 'text-white uppercase tracking-tight' : 'text-slate-900'}`}>
-                {isCyber ? <GlitchText text="Протоколы" theme={theme} /> : "Наши услуги"}
-              </h2>
-              <p className={isCyber ? 'text-slate-500 font-mono text-sm' : 'text-slate-500'}>
-                {isCyber ? "ВЫБЕРИТЕ СЕРВИСНЫЙ МОДУЛЬ" : "Полный цикл производства"}
-              </p>
-            </div>
-            {isCyber ? <Activity className="text-cyan-600 animate-pulse" /> : <div className="hidden md:block w-20 h-1 bg-indigo-600 rounded-full"></div>}
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-8">
-            {SERVICES.map((service, idx) => (
-              <div key={idx} className={`group relative p-8 transition-all duration-300 overflow-hidden ${
-                isCyber 
-                  ? `bg-slate-900/50 border ${service.border} hover:bg-slate-900 hover:shadow-[0_0_30px_rgba(0,0,0,0.5)]` 
-                  : 'bg-slate-50 rounded-2xl hover:bg-white hover:shadow-xl hover:-translate-y-1 border border-slate-100'
-              }`}>
-                {isCyber && (
-                  <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-100 transition-opacity">
-                    <Cpu size={64} className={service.color} />
-                  </div>
-                )}
-                
-                <div className={`w-14 h-14 flex items-center justify-center mb-6 transition-transform duration-300 group-hover:scale-110 ${
-                   isCyber 
-                     ? `bg-black border border-slate-700 ${service.color}` 
-                     : `rounded-xl ${service.colorModern}`
-                }`}>
-                  {service.icon}
-                </div>
-                
-                <h3 className={`text-xl font-bold mb-3 ${isCyber ? `font-mono uppercase ${service.color}` : 'text-slate-900'}`}>
-                  {service.title}
-                </h3>
-                <p className={`leading-relaxed mb-6 ${
-                  isCyber 
-                    ? 'text-slate-400 font-mono text-sm border-l-2 border-slate-800 pl-4' 
-                    : 'text-slate-600'
-                }`}>
-                  {isCyber ? service.desc : service.descModern}
-                </p>
-                
-                <a href="#" className={`inline-flex items-center text-sm font-bold transition-all ${
-                  isCyber 
-                    ? `uppercase tracking-widest ${service.color} hover:gap-4` 
-                    : 'text-indigo-600 hover:text-indigo-700 hover:gap-2'
-                }`}>
-                  {isCyber ? "Доступ" : "Подробнее"} <ArrowRight size={16} className="ml-2" />
-                </a>
-
-                {isCyber && <div className="absolute bottom-0 right-0 w-8 h-8 border-r-2 border-b-2 border-slate-700 group-hover:border-current opacity-50 transition-colors"></div>}
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Marketplace Feed */}
-      <section id="market" className={`py-24 relative border-t transition-colors duration-500 ${
-        isCyber ? 'bg-slate-950 border-cyan-900/30' : 'bg-slate-50 border-slate-200'
-      }`}>
-        {isCyber && <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-5"></div>}
+    <!-- Шрифты и стили -->
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;600;800&display=swap');
         
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-6">
-            <div>
-              <div className="flex items-center gap-2 mb-2">
-                 <span className={`w-2 h-2 rounded-full animate-pulse ${isCyber ? 'bg-green-500 shadow-[0_0_10px_#22c55e]' : 'bg-green-500'}`}></span>
-                 <span className={`${isCyber ? 'text-green-500 font-mono text-xs uppercase tracking-widest' : 'text-green-600 text-sm font-medium'}`}>
-                   {isCyber ? "Поток Данных (Live)" : "Сейчас в работе"}
-                 </span>
-              </div>
-              <h2 className={`text-3xl md:text-5xl font-bold ${isCyber ? 'text-white uppercase tracking-tight' : 'text-slate-900'}`}>
-                Лента <span className={isCyber ? "text-fuchsia-500" : "text-indigo-600"}>{isCyber ? "Заказов" : "актуальных заказов"}</span>
-              </h2>
-            </div>
-            <div className="flex gap-4">
-               <div className="relative">
-                 <Search className="absolute left-3 top-3 text-slate-500" size={18} />
-                 <input 
-                   type="text" 
-                   placeholder={isCyber ? "ПОИСК_ХЕША..." : "Поиск заказа..."} 
-                   className={`pl-10 pr-4 py-3 focus:outline-none w-64 transition-all ${
-                     isCyber 
-                       ? 'bg-black border border-slate-700 text-slate-300 font-mono text-sm focus:border-cyan-500' 
-                       : 'bg-white border border-slate-200 rounded-xl text-slate-900 focus:ring-2 focus:ring-indigo-500 shadow-sm'
-                   }`} 
-                 />
-               </div>
-            </div>
-          </div>
-
-          <div className="grid gap-6">
-            {orders.map((order) => (
-              <div key={order.id} className={`relative group cursor-pointer transition-all ${
-                isCyber 
-                  ? 'bg-black/80 backdrop-blur-sm p-1' 
-                  : 'bg-white rounded-2xl p-6 shadow-sm hover:shadow-lg border border-slate-100 hover:border-indigo-100'
-              }`}>
-                 {/* Cyber Border Container */}
-                 {isCyber && <div className="absolute inset-0 border border-slate-800 group-hover:border-cyan-500/50 transition-colors skew-x-[-10deg] md:skew-x-0"></div>}
-                 
-                 <div className={`relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6 ${isCyber ? 'p-6' : ''}`}>
-                    <div className="flex-1">
-                      <div className="flex flex-wrap items-center gap-3 mb-3">
-                        <Badge theme={theme} colorModern={
-                           order.type.includes('печа') ? 'bg-blue-100 text-blue-700' :
-                           order.type.includes('скан') ? 'bg-purple-100 text-purple-700' :
-                           'bg-amber-100 text-amber-700'
-                        } className={`
-                          ${isCyber && order.type.includes('печа') ? 'border-cyan-500 text-cyan-400 bg-cyan-950/30' : ''}
-                          ${isCyber && order.type.includes('скан') ? 'border-fuchsia-500 text-fuchsia-400 bg-fuchsia-950/30' : ''}
-                          ${isCyber && order.type.includes('Серий') ? 'border-green-500 text-green-400 bg-green-950/30' : ''}
-                        `}>
-                          {order.type}
-                        </Badge>
-                        <span className={`text-[10px] flex items-center gap-1 ${
-                          isCyber ? 'text-slate-500 font-mono uppercase' : 'text-slate-400 font-medium'
-                        }`}>
-                          <Clock size={10} /> {order.date}
-                        </span>
-                        {order.status === 'new' && (
-                          <span className={`px-1 font-bold ${
-                            isCyber ? 'text-[10px] text-black bg-green-400 animate-pulse' : 'text-xs text-green-600 bg-green-100 rounded px-2 py-0.5'
-                          }`}>
-                            {isCyber ? "НОВОЕ" : "New"}
-                          </span>
-                        )}
-                      </div>
-                      <h3 className={`text-xl font-bold transition-colors mb-2 ${
-                        isCyber ? 'text-white group-hover:text-cyan-400 font-mono uppercase tracking-tight' : 'text-slate-900 group-hover:text-indigo-600'
-                      }`}>
-                        {isCyber ? order.title : (order.titleModern || order.title)}
-                      </h3>
-                      <div className={`flex flex-col sm:flex-row gap-4 text-xs ${
-                        isCyber ? 'font-mono text-slate-400' : 'text-slate-500'
-                      }`}>
-                        <span className="flex items-center gap-1">
-                          <MapPin size={12} className={isCyber ? "text-fuchsia-500" : "text-slate-400"} /> 
-                          {isCyber ? order.location : (order.locationModern || order.location)}
-                        </span>
-                        <div className="flex gap-2">
-                           {order.tags.map(tag => (
-                             <span key={tag} className={isCyber ? "text-cyan-700" : "bg-slate-100 px-2 py-0.5 rounded text-slate-500"}>
-                               {isCyber ? `#${tag}` : tag}
-                             </span>
-                           ))}
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className={`flex items-center gap-6 w-full md:w-auto justify-between md:justify-end md:border-t-0 pt-4 md:pt-0 ${
-                      isCyber ? 'border-t border-dashed border-slate-800' : 'border-t border-slate-100'
-                    }`}>
-                      <div className="text-right">
-                        <div className={`text-[10px] uppercase ${isCyber ? 'text-slate-600 font-mono tracking-widest' : 'text-slate-400 font-bold tracking-wide'}`}>
-                          {isCyber ? "Награда" : "Бюджет"}
-                        </div>
-                        <div className={`text-2xl font-bold flex items-center ${
-                          isCyber ? 'text-white font-mono text-shadow-neon' : 'text-slate-900'
-                        }`}>
-                          {order.budget}
-                        </div>
-                      </div>
-                      <button className={`p-3 transition-all ${
-                        isCyber 
-                          ? 'bg-slate-900 border border-slate-700 text-cyan-400 hover:bg-cyan-500 hover:text-black hover:border-cyan-500' 
-                          : 'bg-slate-50 text-slate-600 hover:bg-indigo-600 hover:text-white rounded-xl'
-                      }`}>
-                        <ArrowRight size={20} />
-                      </button>
-                    </div>
-                 </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Map Section */}
-      <section id="map" className={`py-24 relative border-t transition-colors duration-500 ${
-        isCyber ? 'bg-black border-cyan-900/30' : 'bg-slate-900 text-white'
-      }`}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 flex flex-col md:flex-row items-center gap-16">
-          <div className="flex-1">
-            <h2 className="text-4xl font-bold mb-6 text-white uppercase">
-              {isCyber ? <><span className="text-cyan-500">Гео</span>_Локация</> : "Мы рядом"}
-            </h2>
-            <p className={`text-lg mb-8 ${isCyber ? 'text-slate-400 font-mono border-l-4 border-fuchsia-600 pl-6' : 'text-slate-300'}`}>
-              {isCyber 
-                ? "Сканирование локальной сети. Исполнители в радиусе доступа. Минимизация логистических лагов."
-                : "Найдите исполнителя в вашем районе. Экономьте время на логистике и встречайтесь лично для обсуждения деталей."}
-            </p>
-            <div className="space-y-4">
-              <div className={`flex items-center gap-4 p-4 border transition-colors ${
-                 isCyber ? 'bg-slate-900/50 border-cyan-900/50' : 'bg-white/10 border-white/10 rounded-xl'
-              }`}>
-                <div className={`w-10 h-10 flex items-center justify-center ${
-                  isCyber ? 'bg-black border border-cyan-500 text-cyan-400' : 'bg-indigo-500 rounded-full text-white'
-                }`}>
-                  <MapPin size={20} />
-                </div>
-                <div>
-                  <div className={`font-bold text-white uppercase ${isCyber ? 'font-mono tracking-wider' : ''}`}>
-                    {isCyber ? "Ядро_Чебоксары" : "Чебоксары"}
-                  </div>
-                  <div className={`text-xs ${isCyber ? 'text-slate-500 font-mono' : 'text-slate-400'}`}>
-                    25 {isCyber ? "ЮНИТОВ" : "мастерских"} ОНЛАЙН
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div className="flex-1 relative w-full h-[400px]">
-            {/* Holographic Map Visual */}
-            <div className={`relative w-full h-full ${isCyber ? '' : ''}`}>
-              <div className={`absolute inset-0 rounded-full blur-[80px] animate-pulse ${
-                 isCyber ? 'bg-cyan-500/10' : 'bg-indigo-500/20'
-              }`}></div>
-              
-              <div className={`relative h-full overflow-hidden transition-all ${
-                isCyber 
-                  ? 'bg-black border border-cyan-500/30 shadow-[0_0_50px_rgba(6,182,212,0.2)]' 
-                  : 'bg-white rounded-3xl border border-slate-200 shadow-xl'
-              }`}>
-                 
-                 {/* Real Map Iframe */}
-                 <iframe 
-                   src="https://yandex.ru/map-widget/v1/?ll=47.251916%2C56.119047&z=11"
-                   width="100%" 
-                   height="100%" 
-                   frameBorder="0"
-                   className={`w-full h-full transition-all duration-500 ${isCyber ? 'invert hue-rotate-180 contrast-125 grayscale-[0.8]' : ''}`}
-                   title="Map"
-                 ></iframe>
-                 
-                 {/* Cyber Overlay (Click-through) */}
-                 {isCyber && (
-                   <div className="absolute inset-0 pointer-events-none border-[1px] border-cyan-500/20 bg-cyan-900/10 mix-blend-overlay"></div>
-                 )}
-                 
-                 {/* Scanner line (Cyber only) */}
-                 {isCyber && <div className="absolute top-0 left-0 w-full h-1 bg-cyan-400 shadow-[0_0_20px_#22d3ee] animate-[scan_3s_ease-in-out_infinite] opacity-50 pointer-events-none"></div>}
-                 
-                 {/* Map UI Borders (Cyber only) */}
-                 {isCyber && (
-                   <>
-                     <div className="absolute top-0 left-0 w-8 h-8 border-t-2 border-l-2 border-cyan-500 pointer-events-none"></div>
-                     <div className="absolute bottom-0 right-0 w-8 h-8 border-b-2 border-r-2 border-cyan-500 pointer-events-none"></div>
-                   </>
-                 )}
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Footer */}
-      <footer className={`py-16 border-t font-mono text-sm transition-colors duration-500 ${
-        isCyber ? 'bg-black text-slate-500 border-cyan-900/50' : 'bg-slate-900 text-slate-400 border-slate-800 font-sans'
-      }`}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid md:grid-cols-4 gap-12 mb-12">
-            <div className="col-span-1 md:col-span-1">
-              <div className="flex items-center gap-2 mb-6">
-                 <div className={`w-8 h-8 flex items-center justify-center ${
-                   isCyber ? 'border border-cyan-600 text-cyan-500' : 'bg-indigo-600 rounded-lg text-white'
-                 }`}>
-                    {isCyber ? <Zap size={16} /> : <Layers size={16} />}
-                 </div>
-                 <span className="text-white uppercase tracking-widest">{isCyber ? "ЧУВАШИЯ_2077" : "ЧувашияTech"}</span>
-              </div>
-              <p className="leading-relaxed text-xs">
-                {isCyber ? (
-                  <>ВЕРСИЯ СИСТЕМЫ 2.0.4<br/>РЕГИОНАЛЬНАЯ АДДИТИВНАЯ СЕТЬ.<br/>СТАТУС: СТАБИЛЬНО.</>
-                ) : (
-                  "Платформа, объединяющая заказчиков и производителей. Сделано с любовью к 3D технологиям."
-                )}
-              </p>
-            </div>
-            
-            <div>
-              <h4 className={`text-white uppercase mb-6 tracking-widest ${isCyber ? 'border-b border-slate-800 pb-2 inline-block' : 'font-bold'}`}>Платформа</h4>
-              <ul className="space-y-3">
-                <li><a href="#" className="hover:text-cyan-400 transition-colors hover:pl-2 duration-300">{isCyber && '>>'} Как это работает</a></li>
-                <li><a href="#" className="hover:text-cyan-400 transition-colors hover:pl-2 duration-300">{isCyber && '>>'} Безопасная сделка</a></li>
-              </ul>
-            </div>
-
-            <div>
-              <h4 className={`text-white uppercase mb-6 tracking-widest ${isCyber ? 'border-b border-slate-800 pb-2 inline-block' : 'font-bold'}`}>Контакты</h4>
-              <ul className="space-y-3">
-                <li>{isCyber ? "ЧЕБОКСАРЫ :: СЕКТОР_12" : "Чебоксары, Центр"}</li>
-                <li>LINK@3D-CHUVASHIA.NET</li>
-                <li className="flex gap-4 mt-6">
-                  <div className={`w-8 h-8 flex items-center justify-center transition-all cursor-pointer ${
-                    isCyber ? 'bg-slate-900 border border-slate-700 hover:bg-cyan-600 hover:text-black' : 'bg-slate-800 rounded-full hover:bg-indigo-600 text-white'
-                  }`}>VK</div>
-                  <div className={`w-8 h-8 flex items-center justify-center transition-all cursor-pointer ${
-                    isCyber ? 'bg-slate-900 border border-slate-700 hover:bg-fuchsia-600 hover:text-black' : 'bg-slate-800 rounded-full hover:bg-indigo-600 text-white'
-                  }`}>TG</div>
-                </li>
-              </ul>
-            </div>
-          </div>
-          
-          <div className="border-t border-slate-800 pt-8 flex flex-col md:flex-row justify-between items-center text-xs uppercase">
-            <div>© {new Date().getFullYear()} {isCyber ? "CHUVASHIATECH. ВСЕ СИСТЕМЫ ФУНКЦИОНИРУЮТ." : "ChuvashiaTech. Все права защищены."}</div>
-          </div>
-        </div>
-      </footer>
-      
-      <style>{`
+        body { font-family: 'Inter', sans-serif; }
+        .font-mono { font-family: 'JetBrains Mono', monospace; }
+        
+        /* Анимация сканера для киберпанк темы */
         @keyframes scan {
-          0% { top: 0%; opacity: 0; }
-          50% { opacity: 1; }
-          100% { top: 100%; opacity: 0; }
+            0% { top: 0%; opacity: 0; }
+            50% { opacity: 1; }
+            100% { top: 100%; opacity: 0; }
         }
+        
+        /* Неоновое свечение текста */
         .text-shadow-neon {
-          text-shadow: 0 0 10px rgba(6,182,212,0.5), 0 0 20px rgba(6,182,212,0.3);
+            text-shadow: 0 0 10px rgba(6,182,212,0.5), 0 0 20px rgba(6,182,212,0.3);
         }
-      `}</style>
-    </div>
-  );
-}
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+
+        // --- ИКОНКИ (Встроены прямо в файл, чтобы не было ошибок импорта) ---
+        const Icon = ({ path, size = 24, className = "" }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+                {path}
+            </svg>
+        );
+
+        const Icons = {
+            Zap: (p) => <Icon {...p} path={<polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>} />,
+            Layers: (p) => <Icon {...p} path={<><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></>} />,
+            Sun: (p) => <Icon {...p} path={<><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></>} />,
+            Moon: (p) => <Icon {...p} path={<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>} />,
+            Send: (p) => <Icon {...p} path={<><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></>} />,
+            User: (p) => <Icon {...p} path={<><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></>} />,
+            LogOut: (p) => <Icon {...p} path={<><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></>} />,
+            Printer: (p) => <Icon {...p} path={<><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></>} />,
+            Scan: (p) => <Icon {...p} path={<><path d="M3 7V5a2 2 0 0 1 2-2h2"></path><path d="M17 3h2a2 2 0 0 1 2 2v2"></path><path d="M21 17v2a2 2 0 0 1-2 2h-2"></path><path d="M7 21H5a2 2 0 0 1-2-2v-2"></path></>} />,
+            Box: (p) => <Icon {...p} path={<><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></>} />,
+            MapPin: (p) => <Icon {...p} path={<><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></>} />,
+            Clock: (p) => <Icon {...p} path={<><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></>} />,
+            Search: (p) => <Icon {...p} path={<><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></>} />,
+            ArrowRight: (p) => <Icon {...p} path={<><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></>} />,
+            Menu: (p) => <Icon {...p} path={<><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></>} />,
+            X: (p) => <Icon {...p} path={<><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></>} />,
+            MessageCircle: (p) => <Icon {...p} path={<><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></>} />,
+            Terminal: (p) => <Icon {...p} path={<><polyline points="4 17 10 11 4 5"></polyline><line x1="12" y1="19" x2="20" y2="19"></line></>} />,
+            Activity: (p) => <Icon {...p} path={<polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>} />,
+            Cpu: (p) => <Icon {...p} path={<><rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect><rect x="9" y="9" width="6" height="6"></rect><line x1="9" y1="1" x2="9" y2="4"></line><line x1="15" y1="1" x2="15" y2="4"></line><line x1="9" y1="20" x2="9" y2="23"></line><line x1="15" y1="20" x2="15" y2="23"></line><line x1="20" y1="9" x2="23" y2="9"></line><line x1="20" y1="14" x2="23" y2="14"></line><line x1="1" y1="9" x2="4" y2="9"></line><line x1="1" y1="14" x2="4" y2="14"></line></>} />
+        };
+
+        // --- НАСТРОЙКИ ---
+        const TELEGRAM_BOT_TOKEN = "8453938307:AAGcU3fQdoPZC7I5y5ueFFnK3HZLAfg680Q";
+        const ADMIN_CHAT_ID = "334485676";
+        const BOT_USERNAME = "d1f0_bot";
+
+        // --- ДАННЫЕ ---
+        const INITIAL_DATA = [
+            { id: 1, title: "Печать шестерни // GEAR_V2", titleModern: "Изготовление шестерни для редуктора", type: "3D-печать", location: "Чебоксары :: СЕК_01", locationModern: "Чебоксары, Центр", budget: "1 500 ₽", status: "active", date: "2ч назад", tags: ["FDM", "PETG"] },
+            { id: 2, title: "Сканирование детали авто", titleModern: "Сканирование детали бампера", type: "3D-сканирование", location: "Новочебоксарск :: СЕК_02", locationModern: "Новочебоксарск", budget: "5 000 ₽", status: "active", date: "5ч назад", tags: ["СКАН", "РЕВЕРС"] },
+            { id: 4, title: "Партия чипов (корпуса)", titleModern: "Серийная печать корпусов (100 шт)", type: "Серийное производство", location: "Чебоксары :: ПРОМ_ЗОНА", locationModern: "Чебоксары, Промзона", budget: "Договорная", status: "active", date: "1д назад", tags: ["SLA", "СМОЛА"] }
+        ];
+
+        const SERVICES = [
+            { title: "3D ПЕЧАТЬ", desc: "Материализация цифровых объектов...", descModern: "Печать пластиком и металлом.", icon: <Icons.Printer size={32} />, color: "text-cyan-400", colorModern: "text-indigo-600 bg-indigo-50", border: "border-cyan-500/50 hover:border-cyan-400" },
+            { title: "3D СКАНИРОВАНИЕ", desc: "Оцифровка реальности в Матрицу.", descModern: "Высокоточное сканирование.", icon: <Icons.Scan size={32} />, color: "text-fuchsia-400", colorModern: "text-violet-600 bg-violet-50", border: "border-fuchsia-500/50 hover:border-fuchsia-400" },
+            { title: "3D МОДЕЛИРОВАНИЕ", desc: "Архитектура виртуальных миров.", descModern: "Создание 3D моделей по чертежам.", icon: <Icons.Box size={32} />, color: "text-yellow-400", colorModern: "text-amber-600 bg-amber-50", border: "border-yellow-500/50 hover:border-yellow-400" }
+        ];
+
+        // --- ВИДЖЕТ TELEGRAM (Реальный) ---
+        const TelegramAuthWidget = ({ onAuth, botUsername }) => {
+            const ref = useRef(null);
+            useEffect(() => {
+                if (!ref.current || !botUsername) return;
+                ref.current.innerHTML = '';
+                
+                // Функция callback, которую вызовет виджет
+                window.onTelegramAuth = (user) => onAuth(user);
+                
+                const script = document.createElement('script');
+                script.src = "https://telegram.org/js/telegram-widget.js?22";
+                script.setAttribute('data-telegram-login', botUsername);
+                script.setAttribute('data-size', 'medium');
+                script.setAttribute('data-radius', '10');
+                script.setAttribute('data-request-access', 'write');
+                script.setAttribute('data-userpic', 'false');
+                script.setAttribute('data-onauth', 'onTelegramAuth(user)');
+                script.async = true;
+                ref.current.appendChild(script);
+            }, [botUsername]);
+
+            if (!botUsername) return <span className="text-xs text-red-400 animate-pulse">Загрузка...</span>;
+            return <div ref={ref} />;
+        };
+
+        // --- ГЛАВНЫЙ КОМПОНЕНТ ---
+        function App() {
+            const [theme, setTheme] = useState('cyberpunk'); 
+            const [isModalOpen, setIsModalOpen] = useState(false);
+            const [orders, setOrders] = useState(INITIAL_DATA);
+            const [user, setUser] = useState(null);
+            const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+            const isCyber = theme === 'cyberpunk';
+
+            // Отправка уведомления
+            const sendTelegramMessage = async (text) => {
+                try {
+                    await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ chat_id: ADMIN_CHAT_ID, text, parse_mode: 'HTML' })
+                    });
+                } catch (error) { console.error(error); }
+            };
+
+            const handleTelegramLogin = (telegramUser) => {
+                setUser(telegramUser);
+                const message = `<b>🔐 Вход на сайт</b>\nПользователь: ${telegramUser.first_name} (@${telegramUser.username})`;
+                sendTelegramMessage(message);
+                alert(`Добро пожаловать, ${telegramUser.first_name}!`);
+            };
+
+            const handleCreateOrder = (e) => {
+                e.preventDefault();
+                const formData = new FormData(e.target);
+                const newId = Date.now();
+                const newOrder = {
+                    id: newId,
+                    title: formData.get('title'),
+                    titleModern: formData.get('title'),
+                    type: formData.get('type'),
+                    budget: formData.get('budget'),
+                    location: formData.get('location'),
+                    locationModern: formData.get('location'),
+                    status: "new",
+                    date: "Только что",
+                    tags: ["NEW"]
+                };
+                setOrders([newOrder, ...orders]);
+                setIsModalOpen(false);
+                sendTelegramMessage(`<b>📦 Новый заказ!</b>\nЗадача: ${newOrder.title}\nБюджет: ${newOrder.budget}\nОт: ${user ? '@'+user.username : 'Гость'}`);
+                alert("Заказ создан!");
+            };
+
+            // UI
+            const ThemeButton = ({ children, primary, onClick, className = "" }) => (
+                <button onClick={onClick} className={`px-4 py-2 rounded-xl font-bold transition-all ${
+                    theme === 'modern' 
+                    ? (primary ? "bg-indigo-600 text-white" : "bg-white border text-slate-700")
+                    : (primary ? "bg-cyan-600 text-black hover:bg-cyan-400" : "bg-transparent text-cyan-400 border border-cyan-500")
+                } ${className}`}>{children}</button>
+            );
+
+            const Badge = ({ children, className }) => (
+                <span className={`px-2 py-1 text-[10px] rounded border ${
+                    theme === 'modern' ? "bg-slate-100 border-transparent text-slate-600" : "border-current uppercase tracking-widest font-mono"
+                } ${className}`}>{children}</span>
+            );
+
+            return (
+                <div className={`min-h-screen font-sans transition-colors duration-500 overflow-x-hidden ${isCyber ? 'bg-black text-slate-300 selection:bg-cyan-900 selection:text-cyan-100' : 'bg-slate-50 text-slate-600'}`}>
+                    
+                    {/* Фон (Кибер) */}
+                    {isCyber && <div className="fixed inset-0 pointer-events-none z-0 opacity-20" style={{backgroundImage: 'linear-gradient(rgba(6,182,212,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(6,182,212,0.1) 1px, transparent 1px)', backgroundSize: '40px 40px'}}></div>}
+
+                    {/* Навигация */}
+                    <nav className={`fixed top-0 w-full z-50 border-b backdrop-blur-md ${isCyber ? 'bg-black/80 border-cyan-900/50' : 'bg-white/80 border-slate-200'}`}>
+                        <div className="max-w-7xl mx-auto px-4 h-20 flex justify-between items-center relative z-20">
+                            <div className="flex items-center gap-3">
+                                <div className={`w-10 h-10 flex items-center justify-center rounded-lg ${isCyber ? 'border border-cyan-500 text-cyan-400' : 'bg-indigo-600 text-white'}`}>
+                                    {isCyber ? <Icons.Zap /> : <Icons.Layers />}
+                                </div>
+                                <div className="leading-none">
+                                    <div className={`font-bold text-xl ${isCyber ? 'text-white font-mono uppercase' : 'text-slate-900'}`}>
+                                        Чувашия<span className={isCyber ? "text-cyan-400" : "text-indigo-600"}>{isCyber ? "2077" : "Tech"}</span>
+                                    </div>
+                                    <div className="text-[10px] opacity-70">Биржа 3D-услуг</div>
+                                </div>
+                            </div>
+
+                            <div className="hidden md:flex items-center gap-4">
+                                <button onClick={() => setTheme(isCyber ? 'modern' : 'cyberpunk')} className="flex items-center gap-2 px-3 py-1 border rounded-full">
+                                    {isCyber ? <Icons.Sun size={16}/> : <Icons.Moon size={16}/>}
+                                </button>
+                                {user ? (
+                                    <div className="flex items-center gap-2 border px-3 py-1 rounded-full">
+                                        <span className="text-xs font-bold">{user.first_name}</span>
+                                        <button onClick={() => setUser(null)}><Icons.LogOut size={14}/></button>
+                                    </div>
+                                ) : (
+                                    <TelegramAuthWidget botUsername={BOT_USERNAME} onAuth={handleTelegramLogin} />
+                                )}
+                                <ThemeButton primary onClick={() => setIsModalOpen(true)}>Создать заказ</ThemeButton>
+                            </div>
+
+                            <div className="md:hidden flex items-center gap-4">
+                                <button onClick={() => setTheme(isCyber ? 'modern' : 'cyberpunk')}>
+                                    {isCyber ? <Icons.Sun /> : <Icons.Moon />}
+                                </button>
+                                <button onClick={() => setIsMenuOpen(!isMenuOpen)}>
+                                    {isMenuOpen ? <Icons.X /> : <Icons.Menu />}
+                                </button>
+                            </div>
+                        </div>
+
+                        {/* Мобильное меню */}
+                        {isMenuOpen && (
+                            <div className={`md:hidden border-b p-4 flex flex-col gap-4 relative z-10 ${isCyber ? 'bg-black border-cyan-900' : 'bg-white border-slate-200'}`}>
+                                {user ? (
+                                    <div className="flex justify-between items-center border p-2 rounded">
+                                        <span>{user.first_name}</span>
+                                        <button onClick={() => setUser(null)} className="text-red-500 text-xs">Выйти</button>
+                                    </div>
+                                ) : (
+                                    <div className="flex justify-center">
+                                        <TelegramAuthWidget botUsername={BOT_USERNAME} onAuth={handleTelegramLogin} />
+                                    </div>
+                                )}
+                                <ThemeButton primary onClick={() => { setIsMenuOpen(false); setIsModalOpen(true); }} className="w-full">
+                                    Создать заказ
+                                </ThemeButton>
+                            </div>
+                        )}
+                    </nav>
+
+                    {/* Hero */}
+                    <section className="pt-32 pb-16 px-4 text-center relative z-10">
+                        <div className={`inline-block px-4 py-1 rounded-full border text-xs font-bold mb-6 ${isCyber ? 'border-cyan-500 text-cyan-400' : 'bg-white border-slate-200 text-indigo-600'}`}>
+                            {isCyber ? ">> СИСТЕМА №1" : "#1 Платформа региона"}
+                        </div>
+                        <h1 className={`text-4xl md:text-6xl font-black mb-6 ${isCyber ? 'text-white font-mono uppercase' : 'text-slate-900'}`}>
+                            Производство <br/>
+                            <span className={`text-transparent bg-clip-text bg-gradient-to-r ${isCyber ? 'from-cyan-400 to-fuchsia-500' : 'from-indigo-600 to-violet-600'}`}>
+                                Будущего
+                            </span>
+                        </h1>
+                    </section>
+
+                    {/* Заказы */}
+                    <section className={`py-12 px-4 ${isCyber ? 'bg-slate-900/50' : 'bg-slate-50'}`}>
+                        <div className="max-w-4xl mx-auto grid gap-4">
+                            <h2 className={`text-2xl font-bold mb-4 ${isCyber ? 'text-white' : 'text-slate-900'}`}>Актуальные заказы</h2>
+                            {orders.map(order => (
+                                <div key={order.id} className={`p-6 border rounded-xl transition-all ${isCyber ? 'bg-black border-slate-800 hover:border-cyan-500' : 'bg-white border-slate-100 shadow-sm'}`}>
+                                    <div className="flex justify-between items-start">
+                                        <div>
+                                            <Badge className={isCyber ? 'text-cyan-400 border-cyan-900' : 'bg-blue-50 text-blue-700'}>{order.type}</Badge>
+                                            <h3 className={`text-lg font-bold mt-2 ${isCyber ? 'text-white font-mono' : 'text-slate-900'}`}>
+                                                {isCyber ? order.title : order.titleModern}
+                                            </h3>
+                                            <div className="flex items-center gap-4 mt-2 text-sm opacity-60">
+                                                <span className="flex items-center gap-1"><Icons.MapPin size={14}/> {isCyber ? order.location : order.locationModern}</span>
+                                                <span className="flex items-center gap-1"><Icons.Clock size={14}/> {order.date}</span>
+                                            </div>
+                                        </div>
+                                        <div className={`text-xl font-bold ${isCyber ? 'text-white' : 'text-slate-900'}`}>{order.budget}</div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </section>
+
+                    {/* Карта */}
+                    <section className="h-96 w-full relative z-10 bg-slate-800">
+                        <iframe src="https://yandex.ru/map-widget/v1/?ll=47.251916%2C56.119047&z=11" width="100%" height="100%" frameBorder="0" className={isCyber ? "invert hue-rotate-180 contrast-125 grayscale" : ""}></iframe>
+                    </section>
+
+                    {/* Модальное окно */}
+                    {isModalOpen && (
+                        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
+                            <div className={`w-full max-w-md p-6 rounded-2xl relative ${isCyber ? 'bg-slate-900 border border-cyan-500' : 'bg-white'}`}>
+                                <button onClick={() => setIsModalOpen(false)} className="absolute top-4 right-4"><Icons.X /></button>
+                                <h2 className={`text-xl font-bold mb-4 ${isCyber ? 'text-white' : 'text-slate-900'}`}>Новая заявка</h2>
+                                <form onSubmit={handleCreateOrder} className="space-y-4">
+                                    <input required name="title" placeholder="Что нужно сделать?" className="w-full p-3 border rounded-lg bg-transparent" />
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <select name="type" className="w-full p-3 border rounded-lg bg-transparent">
+                                            <option>3D-печать</option><option>Сканирование</option>
+                                        </select>
+                                        <input name="budget" placeholder="Бюджет" className="w-full p-3 border rounded-lg bg-transparent" />
+                                    </div>
+                                    <select name="location" className="w-full p-3 border rounded-lg bg-transparent">
+                                        <option>Чебоксары</option><option>Новочебоксарск</option>
+                                    </select>
+                                    <ThemeButton primary className="w-full py-3">Опубликовать</ThemeButton>
+                                </form>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
