@@ -26,7 +26,7 @@ import {
 const TELEGRAM_BOT_TOKEN = "8453938307:AAGcU3fQdoPZC7I5y5ueFFnK3HZLAfg680Q";
 const ADMIN_CHAT_ID = "334485676"; 
 
-// --- ДАННЫЕ (Без кибер-импланта) ---
+// --- ДАННЫЕ (Очищенные) ---
 
 const INITIAL_DATA = [
   {
@@ -97,11 +97,22 @@ const SERVICES = [
   }
 ];
 
+// --- ГЛОБАЛЬНЫЕ СТИЛИ (Fix for rendering issues) ---
+const GLOBAL_STYLES = `
+  @keyframes scan {
+    0% { top: 0%; opacity: 0; }
+    50% { opacity: 1; }
+    100% { top: 100%; opacity: 0; }
+  }
+  .text-shadow-neon {
+    text-shadow: 0 0 10px rgba(6,182,212,0.5), 0 0 20px rgba(6,182,212,0.3);
+  }
+`;
+
 // --- КОМПОНЕНТЫ ---
 
 const GlitchText = ({ text, theme, className = "" }) => {
   if (theme === 'modern') return <span className={`font-bold text-slate-900 ${className}`}>{text}</span>;
-  
   return (
     <span className={`relative inline-block ${className} font-mono tracking-tighter`}>
       <span className="relative z-10">{text}</span>
@@ -126,7 +137,6 @@ const ThemeButton = ({ children, primary, onClick, theme, className = "" }) => {
       </button>
     );
   }
-
   return (
     <button 
       onClick={onClick}
@@ -164,12 +174,13 @@ const Badge = ({ children, theme, className, colorModern }) => {
 
 const TelegramLogin = ({ theme, onLogin }) => {
   const isCyber = theme === 'cyberpunk';
-  const telegramColorCyber = { backgroundColor: 'rgba(36, 161, 222, 0.2)', borderColor: '#24A1DE', color: '#24A1DE' };
+  const cyberStyle = { backgroundColor: 'rgba(36, 161, 222, 0.2)', borderColor: '#24A1DE', color: '#24A1DE' };
+  const modernStyle = { backgroundColor: '#24A1DE', color: 'white' };
 
   return (
     <button 
       onClick={onLogin}
-      style={isCyber ? telegramColorCyber : { backgroundColor: '#24A1DE', color: 'white' }}
+      style={isCyber ? cyberStyle : modernStyle}
       className={`flex items-center gap-2 px-4 py-2 rounded-full font-bold transition-all transform hover:scale-105 active:scale-95 border shadow-md`}
     >
       <Send size={16} className={isCyber ? "" : "-ml-1"} />
@@ -180,7 +191,6 @@ const TelegramLogin = ({ theme, onLogin }) => {
 
 const UserProfile = ({ user, theme, onLogout }) => {
   const isCyber = theme === 'cyberpunk';
-  
   return (
     <div className={`flex items-center gap-3 px-3 py-1.5 rounded-full ${
       isCyber ? 'border border-cyan-900/50 bg-black' : 'bg-slate-100'
@@ -188,11 +198,7 @@ const UserProfile = ({ user, theme, onLogout }) => {
       <div className={`w-8 h-8 rounded-full flex items-center justify-center overflow-hidden ${
         isCyber ? 'bg-cyan-900 text-cyan-400' : 'bg-indigo-100 text-indigo-600'
       }`}>
-        {user.photo ? (
-          <img src={user.photo} alt={user.username} className="w-full h-full object-cover" />
-        ) : (
-          <User size={16} />
-        )}
+        <User size={16} />
       </div>
       <div className="hidden sm:block">
         <div className={`text-xs font-bold leading-none ${isCyber ? 'text-white font-mono' : 'text-slate-900'}`}>
@@ -347,12 +353,12 @@ const OrderModal = ({ isOpen, onClose, onSubmit, theme, user }) => {
           : 'bg-white rounded-2xl shadow-2xl'
       }`}>
          {isCyber && (
-           <>
+           <React.Fragment>
              <div className="absolute top-0 left-0 w-4 h-4 border-t-2 border-l-2 border-cyan-500"></div>
              <div className="absolute top-0 right-0 w-4 h-4 border-t-2 border-r-2 border-cyan-500"></div>
              <div className="absolute bottom-0 left-0 w-4 h-4 border-b-2 border-l-2 border-cyan-500"></div>
              <div className="absolute bottom-0 right-0 w-4 h-4 border-b-2 border-r-2 border-cyan-500"></div>
-           </>
+           </React.Fragment>
          )}
 
         <div className={`p-8 ${isCyber ? 'bg-black/50 backdrop-blur-xl' : 'bg-white rounded-2xl'}`}>
@@ -490,7 +496,6 @@ export default function App() {
       return;
     }
     
-    // ПРОВЕРКА CHAT ID
     if (!ADMIN_CHAT_ID) {
       alert("ОШИБКА НАСТРОЙКИ: Не указан ADMIN_CHAT_ID в коде.");
       console.error("ADMIN_CHAT_ID is empty");
@@ -567,7 +572,6 @@ export default function App() {
     setOrders([newOrder, ...orders]);
     setIsModalOpen(false);
     
-    // Формируем сообщение о заказе
     const message = `
 <b>📦 Новый заказ на бирже!</b>
 
@@ -954,10 +958,10 @@ export default function App() {
                  
                  {/* Map UI Borders (Cyber only) */}
                  {isCyber && (
-                   <>
+                   <React.Fragment>
                      <div className="absolute top-0 left-0 w-8 h-8 border-t-2 border-l-2 border-cyan-500 pointer-events-none"></div>
                      <div className="absolute bottom-0 right-0 w-8 h-8 border-b-2 border-r-2 border-cyan-500 pointer-events-none"></div>
-                   </>
+                   </React.Fragment>
                  )}
               </div>
             </div>
@@ -1020,17 +1024,7 @@ export default function App() {
         </div>
       </footer>
       
-      <style>{`
-        @keyframes scan {
-          0% { top: 0%; opacity: 0; }
-          50% { opacity: 1; }
-          100% { top: 100%; opacity: 0; }
-        }
-        .text-shadow-neon {
-          text-shadow: 0 0 10px rgba(6,182,212,0.5), 0 0 20px rgba(6,182,212,0.3);
-        }
-      `}</style>
+      <style dangerouslySetInnerHTML={{ __html: GLOBAL_STYLES }} />
     </div>
   );
 }
-  
