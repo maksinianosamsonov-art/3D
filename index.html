@@ -32,10 +32,9 @@
     <div id="root"></div>
 
     <script type="text/babel">
-        const { useState, useEffect } = React;
+        const { useState, useEffect, useRef } = React;
 
         // --- ИКОНКИ (SVG) ---
-        // Встроены прямо сюда, чтобы не зависеть от внешних библиотек при запуске из файла
         const Icon = ({ path, size = 24, className = "" }) => (
             <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
                 {path}
@@ -202,22 +201,34 @@
             );
         };
 
-        const TelegramLogin = ({ theme, onLogin }) => {
-            const isCyber = theme === 'cyberpunk';
-            const btnStyle = isCyber 
-                ? { backgroundColor: 'rgba(36, 161, 222, 0.2)', borderColor: '#24A1DE', color: '#24A1DE' }
-                : { backgroundColor: '#24A1DE', color: 'white' };
+        // --- РЕАЛЬНЫЙ ВИДЖЕТ TELEGRAM ---
+        const TelegramAuthWidget = ({ onAuth, botUsername }) => {
+            const ref = useRef(null);
 
-            return (
-                <button 
-                    onClick={onLogin}
-                    style={btnStyle}
-                    className="flex items-center gap-2 px-4 py-2 rounded-full font-bold transition-all transform hover:scale-105 active:scale-95 border shadow-md"
-                >
-                    <Icons.Send size={16} className={isCyber ? "" : "-ml-1"} />
-                    <span className="text-xs">{isCyber ? "LOGIN_TG" : "Войти через Telegram"}</span>
-                </button>
-            );
+            useEffect(() => {
+                if (!ref.current || !botUsername) return;
+                
+                // Очистка перед добавлением (на случай ререндера)
+                ref.current.innerHTML = '';
+
+                window.onTelegramAuth = (user) => {
+                    onAuth(user);
+                };
+
+                const script = document.createElement('script');
+                script.src = "https://telegram.org/js/telegram-widget.js?22";
+                script.setAttribute('data-telegram-login', botUsername);
+                script.setAttribute('data-size', 'large');
+                script.setAttribute('data-onauth', 'onTelegramAuth(user)');
+                script.setAttribute('data-request-access', 'write');
+                script.async = true;
+                
+                ref.current.appendChild(script);
+            }, [botUsername]);
+
+            if (!botUsername) return <span className="text-xs text-red-400 animate-pulse">Загрузка бота...</span>;
+
+            return <div ref={ref} className="telegram-widget-container" />;
         };
 
         const UserProfile = ({ user, theme, onLogout }) => {
@@ -229,7 +240,7 @@
                     <div className={`w-8 h-8 rounded-full flex items-center justify-center overflow-hidden ${
                         isCyber ? 'bg-cyan-900 text-cyan-400' : 'bg-indigo-100 text-indigo-600'
                     }`}>
-                        <Icons.User size={16} />
+                       {user.photo_url ? <img src={user.photo_url} alt="" className="w-full h-full object-cover"/> : <Icons.User size={16} />}
                     </div>
                     <div className="hidden sm:block">
                         <div className={`text-xs font-bold leading-none ${isCyber ? 'text-white font-mono' : 'text-slate-900'}`}>
@@ -251,7 +262,7 @@
             );
         };
 
-        const Navbar = ({ onOpenModal, theme, toggleTheme, user, onLogin, onLogout }) => {
+        const Navbar = ({ onOpenModal, theme, toggleTheme, user, onLogin, onLogout, botUsername }) => {
             const [isOpen, setIsOpen] = useState(false);
             const isCyber = theme === 'cyberpunk';
 
@@ -307,7 +318,7 @@
                                 {user ? (
                                     <UserProfile user={user} theme={theme} onLogout={onLogout} />
                                 ) : (
-                                    <TelegramLogin theme={theme} onLogin={onLogin} />
+                                    <TelegramAuthWidget botUsername={botUsername} onAuth={onLogin} />
                                 )}
                                 
                                 <ThemeButton primary onClick={onOpenModal} theme={theme}>
@@ -345,7 +356,9 @@
                                         <UserProfile user={user} theme={theme} onLogout={onLogout} />
                                     </div>
                                 ) : (
-                                    <TelegramLogin theme={theme} onLogin={onLogin} />
+                                    <div className="flex justify-center">
+                                        <TelegramAuthWidget botUsername={botUsername} onAuth={onLogin} />
+                                    </div>
                                 )}
                                 <ThemeButton primary onClick={() => { setIsOpen(false); onOpenModal(); }} theme={theme} className="w-full">
                                     {isCyber ? "Создать Заказ" : "Разместить заказ"}
@@ -516,20 +529,30 @@
             const [isModalOpen, setIsModalOpen] = useState(false);
             const [orders, setOrders] = useState(INITIAL_DATA);
             const [user, setUser] = useState(null);
+            const [botUsername, setBotUsername] = useState(null);
 
             const isCyber = theme === 'cyberpunk';
+
+            // --- Получение имени бота для виджета ---
+            useEffect(() => {
+                fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/getMe`)
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data.ok) {
+                            setBotUsername(data.result.username);
+                            console.log("Bot username loaded:", data.result.username);
+                        } else {
+                            console.error("Ошибка получения имени бота", data);
+                        }
+                    })
+                    .catch(err => console.error("Ошибка сети при получении имени бота", err));
+            }, []);
 
             // --- Функционал отправки в Telegram ---
             
             const sendTelegramMessage = async (text) => {
-                if (!TELEGRAM_BOT_TOKEN) {
-                    console.error("Нет токена бота");
-                    return;
-                }
-                
-                if (!ADMIN_CHAT_ID) {
-                    alert("ОШИБКА НАСТРОЙКИ: Не указан ADMIN_CHAT_ID в коде.");
-                    console.error("ADMIN_CHAT_ID is empty");
+                if (!TELEGRAM_BOT_TOKEN || !ADMIN_CHAT_ID) {
+                    alert("Ошибка настройки Telegram: нет токена или ID админа");
                     return;
                 }
 
@@ -550,7 +573,6 @@
                     const data = await response.json();
                     if (!data.ok) {
                         console.error("Ошибка Telegram API:", data);
-                        alert("Ошибка отправки в Telegram: " + data.description);
                     } else {
                         console.log("Сообщение успешно отправлено в Telegram");
                     }
@@ -559,27 +581,19 @@
                 }
             };
 
-            const handleTelegramLogin = () => {
-                const mockUser = {
-                    id: 12345678,
-                    first_name: "DemoUser",
-                    username: "demo_maker",
-                    photo_url: null 
-                };
+            const handleTelegramLogin = (telegramUser) => {
+                console.log("Logged in user:", telegramUser);
+                setUser(telegramUser);
                 
-                setTimeout(() => {
-                    setUser(mockUser);
-                    
-                    const message = `
+                const message = `
 <b>🔐 Новая авторизация на сайте</b>
-Пользователь: ${mockUser.first_name} (@${mockUser.username})
-Статус: <i>Онлайн</i>
+Пользователь: ${telegramUser.first_name} ${telegramUser.last_name || ''} (@${telegramUser.username})
+ID: <code>${telegramUser.id}</code>
 Время: ${new Date().toLocaleTimeString()}
-                    `;
-                    sendTelegramMessage(message);
-                    
-                    alert(`Авторизация успешна! Уведомление отправлено в Telegram.`);
-                }, 500);
+                `;
+                sendTelegramMessage(message);
+                
+                alert(`Добро пожаловать, ${telegramUser.first_name}! Авторизация успешна.`);
             };
 
             const handleLogout = () => {
@@ -614,7 +628,7 @@
 <b>Бюджет:</b> ${formData.budget}
 <b>Локация:</b> ${formData.location}
 <b>Описание:</b> ${formData.desc || "Нет описания"}
-<b>Заказчик:</b> ${user ? `@${user.username}` : "Гость"}
+<b>Заказчик:</b> ${user ? `@${user.username} (ID: ${user.id})` : "Гость"}
 
 <i>Открыть панель управления, чтобы принять заказ.</i>
                 `;
@@ -657,6 +671,7 @@
                         user={user}
                         onLogin={handleTelegramLogin}
                         onLogout={handleLogout}
+                        botUsername={botUsername}
                     />
                     
                     <OrderModal 
