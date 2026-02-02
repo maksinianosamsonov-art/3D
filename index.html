@@ -15,7 +15,6 @@ import {
   Terminal,
   Sun,
   Moon,
-  CheckCircle,
   Layers,
   Send,
   User,
@@ -29,7 +28,7 @@ const ADMIN_CHAT_ID = "334485676";
 
 // --- Данные (Mock Data) ---
 
-const MOCK_ORDERS = [
+const INITIAL_DATA = [
   {
     id: 1,
     title: "Печать шестерни // GEAR_V2",
@@ -450,6 +449,23 @@ const OrderModal = ({ isOpen, onClose, onSubmit, theme, user }) => {
               </select>
             </div>
 
+            <div>
+               <label className={`block text-xs uppercase mb-2 ${
+                 isCyber ? 'text-cyan-700 tracking-widest' : 'text-slate-500 font-bold'
+               }`}>
+                 {isCyber ? "Пакет Данных (Описание)" : "Описание задачи"}
+               </label>
+               <textarea 
+                 name="desc"
+                 rows={3} 
+                 className={`w-full p-3 focus:outline-none resize-none ${
+                   isCyber 
+                     ? 'bg-black border border-slate-700 text-white focus:border-cyan-500' 
+                     : 'bg-slate-50 border border-slate-200 rounded-xl text-slate-900 focus:ring-2 focus:ring-indigo-500'
+                 }`}
+               ></textarea>
+            </div>
+
             <ThemeButton primary theme={theme} className="w-full py-4 mt-4">
               {isCyber ? "ИНИЦИИРОВАТЬ ЗАГРУЗКУ" : "Разместить заказ"}
             </ThemeButton>
@@ -463,7 +479,7 @@ const OrderModal = ({ isOpen, onClose, onSubmit, theme, user }) => {
 export default function App() {
   const [theme, setTheme] = useState('cyberpunk'); 
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [orders, setOrders] = useState(MOCK_ORDERS);
+  const [orders, setOrders] = useState(INITIAL_DATA);
   const [user, setUser] = useState(null);
 
   const isCyber = theme === 'cyberpunk';
@@ -564,6 +580,7 @@ export default function App() {
 <b>Тип:</b> ${formData.type}
 <b>Бюджет:</b> ${formData.budget}
 <b>Локация:</b> ${formData.location}
+<b>Описание:</b> ${formData.desc || "Нет описания"}
 <b>Заказчик:</b> ${user ? `@${user.username}` : "Гость"}
 
 <i>Открыть панель управления, чтобы принять заказ.</i>
