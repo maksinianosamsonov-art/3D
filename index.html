@@ -1,340 +1,462 @@
-<!-- 
-!!! ИНСТРУКЦИЯ ПО ЗАПУСКУ !!!
-
-1. Сохраните этот код в файл с названием: index.html
-2. Загрузите этот файл в ваш репозиторий на GitHub.
-3. В настройках репозитория (Settings -> Pages) включите GitHub Pages (выберите Branch: main и нажмите Save).
-4. Скопируйте ссылку на ваш сайт, которая появится в настройках.
-5. ВАЖНО ДЛЯ TELEGRAM: 
-   - Откройте в Telegram бота @BotFather.
-   - Отправьте команду /setdomain.
-   - Выберите своего бота d1f0_bot.
-   - Отправьте ему ссылку на ваш сайт (https://maksinianosamsonov-art.github.io/3D/).
--->
-
 <!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Биржа 3D-услуг Чувашия 2077</title>
-    
-    <!-- Подключаем Tailwind CSS -->
+    <title>3D Чувашия | Платформа Аддитивных Технологий</title>
+    <meta name="description" content="Единый центр 3D-печати и моделирования в Чувашии">
+
+    <!-- 1. Подключаем Tailwind CSS (Стили) -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- Подключаем React и ReactDOM -->
-    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    
-    <!-- Подключаем Babel для обработки JSX -->
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <!-- 2. Настраиваем шрифты -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
 
-    <!-- Шрифты и стили -->
+    <!-- 3. Настраиваем цвета Tailwind -->
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            900: '#1e3a8a',
+                        },
+                        cyber: {
+                            black: '#050505',
+                            dark: '#0a0a0a',
+                            neon: '#00f3ff',
+                            pink: '#ff00ff',
+                            grid: 'rgba(0, 243, 255, 0.1)'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- 4. Стили для анимаций и карты -->
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;600;800&display=swap');
+        /* Плавная прокрутка */
+        html { scroll-behavior: smooth; }
         
-        body { font-family: 'Inter', sans-serif; }
-        .font-mono { font-family: 'JetBrains Mono', monospace; }
-        
-        /* Анимация сканера для киберпанк темы */
-        @keyframes scan {
+        /* Скроллбар */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+        .dark ::-webkit-scrollbar-thumb { background: #334155; }
+
+        /* Анимация сканера (для киберпанка) */
+        @keyframes scanline {
             0% { top: 0%; opacity: 0; }
             50% { opacity: 1; }
             100% { top: 100%; opacity: 0; }
         }
-        
-        /* Неоновое свечение текста */
-        .text-shadow-neon {
-            text-shadow: 0 0 10px rgba(6,182,212,0.5), 0 0 20px rgba(6,182,212,0.3);
+        .scan-effect {
+            position: absolute;
+            width: 100%;
+            height: 2px;
+            background: #00f3ff;
+            animation: scanline 3s linear infinite;
+            box-shadow: 0 0 10px #00f3ff;
+            opacity: 0.5;
+        }
+
+        /* Инверсия карты в темной теме */
+        .map-dark-mode {
+            filter: invert(100%) hue-rotate(180deg) brightness(95%) contrast(90%);
         }
     </style>
+    
+    <!-- 5. Подключаем React -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 </head>
-<body>
+<body class="antialiased transition-colors duration-300">
     <div id="root"></div>
 
     <script type="text/babel">
         const { useState, useEffect, useRef } = React;
 
-        // --- ИКОНКИ (Встроены прямо в файл, чтобы не было ошибок импорта) ---
-        const Icon = ({ path, size = 24, className = "" }) => (
-            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
-                {path}
-            </svg>
-        );
-
-        const Icons = {
-            Zap: (p) => <Icon {...p} path={<polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>} />,
-            Layers: (p) => <Icon {...p} path={<><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></>} />,
-            Sun: (p) => <Icon {...p} path={<><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></>} />,
-            Moon: (p) => <Icon {...p} path={<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>} />,
-            Send: (p) => <Icon {...p} path={<><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></>} />,
-            User: (p) => <Icon {...p} path={<><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></>} />,
-            LogOut: (p) => <Icon {...p} path={<><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></>} />,
-            Printer: (p) => <Icon {...p} path={<><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></>} />,
-            Scan: (p) => <Icon {...p} path={<><path d="M3 7V5a2 2 0 0 1 2-2h2"></path><path d="M17 3h2a2 2 0 0 1 2 2v2"></path><path d="M21 17v2a2 2 0 0 1-2 2h-2"></path><path d="M7 21H5a2 2 0 0 1-2-2v-2"></path></>} />,
-            Box: (p) => <Icon {...p} path={<><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></>} />,
-            MapPin: (p) => <Icon {...p} path={<><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></>} />,
-            Clock: (p) => <Icon {...p} path={<><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></>} />,
-            Search: (p) => <Icon {...p} path={<><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></>} />,
-            ArrowRight: (p) => <Icon {...p} path={<><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></>} />,
-            Menu: (p) => <Icon {...p} path={<><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></>} />,
-            X: (p) => <Icon {...p} path={<><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></>} />,
-            MessageCircle: (p) => <Icon {...p} path={<><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></>} />,
-            Terminal: (p) => <Icon {...p} path={<><polyline points="4 17 10 11 4 5"></polyline><line x1="12" y1="19" x2="20" y2="19"></line></>} />,
-            Activity: (p) => <Icon {...p} path={<polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>} />,
-            Cpu: (p) => <Icon {...p} path={<><rect x="4" y="4" width="16" height="16" rx="2" ry="2"></rect><rect x="9" y="9" width="6" height="6"></rect><line x1="9" y1="1" x2="9" y2="4"></line><line x1="15" y1="1" x2="15" y2="4"></line><line x1="9" y1="20" x2="9" y2="23"></line><line x1="15" y1="20" x2="15" y2="23"></line><line x1="20" y1="9" x2="23" y2="9"></line><line x1="20" y1="14" x2="23" y2="14"></line><line x1="1" y1="9" x2="4" y2="9"></line><line x1="1" y1="14" x2="4" y2="14"></line></>} />
-        };
-
-        // --- НАСТРОЙКИ ---
+        // --- КОНФИГУРАЦИЯ ---
         const TELEGRAM_BOT_TOKEN = "8453938307:AAGcU3fQdoPZC7I5y5ueFFnK3HZLAfg680Q";
         const ADMIN_CHAT_ID = "334485676";
         const BOT_USERNAME = "d1f0_bot";
 
+        // --- ИКОНКИ ---
+        const Icon = ({ p, size = 24, className }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>{p}</svg>
+        );
+        const Icons = {
+            Zap: (p) => <Icon {...p} p={<polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>} />,
+            Search: (p) => <Icon {...p} p={<><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></>} />,
+            MapPin: (p) => <Icon {...p} p={<><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></>} />,
+            User: (p) => <Icon {...p} p={<><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></>} />,
+            Sun: (p) => <Icon {...p} p={<><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></>} />,
+            Moon: (p) => <Icon {...p} p={<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>} />,
+            Menu: (p) => <Icon {...p} p={<><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></>} />,
+            X: (p) => <Icon {...p} p={<><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></>} />,
+            ArrowRight: (p) => <Icon {...p} p={<><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></>} />,
+            Send: (p) => <Icon {...p} p={<><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></>} />,
+            Box: (p) => <Icon {...p} p={<><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></>} />,
+            Settings: (p) => <Icon {...p} p={<circle cx="12" cy="12" r="3"></circle>} />, // Placeholder
+            LogOut: (p) => <Icon {...p} p={<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>} />
+        };
+
         // --- ДАННЫЕ ---
-        const INITIAL_DATA = [
-            { id: 1, title: "Печать шестерни // GEAR_V2", titleModern: "Изготовление шестерни для редуктора", type: "3D-печать", location: "Чебоксары :: СЕК_01", locationModern: "Чебоксары, Центр", budget: "1 500 ₽", status: "active", date: "2ч назад", tags: ["FDM", "PETG"] },
-            { id: 2, title: "Сканирование детали авто", titleModern: "Сканирование детали бампера", type: "3D-сканирование", location: "Новочебоксарск :: СЕК_02", locationModern: "Новочебоксарск", budget: "5 000 ₽", status: "active", date: "5ч назад", tags: ["СКАН", "РЕВЕРС"] },
-            { id: 4, title: "Партия чипов (корпуса)", titleModern: "Серийная печать корпусов (100 шт)", type: "Серийное производство", location: "Чебоксары :: ПРОМ_ЗОНА", locationModern: "Чебоксары, Промзона", budget: "Договорная", status: "active", date: "1д назад", tags: ["SLA", "СМОЛА"] }
+        const INITIAL_ORDERS = [
+            { id: 1, title: "Печать шестерни для редуктора", type: "3D-печать", price: "1 500 ₽", city: "Чебоксары", time: "2ч назад", tags: ["PETG", "Срочно"] },
+            { id: 2, title: "Сканирование автодетали", type: "Сканирование", price: "5 000 ₽", city: "Новочебоксарск", time: "5ч назад", tags: ["Реверс"] },
+            { id: 3, title: "Партия брелоков (50 шт)", type: "Серия", price: "Договорная", city: "Чебоксары", time: "1д назад", tags: ["SLA"] }
         ];
 
-        const SERVICES = [
-            { title: "3D ПЕЧАТЬ", desc: "Материализация цифровых объектов...", descModern: "Печать пластиком и металлом.", icon: <Icons.Printer size={32} />, color: "text-cyan-400", colorModern: "text-indigo-600 bg-indigo-50", border: "border-cyan-500/50 hover:border-cyan-400" },
-            { title: "3D СКАНИРОВАНИЕ", desc: "Оцифровка реальности в Матрицу.", descModern: "Высокоточное сканирование.", icon: <Icons.Scan size={32} />, color: "text-fuchsia-400", colorModern: "text-violet-600 bg-violet-50", border: "border-fuchsia-500/50 hover:border-fuchsia-400" },
-            { title: "3D МОДЕЛИРОВАНИЕ", desc: "Архитектура виртуальных миров.", descModern: "Создание 3D моделей по чертежам.", icon: <Icons.Box size={32} />, color: "text-yellow-400", colorModern: "text-amber-600 bg-amber-50", border: "border-yellow-500/50 hover:border-yellow-400" }
-        ];
+        // --- КОМПОНЕНТЫ UI ---
 
-        // --- ВИДЖЕТ TELEGRAM (Реальный c REDIRECT) ---
-        const TelegramAuthWidget = ({ onAuth, botUsername }) => {
+        // Виджет Telegram
+        const TelegramWidget = ({ onAuth }) => {
             const ref = useRef(null);
             useEffect(() => {
-                if (!ref.current || !botUsername) return;
+                if (!ref.current) return;
                 ref.current.innerHTML = '';
+                
+                window.onTelegramAuth = (user) => onAuth(user);
                 
                 const script = document.createElement('script');
                 script.src = "https://telegram.org/js/telegram-widget.js?22";
-                script.setAttribute('data-telegram-login', botUsername);
-                script.setAttribute('data-size', 'medium');
-                script.setAttribute('data-radius', '14'); // Запрошенный радиус
+                script.setAttribute('data-telegram-login', BOT_USERNAME);
+                script.setAttribute('data-size', 'large');
+                script.setAttribute('data-radius', '8');
                 script.setAttribute('data-request-access', 'write');
-                script.setAttribute('data-auth-url', 'https://maksinianosamsonov-art.github.io/3D/'); // URL перенаправления
+                script.setAttribute('data-onauth', 'onTelegramAuth(user)');
                 script.async = true;
                 ref.current.appendChild(script);
-            }, [botUsername]);
-
-            if (!botUsername) return <span className="text-xs text-red-400 animate-pulse">Загрузка бота...</span>;
-            return <div ref={ref} />;
+            }, []);
+            return <div ref={ref} className="flex justify-center"></div>;
         };
 
-        // --- ГЛАВНЫЙ КОМПОНЕНТ ---
+        // Карточка услуги
+        const ServiceCard = ({ title, desc, icon, isCyber }) => (
+            <div className={`p-8 rounded-2xl transition-all hover:-translate-y-1 duration-300 ${
+                isCyber 
+                ? 'bg-cyber-dark border border-slate-800 hover:border-cyber-neon hover:shadow-[0_0_20px_rgba(0,243,255,0.2)]' 
+                : 'bg-white border border-slate-100 shadow-lg hover:shadow-xl'
+            }`}>
+                <div className={`w-14 h-14 rounded-xl flex items-center justify-center mb-6 ${
+                    isCyber ? 'bg-black border border-cyber-neon text-cyber-neon' : 'bg-brand-50 text-brand-600'
+                }`}>
+                    {icon}
+                </div>
+                <h3 className={`text-xl font-bold mb-3 ${isCyber ? 'text-white font-mono' : 'text-slate-900'}`}>{title}</h3>
+                <p className={`text-sm leading-relaxed ${isCyber ? 'text-slate-400 font-mono' : 'text-slate-600'}`}>{desc}</p>
+            </div>
+        );
+
+        // --- ГЛАВНОЕ ПРИЛОЖЕНИЕ ---
         function App() {
-            const [theme, setTheme] = useState('modern'); // По умолчанию светлая тема
-            const [isModalOpen, setIsModalOpen] = useState(false);
-            const [orders, setOrders] = useState(INITIAL_DATA);
+            const [theme, setTheme] = useState('modern'); // 'modern' or 'cyberpunk'
             const [user, setUser] = useState(null);
-            const [isMenuOpen, setIsMenuOpen] = useState(false);
+            const [orders, setOrders] = useState(INITIAL_ORDERS);
+            const [isModalOpen, setIsModalOpen] = useState(false);
+            const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
             const isCyber = theme === 'cyberpunk';
 
-            // --- Обработка возврата после авторизации (Redirect) ---
+            // Эффект смены темы на body
             useEffect(() => {
-                const params = new URLSearchParams(window.location.search);
-                if (params.get('id') && params.get('hash')) {
-                    const telegramUser = {
-                        id: params.get('id'),
-                        first_name: params.get('first_name'),
-                        username: params.get('username'),
-                        photo_url: params.get('photo_url'),
-                        auth_date: params.get('auth_date'),
-                        hash: params.get('hash')
-                    };
-                    
-                    setUser(telegramUser);
-                    
-                    // Очищаем URL от параметров
-                    window.history.replaceState({}, document.title, window.location.pathname);
-                    
-                    const message = `<b>🔐 Вход на сайт (Redirect)</b>\nПользователь: ${telegramUser.first_name} (@${telegramUser.username || "нет_ника"})`;
-                    sendTelegramMessage(message);
-                    alert(`Добро пожаловать, ${telegramUser.first_name}!`);
+                if (isCyber) {
+                    document.body.classList.add('bg-black', 'text-slate-300');
+                    document.body.classList.remove('bg-slate-50', 'text-slate-800');
+                } else {
+                    document.body.classList.add('bg-slate-50', 'text-slate-800');
+                    document.body.classList.remove('bg-black', 'text-slate-300');
                 }
-            }, []);
+            }, [theme]);
 
-            // Отправка уведомления
-            const sendTelegramMessage = async (text) => {
+            // Отправка в Telegram
+            const notifyAdmin = async (htmlText) => {
                 try {
                     await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ chat_id: ADMIN_CHAT_ID, text, parse_mode: 'HTML' })
+                        body: JSON.stringify({ chat_id: ADMIN_CHAT_ID, text: htmlText, parse_mode: 'HTML' })
                     });
-                } catch (error) { console.error(error); }
+                } catch (e) { console.error(e); }
             };
 
-            const handleCreateOrder = (e) => {
+            const handleLogin = (tgUser) => {
+                setUser(tgUser);
+                notifyAdmin(`🔐 <b>Вход на сайт</b>\nПользователь: ${tgUser.first_name} (@${tgUser.username || '-'})`);
+            };
+
+            const handleLogout = () => setUser(null);
+
+            const createOrder = (e) => {
                 e.preventDefault();
-                const formData = new FormData(e.target);
-                const newId = Date.now();
+                const form = new FormData(e.target);
                 const newOrder = {
-                    id: newId,
-                    title: formData.get('title'),
-                    titleModern: formData.get('title'),
-                    type: formData.get('type'),
-                    budget: formData.get('budget'),
-                    location: formData.get('location'),
-                    locationModern: formData.get('location'),
-                    status: "new",
-                    date: "Только что",
+                    id: Date.now(),
+                    title: form.get('title'),
+                    type: form.get('type'),
+                    price: form.get('price'),
+                    city: form.get('city'),
+                    time: "Только что",
                     tags: ["NEW"]
                 };
                 setOrders([newOrder, ...orders]);
                 setIsModalOpen(false);
-                sendTelegramMessage(`<b>📦 Новый заказ!</b>\nЗадача: ${newOrder.title}\nБюджет: ${newOrder.budget}\nОт: ${user ? '@'+user.username : 'Гость'}`);
-                alert("Заказ создан!");
+                notifyAdmin(`📦 <b>Новый заказ!</b>\nЗадача: ${newOrder.title}\nБюджет: ${newOrder.price}\nОт: ${user ? '@'+user.username : 'Гость'}`);
+                alert("Заказ успешно создан!");
             };
 
-            // Компоненты UI
-            const ThemeButton = ({ children, primary, onClick, className = "" }) => (
-                <button onClick={onClick} className={`px-4 py-2 rounded-xl font-bold transition-all ${
-                    theme === 'modern' 
-                    ? (primary ? "bg-indigo-600 text-white" : "bg-white border text-slate-700")
-                    : (primary ? "bg-cyan-600 text-black hover:bg-cyan-400" : "bg-transparent text-cyan-400 border border-cyan-500")
-                } ${className}`}>{children}</button>
-            );
-
-            const Badge = ({ children, className }) => (
-                <span className={`px-2 py-1 text-[10px] rounded border ${
-                    theme === 'modern' ? "bg-slate-100 border-transparent text-slate-600" : "border-current uppercase tracking-widest font-mono"
-                } ${className}`}>{children}</span>
-            );
-
             return (
-                <div className={`min-h-screen font-sans transition-colors duration-500 overflow-x-hidden ${isCyber ? 'bg-black text-slate-300 selection:bg-cyan-900 selection:text-cyan-100' : 'bg-slate-50 text-slate-600'}`}>
+                <div className={`min-h-screen flex flex-col ${isCyber ? 'selection:bg-cyber-neon selection:text-black' : ''}`}>
                     
-                    {/* Фон (Кибер) */}
-                    {isCyber && <div className="fixed inset-0 pointer-events-none z-0 opacity-20" style={{backgroundImage: 'linear-gradient(rgba(6,182,212,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(6,182,212,0.1) 1px, transparent 1px)', backgroundSize: '40px 40px'}}></div>}
+                    {/* Фон Киберпанка */}
+                    {isCyber && (
+                        <div className="fixed inset-0 z-[-1]" style={{
+                            backgroundImage: 'linear-gradient(rgba(0, 243, 255, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 243, 255, 0.05) 1px, transparent 1px)',
+                            backgroundSize: '40px 40px'
+                        }}></div>
+                    )}
 
-                    {/* Навигация */}
-                    <nav className={`fixed top-0 w-full z-50 border-b backdrop-blur-md ${isCyber ? 'bg-black/80 border-cyan-900/50' : 'bg-white/80 border-slate-200'}`}>
-                        <div className="max-w-7xl mx-auto px-4 h-20 flex justify-between items-center relative z-20">
+                    {/* --- HEADER --- */}
+                    <header className={`sticky top-0 z-50 backdrop-blur-lg border-b transition-colors duration-300 ${
+                        isCyber ? 'bg-black/80 border-cyan-900' : 'bg-white/80 border-slate-200'
+                    }`}>
+                        <div className="max-w-7xl mx-auto px-4 h-20 flex justify-between items-center">
+                            
+                            {/* Логотип */}
                             <div className="flex items-center gap-3">
-                                <div className={`w-10 h-10 flex items-center justify-center rounded-lg ${isCyber ? 'border border-cyan-500 text-cyan-400' : 'bg-indigo-600 text-white'}`}>
-                                    {isCyber ? <Icons.Zap /> : <Icons.Layers />}
+                                <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
+                                    isCyber ? 'bg-black border border-cyber-neon text-cyber-neon shadow-[0_0_10px_#00f3ff]' : 'bg-brand-600 text-white'
+                                }`}>
+                                    <Icons.Zap />
                                 </div>
-                                <div className="leading-none">
-                                    <div className={`font-bold text-xl ${isCyber ? 'text-white font-mono uppercase' : 'text-slate-900'}`}>
-                                        Чувашия<span className={isCyber ? "text-cyan-400" : "text-indigo-600"}>{isCyber ? "2077" : "Tech"}</span>
+                                <div className="leading-tight">
+                                    <div className={`font-bold text-lg ${isCyber ? 'text-white font-mono uppercase tracking-widest' : 'text-slate-900'}`}>
+                                        3D Чувашия
                                     </div>
-                                    <div className="text-[10px] opacity-70">Биржа 3D-услуг</div>
+                                    <div className="text-[10px] opacity-60">Единая платформа</div>
                                 </div>
                             </div>
 
-                            {/* Десктоп Меню */}
+                            {/* Навигация (Десктоп) */}
+                            <div className="hidden md:flex items-center gap-8 text-sm font-medium">
+                                <a href="#services" className="hover:opacity-70 transition">Услуги</a>
+                                <a href="#market" className="hover:opacity-70 transition">Биржа</a>
+                                <a href="#map" className="hover:opacity-70 transition">Карта</a>
+                            </div>
+
+                            {/* Действия (Десктоп) */}
                             <div className="hidden md:flex items-center gap-4">
-                                <button onClick={() => setTheme(isCyber ? 'modern' : 'cyberpunk')} className="flex items-center gap-2 px-3 py-1 border rounded-full">
-                                    {isCyber ? <Icons.Sun size={16}/> : <Icons.Moon size={16}/>}
+                                <button onClick={() => setTheme(isCyber ? 'modern' : 'cyberpunk')} 
+                                        className={`p-2 rounded-full border transition hover:scale-110 ${
+                                            isCyber ? 'border-yellow-500 text-yellow-400' : 'border-slate-200 text-slate-500'
+                                        }`}>
+                                    {isCyber ? <Icons.Sun size={18}/> : <Icons.Moon size={18}/>}
                                 </button>
+
                                 {user ? (
-                                    <div className="flex items-center gap-2 border px-3 py-1 rounded-full">
-                                        <span className="text-xs font-bold">{user.first_name}</span>
-                                        <button onClick={() => setUser(null)}><Icons.LogOut size={14}/></button>
+                                    <div className="flex items-center gap-3 pl-4 border-l border-slate-200">
+                                        <div className="text-right">
+                                            <div className={`text-xs font-bold ${isCyber ? 'text-white' : 'text-slate-900'}`}>{user.first_name}</div>
+                                            <div className="text-[10px] opacity-50">Online</div>
+                                        </div>
+                                        <img src={user.photo_url || 'https://via.placeholder.com/40'} className="w-9 h-9 rounded-full" />
+                                        <button onClick={handleLogout} className="text-red-400 hover:text-red-500"><Icons.LogOut size={16}/></button>
                                     </div>
                                 ) : (
-                                    <TelegramAuthWidget botUsername={BOT_USERNAME} onAuth={() => {}} />
+                                    <div className="opacity-0 hover:opacity-100 transition-opacity h-10 overflow-hidden w-40 relative group">
+                                         <div className="absolute inset-0 flex items-center justify-center border rounded-full text-xs font-bold cursor-pointer group-hover:hidden">
+                                            Войти (Telegram)
+                                         </div>
+                                         <div className="absolute -top-2 -left-2 scale-75">
+                                            <TelegramWidget onAuth={handleLogin} />
+                                         </div>
+                                    </div>
                                 )}
-                                <ThemeButton primary onClick={() => setIsModalOpen(true)}>Создать заказ</ThemeButton>
+                                
+                                <button onClick={() => setIsModalOpen(true)} className={`px-5 py-2.5 rounded-full font-bold text-sm transition-all hover:scale-105 active:scale-95 ${
+                                    isCyber 
+                                    ? 'bg-cyber-neon text-black shadow-[0_0_15px_#00f3ff]' 
+                                    : 'bg-brand-600 text-white shadow-lg shadow-blue-200'
+                                }`}>
+                                    + Заказ
+                                </button>
                             </div>
 
-                            {/* Мобильная кнопка */}
-                            <div className="md:hidden flex items-center gap-4">
-                                <button onClick={() => setTheme(isCyber ? 'modern' : 'cyberpunk')}>
-                                    {isCyber ? <Icons.Sun /> : <Icons.Moon />}
-                                </button>
-                                <button onClick={() => setIsMenuOpen(!isMenuOpen)}>
-                                    {isMenuOpen ? <Icons.X /> : <Icons.Menu />}
-                                </button>
-                            </div>
+                            {/* Меню (Мобильное) */}
+                            <button className="md:hidden" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
+                                <Icons.Menu />
+                            </button>
                         </div>
-
-                        {/* Мобильное меню */}
-                        {isMenuOpen && (
-                            <div className={`md:hidden border-b p-4 flex flex-col gap-4 relative z-10 ${isCyber ? 'bg-black border-cyan-900' : 'bg-white border-slate-200'}`}>
-                                {user ? (
-                                    <div className="flex justify-between items-center border p-2 rounded">
-                                        <span>{user.first_name}</span>
-                                        <button onClick={() => setUser(null)} className="text-red-500 text-xs">Выйти</button>
+                        
+                        {/* Выпадающее меню */}
+                        {mobileMenuOpen && (
+                            <div className={`md:hidden p-4 border-t ${isCyber ? 'bg-black border-cyan-900' : 'bg-white'}`}>
+                                <div className="flex flex-col gap-4">
+                                    <a href="#services">Услуги</a>
+                                    <a href="#market">Биржа</a>
+                                    <div className="flex justify-between items-center pt-4 border-t border-gray-700">
+                                        <span>Тема: {isCyber ? 'Кибер' : 'Светлая'}</span>
+                                        <button onClick={() => setTheme(isCyber ? 'modern' : 'cyberpunk')}>Переключить</button>
                                     </div>
-                                ) : (
-                                    <div className="flex justify-center">
-                                        <TelegramAuthWidget botUsername={BOT_USERNAME} onAuth={() => {}} />
-                                    </div>
-                                )}
-                                <ThemeButton primary onClick={() => { setIsMenuOpen(false); setIsModalOpen(true); }} className="w-full">
-                                    Создать заказ
-                                </ThemeButton>
+                                    {!user && <div className="flex justify-center"><TelegramWidget onAuth={handleLogin} /></div>}
+                                </div>
                             </div>
                         )}
-                    </nav>
+                    </header>
 
-                    {/* Hero */}
-                    <section className="pt-32 pb-16 px-4 text-center relative z-10">
-                        <div className={`inline-block px-4 py-1 rounded-full border text-xs font-bold mb-6 ${isCyber ? 'border-cyan-500 text-cyan-400' : 'bg-white border-slate-200 text-indigo-600'}`}>
-                            {isCyber ? ">> СИСТЕМА №1" : "#1 Платформа региона"}
-                        </div>
-                        <h1 className={`text-4xl md:text-6xl font-black mb-6 ${isCyber ? 'text-white font-mono uppercase' : 'text-slate-900'}`}>
-                            Производство <br/>
-                            <span className={`text-transparent bg-clip-text bg-gradient-to-r ${isCyber ? 'from-cyan-400 to-fuchsia-500' : 'from-indigo-600 to-violet-600'}`}>
-                                Будущего
-                            </span>
-                        </h1>
-                    </section>
+                    {/* --- HERO --- */}
+                    <main>
+                        <section className="py-24 px-4 text-center">
+                            <div className="max-w-4xl mx-auto">
+                                <div className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold mb-8 ${
+                                    isCyber ? 'border border-cyber-neon text-cyber-neon bg-cyan-900/20' : 'bg-blue-50 text-blue-700 border border-blue-100'
+                                }`}>
+                                    <span className="w-2 h-2 rounded-full bg-current animate-pulse"></span>
+                                    Работаем в Чебоксарах и Новочебоксарске
+                                </div>
+                                <h1 className={`text-4xl md:text-7xl font-black mb-8 leading-tight ${isCyber ? 'text-white font-mono uppercase' : 'text-slate-900'}`}>
+                                    Производство <br/>
+                                    <span className={`text-transparent bg-clip-text bg-gradient-to-r ${
+                                        isCyber ? 'from-cyber-neon to-cyber-pink' : 'from-blue-600 to-violet-600'
+                                    }`}>Будущего</span>
+                                </h1>
+                                <p className={`text-lg md:text-xl mb-10 max-w-2xl mx-auto ${isCyber ? 'text-slate-400 font-mono' : 'text-slate-600'}`}>
+                                    Найдите исполнителя для 3D-печати, сканирования или моделирования за 5 минут. Локальные мастера, быстрая доставка.
+                                </p>
+                                <div className="flex justify-center gap-4">
+                                    <button onClick={() => setIsModalOpen(true)} className={`px-8 py-4 rounded-xl font-bold text-lg transition hover:-translate-y-1 ${
+                                        isCyber ? 'bg-white text-black' : 'bg-slate-900 text-white shadow-xl'
+                                    }`}>Разместить заказ</button>
+                                    <a href="#market" className={`px-8 py-4 rounded-xl font-bold text-lg border transition hover:bg-opacity-10 ${
+                                        isCyber ? 'border-white text-white hover:bg-white' : 'border-slate-300 text-slate-700 hover:bg-slate-100'
+                                    }`}>Смотреть ленту</a>
+                                </div>
+                            </div>
+                        </section>
 
-                    {/* Заказы */}
-                    <section className={`py-12 px-4 ${isCyber ? 'bg-slate-900/50' : 'bg-slate-50'}`}>
-                        <div className="max-w-4xl mx-auto grid gap-4">
-                            <h2 className={`text-2xl font-bold mb-4 ${isCyber ? 'text-white' : 'text-slate-900'}`}>Актуальные заказы</h2>
-                            {orders.map(order => (
-                                <div key={order.id} className={`p-6 border rounded-xl transition-all ${isCyber ? 'bg-black border-slate-800 hover:border-cyan-500' : 'bg-white border-slate-100 shadow-sm'}`}>
-                                    <div className="flex justify-between items-start">
-                                        <div>
-                                            <Badge className={isCyber ? 'text-cyan-400 border-cyan-900' : 'bg-blue-50 text-blue-700'}>{order.type}</Badge>
-                                            <h3 className={`text-lg font-bold mt-2 ${isCyber ? 'text-white font-mono' : 'text-slate-900'}`}>
-                                                {isCyber ? order.title : order.titleModern}
-                                            </h3>
-                                            <div className="flex items-center gap-4 mt-2 text-sm opacity-60">
-                                                <span className="flex items-center gap-1"><Icons.MapPin size={14}/> {isCyber ? order.location : order.locationModern}</span>
-                                                <span className="flex items-center gap-1"><Icons.Clock size={14}/> {order.date}</span>
-                                            </div>
-                                        </div>
-                                        <div className={`text-xl font-bold ${isCyber ? 'text-white' : 'text-slate-900'}`}>{order.budget}</div>
+                        {/* --- УСЛУГИ --- */}
+                        <section id="services" className={`py-20 px-4 ${isCyber ? 'bg-cyber-dark' : 'bg-slate-50'}`}>
+                            <div className="max-w-7xl mx-auto">
+                                <h2 className={`text-3xl font-bold mb-12 text-center ${isCyber ? 'text-white font-mono' : 'text-slate-900'}`}>Наши услуги</h2>
+                                <div className="grid md:grid-cols-3 gap-8">
+                                    <ServiceCard isCyber={isCyber} title="3D Печать" desc="FDM, SLA, SLS. Прототипы и серийное производство из пластика и фотополимеров." icon={<Icons.Printer />} />
+                                    <ServiceCard isCyber={isCyber} title="3D Сканирование" desc="Оцифровка объектов любой сложности для реверс-инжиниринга или копирования." icon={<Icons.Scan />} />
+                                    <ServiceCard isCyber={isCyber} title="3D Моделирование" desc="Создание 3D моделей по чертежам, эскизам или сломанным деталям." icon={<Icons.Box />} />
+                                </div>
+                            </div>
+                        </section>
+
+                        {/* --- ЛЕНТА ЗАКАЗОВ --- */}
+                        <section id="market" className="py-20 px-4">
+                            <div className="max-w-5xl mx-auto">
+                                <div className="flex justify-between items-end mb-8">
+                                    <h2 className={`text-3xl font-bold ${isCyber ? 'text-white font-mono' : 'text-slate-900'}`}>Актуальные заказы</h2>
+                                    <div className={`hidden md:flex items-center gap-2 px-4 py-2 rounded-lg border ${isCyber ? 'bg-black border-slate-700' : 'bg-white'}`}>
+                                        <Icons.Search size={18} className="opacity-50"/>
+                                        <input type="text" placeholder="Поиск..." className="bg-transparent outline-none" />
                                     </div>
                                 </div>
-                            ))}
-                        </div>
-                    </section>
 
-                    {/* Карта */}
-                    <section className="h-96 w-full relative z-10 bg-slate-800">
-                        <iframe src="https://yandex.ru/map-widget/v1/?ll=47.251916%2C56.119047&z=11" width="100%" height="100%" frameBorder="0" className={isCyber ? "invert hue-rotate-180 contrast-125 grayscale" : ""}></iframe>
-                    </section>
+                                <div className="space-y-4">
+                                    {orders.map(order => (
+                                        <div key={order.id} className={`p-6 rounded-2xl flex flex-col md:flex-row justify-between items-center gap-4 transition hover:scale-[1.01] ${
+                                            isCyber ? 'bg-cyber-dark border border-slate-800' : 'bg-white border border-slate-100 shadow-md'
+                                        }`}>
+                                            <div className="flex-1">
+                                                <div className="flex items-center gap-3 mb-2">
+                                                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded ${
+                                                        isCyber ? 'bg-cyber-neon text-black' : 'bg-blue-100 text-blue-700'
+                                                    }`}>{order.type}</span>
+                                                    <span className="text-xs opacity-50 flex items-center gap-1"><Icons.MapPin size={12}/> {order.city}</span>
+                                                    <span className="text-xs opacity-50">{order.time}</span>
+                                                </div>
+                                                <h3 className={`text-lg font-bold ${isCyber ? 'text-white' : 'text-slate-900'}`}>{order.title}</h3>
+                                            </div>
+                                            <div className="text-right">
+                                                <div className={`text-2xl font-bold ${isCyber ? 'text-cyber-neon' : 'text-brand-600'}`}>{order.price}</div>
+                                                <button className={`mt-2 px-6 py-2 rounded-lg text-sm font-bold transition ${
+                                                    isCyber ? 'bg-slate-800 text-white hover:bg-slate-700' : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+                                                }`}>Откликнуться</button>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        </section>
 
-                    {/* Модальное окно */}
+                        {/* --- КАРТА --- */}
+                        <section id="map" className="h-[400px] w-full relative bg-slate-200">
+                             <iframe src="https://yandex.ru/map-widget/v1/?ll=47.251916%2C56.119047&z=11" width="100%" height="100%" frameBorder="0" className={isCyber ? "map-dark-mode" : ""}></iframe>
+                             {isCyber && <div className="absolute inset-0 pointer-events-none scan-effect"></div>}
+                        </section>
+                    </main>
+
+                    {/* --- FOOTER --- */}
+                    <footer className={`py-12 border-t text-center text-sm ${isCyber ? 'bg-black border-slate-800 text-slate-500' : 'bg-white border-slate-200 text-slate-500'}`}>
+                        <p>© 2024 3D Chuvashia Platform.</p>
+                    </footer>
+
+                    {/* --- МОДАЛЬНОЕ ОКНО --- */}
                     {isModalOpen && (
-                        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
-                            <div className={`w-full max-w-md p-6 rounded-2xl relative ${isCyber ? 'bg-slate-900 border border-cyan-500' : 'bg-white'}`}>
-                                <button onClick={() => setIsModalOpen(false)} className="absolute top-4 right-4"><Icons.X /></button>
-                                <h2 className={`text-xl font-bold mb-4 ${isCyber ? 'text-white' : 'text-slate-900'}`}>Новая заявка</h2>
-                                <form onSubmit={handleCreateOrder} className="space-y-4">
-                                    <input required name="title" placeholder="Что нужно сделать?" className="w-full p-3 border rounded-lg bg-transparent" />
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <select name="type" className="w-full p-3 border rounded-lg bg-transparent">
-                                            <option>3D-печать</option><option>Сканирование</option>
-                                        </select>
-                                        <input name="budget" placeholder="Бюджет" className="w-full p-3 border rounded-lg bg-transparent" />
+                        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+                            <div className={`w-full max-w-md p-8 rounded-3xl relative animate-in fade-in zoom-in duration-200 ${
+                                isCyber ? 'bg-slate-900 border border-cyber-neon' : 'bg-white shadow-2xl'
+                            }`}>
+                                <button onClick={() => setIsModalOpen(false)} className="absolute top-6 right-6 opacity-50 hover:opacity-100"><Icons.X /></button>
+                                
+                                <h2 className={`text-2xl font-bold mb-6 ${isCyber ? 'text-white' : 'text-slate-900'}`}>Новая заявка</h2>
+                                
+                                <form onSubmit={createOrder} className="flex flex-col gap-4">
+                                    <div>
+                                        <label className="text-xs font-bold opacity-60 mb-1 block">Что нужно сделать?</label>
+                                        <input required name="title" className={`w-full p-3 rounded-xl border outline-none focus:ring-2 ${
+                                            isCyber ? 'bg-black border-slate-700 text-white focus:ring-cyber-neon' : 'bg-slate-50 border-slate-200 focus:ring-brand-500'
+                                        }`} placeholder="Например: Печать корпуса" />
                                     </div>
-                                    <select name="location" className="w-full p-3 border rounded-lg bg-transparent">
-                                        <option>Чебоксары</option><option>Новочебоксарск</option>
-                                    </select>
-                                    <ThemeButton primary className="w-full py-3">Опубликовать</ThemeButton>
+                                    
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div>
+                                            <label className="text-xs font-bold opacity-60 mb-1 block">Тип</label>
+                                            <select name="type" className={`w-full p-3 rounded-xl border outline-none ${
+                                                isCyber ? 'bg-black border-slate-700 text-white' : 'bg-slate-50 border-slate-200'
+                                            }`}>
+                                                <option>3D-печать</option>
+                                                <option>Сканирование</option>
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label className="text-xs font-bold opacity-60 mb-1 block">Бюджет</label>
+                                            <input name="price" className={`w-full p-3 rounded-xl border outline-none ${
+                                                isCyber ? 'bg-black border-slate-700 text-white' : 'bg-slate-50 border-slate-200'
+                                            }`} placeholder="₽" />
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <label className="text-xs font-bold opacity-60 mb-1 block">Город</label>
+                                        <select name="city" className={`w-full p-3 rounded-xl border outline-none ${
+                                            isCyber ? 'bg-black border-slate-700 text-white' : 'bg-slate-50 border-slate-200'
+                                        }`}>
+                                            <option>Чебоксары</option>
+                                            <option>Новочебоксарск</option>
+                                        </select>
+                                    </div>
+
+                                    <button type="submit" className={`w-full py-4 rounded-xl font-bold mt-2 transition hover:scale-[1.02] ${
+                                        isCyber ? 'bg-cyber-neon text-black' : 'bg-brand-600 text-white'
+                                    }`}>Опубликовать</button>
                                 </form>
                             </div>
                         </div>
