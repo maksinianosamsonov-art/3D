@@ -26,7 +26,7 @@ import {
 const TELEGRAM_BOT_TOKEN = "8453938307:AAGcU3fQdoPZC7I5y5ueFFnK3HZLAfg680Q";
 const ADMIN_CHAT_ID = "334485676"; 
 
-// --- Данные (Mock Data) ---
+// --- ДАННЫЕ (Без кибер-импланта) ---
 
 const INITIAL_DATA = [
   {
@@ -97,7 +97,7 @@ const SERVICES = [
   }
 ];
 
-// --- Компоненты (Components) ---
+// --- КОМПОНЕНТЫ ---
 
 const GlitchText = ({ text, theme, className = "" }) => {
   if (theme === 'modern') return <span className={`font-bold text-slate-900 ${className}`}>{text}</span>;
@@ -164,9 +164,6 @@ const Badge = ({ children, theme, className, colorModern }) => {
 
 const TelegramLogin = ({ theme, onLogin }) => {
   const isCyber = theme === 'cyberpunk';
-  
-  // Используем inline style для цвета Telegram, чтобы избежать проблем с парсером CSS
-  const telegramColor = { backgroundColor: '#24A1DE', borderColor: '#24A1DE', color: isCyber ? '#24A1DE' : 'white' };
   const telegramColorCyber = { backgroundColor: 'rgba(36, 161, 222, 0.2)', borderColor: '#24A1DE', color: '#24A1DE' };
 
   return (
@@ -527,9 +524,6 @@ export default function App() {
   };
 
   const handleTelegramLogin = () => {
-    // В этом демо мы "симулируем" получение данных от виджета
-    // Но отправляем РЕАЛЬНОЕ уведомление в бот
-    
     const mockUser = {
       id: 12345678,
       first_name: "DemoUser",
@@ -1039,3 +1033,4 @@ export default function App() {
     </div>
   );
 }
+  
