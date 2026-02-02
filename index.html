@@ -24,12 +24,7 @@ import {
 } from 'lucide-react';
 
 // --- КОНФИГУРАЦИЯ TELEGRAM ---
-// Внимание: В реальном проекте токен должен быть на сервере.
-// Для прототипа используем прямую вставку.
 const TELEGRAM_BOT_TOKEN = "8453938307:AAGcU3fQdoPZC7I5y5ueFFnK3HZLAfg680Q";
-
-// ВАЖНО: ЗАМЕНИТЕ ЭТО НА ВАШ CHAT ID (получите его у бота @userinfobot)
-// Если оставить пустым, сообщения уходить не будут (выведет alert с инструкцией)
 const ADMIN_CHAT_ID = "334485676"; 
 
 // --- Данные (Mock Data) ---
@@ -168,7 +163,6 @@ const Badge = ({ children, theme, className, colorModern }) => {
   );
 };
 
-// Новый компонент для Telegram логина
 const TelegramLogin = ({ theme, onLogin }) => {
   const isCyber = theme === 'cyberpunk';
   
@@ -484,7 +478,7 @@ export default function App() {
     
     // ПРОВЕРКА CHAT ID
     if (!ADMIN_CHAT_ID) {
-      alert("ОШИБКА НАСТРОЙКИ: Не указан ADMIN_CHAT_ID в коде.\n\n1. Найдите бота в Telegram (по токену или имени).\n2. Напишите ему /start.\n3. Узнайте свой ID через бота @userinfobot.\n4. Вставьте ID в константу ADMIN_CHAT_ID в начале кода.");
+      alert("ОШИБКА НАСТРОЙКИ: Не указан ADMIN_CHAT_ID в коде.");
       console.error("ADMIN_CHAT_ID is empty");
       return;
     }
