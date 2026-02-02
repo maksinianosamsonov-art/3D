@@ -1,3 +1,17 @@
+<!-- 
+!!! ИНСТРУКЦИЯ ПО ЗАПУСКУ !!!
+
+1. Сохраните этот код в файл с названием: index.html
+2. Загрузите этот файл в ваш репозиторий на GitHub.
+3. В настройках репозитория (Settings -> Pages) включите GitHub Pages (выберите Branch: main и нажмите Save).
+4. Скопируйте ссылку на ваш сайт, которая появится в настройках.
+5. ВАЖНО ДЛЯ TELEGRAM: 
+   - Откройте в Telegram бота @BotFather.
+   - Отправьте команду /setdomain.
+   - Выберите своего бота d1f0_bot.
+   - Отправьте ему ссылку на ваш сайт (https://maksinianosamsonov-art.github.io/3D/).
+-->
+
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -108,8 +122,11 @@
             ArrowRight: (p) => <Icon {...p} p={<><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></>} />,
             Send: (p) => <Icon {...p} p={<><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></>} />,
             Box: (p) => <Icon {...p} p={<><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></>} />,
-            Settings: (p) => <Icon {...p} p={<circle cx="12" cy="12" r="3"></circle>} />, // Placeholder
-            LogOut: (p) => <Icon {...p} p={<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>} />
+            Settings: (p) => <Icon {...p} p={<circle cx="12" cy="12" r="3"></circle>} />,
+            LogOut: (p) => <Icon {...p} p={<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>} />,
+            // Добавлены недостающие иконки Printer и Scan
+            Printer: (p) => <Icon {...p} p={<><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></>} />,
+            Scan: (p) => <Icon {...p} p={<><path d="M3 7V5a2 2 0 0 1 2-2h2"></path><path d="M17 3h2a2 2 0 0 1 2 2v2"></path><path d="M21 17v2a2 2 0 0 1-2 2h-2"></path><path d="M7 21H5a2 2 0 0 1-2-2v-2"></path></>} />
         };
 
         // --- ДАННЫЕ ---
