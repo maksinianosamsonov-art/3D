@@ -1,11 +1,10 @@
 <!-- 
-!!! ИНСТРУКЦИЯ ПО ЗАПУСКУ !!!
-
-1. Сохраните этот код в файл с названием: index.html
-2. Загрузите этот файл в ваш репозиторий на GitHub.
-3. В настройках репозитория (Settings -> Pages) включите GitHub Pages (выберите Branch: main и нажмите Save).
-4. ВАЖНО: Кнопка входа Telegram может не работать локально, но заработает на GitHub Pages, 
-   если вы настроили домен через @BotFather (/setdomain).
+!!! ИНСТРУКЦИЯ !!!
+1. Сохраните этот файл как index.html
+2. Загрузите на GitHub
+3. Если кнопка Telegram не работает: 
+   - Зайдите в @BotFather
+   - /setdomain -> @d1f0_bot -> https://maksinianosamsonov-art.github.io
 -->
 
 <!DOCTYPE html>
@@ -13,17 +12,119 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>3D Чувашия | Биржа</title>
+    <title>3D CHUVASHIA | CYBER NEXUS</title>
+    
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- React & ReactDOM (Стабильные версии UMD) -->
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    
+    <!-- Babel -->
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <!-- Шрифты -->
+    <link href="https://api.fontshare.com/v2/css?f[]=clash-display@200,400,600,700&f[]=general-sans@200,400,500,600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        display: ['Clash Display', 'sans-serif'],
+                        body: ['General Sans', 'sans-serif'],
+                        mono: ['Share Tech Mono', 'monospace'],
+                    },
+                    colors: {
+                        cyber: {
+                            black: '#020204',
+                            dark: '#0a0a12',
+                            neon: '#00f3ff',
+                            purple: '#bc13fe',
+                        }
+                    },
+                    animation: {
+                        'blob': 'blob 10s infinite',
+                        'float': 'float 6s ease-in-out infinite',
+                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                    },
+                    keyframes: {
+                        blob: {
+                            '0%': { transform: 'translate(0px, 0px) scale(1)' },
+                            '33%': { transform: 'translate(30px, -50px) scale(1.1)' },
+                            '66%': { transform: 'translate(-20px, 20px) scale(0.9)' },
+                            '100%': { transform: 'translate(0px, 0px) scale(1)' },
+                        },
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-20px)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&family=JetBrains+Mono:wght@400&display=swap');
-        body { font-family: 'Inter', sans-serif; }
-        .font-mono { font-family: 'JetBrains Mono', monospace; }
-        .glass { background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(10px); }
-        .glass-dark { background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(10px); }
+        body { 
+            background-color: #020204; 
+            color: #e2e8f0; 
+            overflow-x: hidden;
+            margin: 0;
+        }
+
+        /* Неоновое свечение */
+        .neon-text { text-shadow: 0 0 10px rgba(0, 243, 255, 0.7); }
+        .neon-box { box-shadow: 0 0 15px rgba(0, 243, 255, 0.15); border: 1px solid rgba(0, 243, 255, 0.3); }
+
+        /* Сетка на фоне */
+        .cyber-grid {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-image: 
+                linear-gradient(rgba(0, 243, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 243, 255, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            mask-image: radial-gradient(circle at center, black 40%, transparent 80%);
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        /* Стекло */
+        .glass {
+            background: rgba(10, 10, 20, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        /* Живой фон (Blobs) */
+        .blob-cont {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -2; overflow: hidden;
+        }
+        .blob {
+            position: absolute; filter: blur(90px); opacity: 0.4;
+            animation: blob 15s infinite alternate;
+        }
+        .blob-1 { top: 0; left: -10%; width: 50vw; height: 50vw; background: #4f46e5; }
+        .blob-2 { bottom: 0; right: -10%; width: 50vw; height: 50vw; background: #bd00ff; animation-delay: -5s; }
+
+        /* Анимация сканера */
+        .scan-line {
+            position: absolute; width: 100%; height: 2px; background: #00f3ff;
+            opacity: 0.5; animation: scan 3s linear infinite;
+            box-shadow: 0 0 10px #00f3ff; pointer-events: none;
+        }
+        @keyframes scan { 0% { top: 0%; opacity: 0; } 50% { opacity: 1; } 100% { top: 100%; opacity: 0; } }
+
+        /* Инверсия карты */
+        .map-invert { filter: invert(1) hue-rotate(180deg) brightness(0.7) contrast(1.2); }
+        
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #020204; }
+        ::-webkit-scrollbar-thumb { background: #00f3ff; border-radius: 3px; }
     </style>
 </head>
 <body>
@@ -32,59 +133,84 @@
     <script type="text/babel">
         const { useState, useEffect, useRef } = React;
 
-        // --- НАСТРОЙКИ ---
+        // --- КОНФИГУРАЦИЯ ---
         const CONFIG = {
             botToken: "8453938307:AAGcU3fQdoPZC7I5y5ueFFnK3HZLAfg680Q",
             adminId: "334485676",
-            botName: "d1f0_bot" 
+            botName: "d1f0_bot"
         };
 
-        // --- ИКОНКИ ---
-        // Исправлена ошибка: добавлены фрагменты <>...</> для иконок с несколькими путями
-        const Icon = ({ p, className }) => <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={`w-5 h-5 ${className}`}>{p}</svg>;
+        // --- ИКОНКИ (SVG) ---
+        const Icon = ({ path, className }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={className}>
+                {path}
+            </svg>
+        );
+
         const Icons = {
-            Zap: <Icon p={<polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>} />,
-            Send: <Icon p={<path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/>} />,
-            User: <Icon p={<><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></>} />,
-            Moon: <Icon p={<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>} />,
-            Sun: <Icon p={<><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></>} />,
-            X: <Icon p={<><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></>} />,
-            Menu: <Icon p={<><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></>} />
+            Zap: <Icon path={<polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>} />,
+            Box: <Icon path={<><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></>} />,
+            Layers: <Icon path={<><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></>} />,
+            Scan: <Icon path={<><path d="M3 7V5a2 2 0 0 1 2-2h2"></path><path d="M17 3h2a2 2 0 0 1 2 2v2"></path><path d="M21 17v2a2 2 0 0 1-2 2h-2"></path><path d="M7 21H5a2 2 0 0 1-2-2v-2"></path></>} />,
+            Menu: <Icon path={<><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></>} />,
+            X: <Icon path={<><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></>} />,
+            Sun: <Icon path={<><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></>} />,
+            Moon: <Icon path={<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>} />,
+            User: <Icon path={<><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></>} />,
+            LogOut: <Icon path={<path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>} />,
+            Send: <Icon path={<><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></>} />,
+            MapPin: <Icon path={<><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></>} />,
+            Search: <Icon path={<><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></>} />,
+            Clock: <Icon path={<><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></>} />,
+            Printer: <Icon path={<><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></>} />
         };
 
         // --- ДАННЫЕ ---
-        const INITIAL_ORDERS = [
-            { id: 1, title: "Печать шестерни", price: "1 500 ₽", city: "Чебоксары", type: "3D-печать", time: "2ч назад" },
-            { id: 2, title: "Сканирование детали", price: "5 000 ₽", city: "Новочебоксарск", type: "Скан", time: "5ч назад" },
-            { id: 3, title: "Серийная печать", price: "Договорная", city: "Чебоксары", type: "Серия", time: "1д назад" }
+        const TECH_CARDS = [
+            { title: "FDM ПЕЧАТЬ", desc: "Термопластичная экструзия. Прототипирование и функциональные детали.", icon: Icons.Layers },
+            { title: "SLA/DLP", desc: "Фотополимерная печать. Высочайшая точность для ювелиров и медицины.", icon: Icons.Box },
+            { title: "3D СКАН", desc: "Оцифровка реальности. Реверс-инжиниринг и контроль геометрии.", icon: Icons.Scan }
         ];
 
-        // --- ГЛАВНЫЙ КОМПОНЕНТ ---
+        const INITIAL_ORDERS = [
+            { id: 1, title: "Корпус для Arduino", type: "FDM Печать", price: "800 ₽", city: "Чебоксары", time: "1ч назад" },
+            { id: 2, title: "Шестерня (копия)", type: "Моделирование", price: "1 500 ₽", city: "Новочебоксарск", time: "3ч назад" },
+            { id: 3, title: "Фигурка 15см", type: "SLA Печать", price: "3 000 ₽", city: "Чебоксары", time: "Вчера" }
+        ];
+
+        // --- ВИДЖЕТ TELEGRAM ---
+        const TelegramWidget = ({ onAuth }) => {
+            const ref = useRef(null);
+            useEffect(() => {
+                if (!ref.current) return;
+                ref.current.innerHTML = '';
+                
+                window.onTelegramAuth = (user) => onAuth(user);
+                
+                const script = document.createElement('script');
+                script.src = "https://telegram.org/js/telegram-widget.js?22";
+                script.setAttribute('data-telegram-login', CONFIG.botName);
+                script.setAttribute('data-size', 'medium');
+                script.setAttribute('data-radius', '0');
+                script.setAttribute('data-request-access', 'write');
+                script.setAttribute('data-auth-url', window.location.href);
+                script.async = true;
+                ref.current.appendChild(script);
+            }, []);
+            return <div ref={ref} className="flex justify-center mix-blend-screen invert hue-rotate-180 contrast-200"></div>;
+        };
+
+        // --- ГЛАВНОЕ ПРИЛОЖЕНИЕ ---
         function App() {
-            const [theme, setTheme] = useState('modern');
+            const [theme, setTheme] = useState('cyberpunk');
             const [user, setUser] = useState(null);
             const [orders, setOrders] = useState(INITIAL_ORDERS);
-            const [modalOpen, setModalOpen] = useState(false);
+            const [isModalOpen, setIsModalOpen] = useState(false);
             const [menuOpen, setMenuOpen] = useState(false);
+
             const isCyber = theme === 'cyberpunk';
 
-            // Проверка возврата после логина Telegram
-            useEffect(() => {
-                const params = new URLSearchParams(window.location.search);
-                if (params.get('id') && params.get('hash')) {
-                    const tgUser = {
-                        id: params.get('id'),
-                        first_name: params.get('first_name'),
-                        username: params.get('username'),
-                        photo_url: params.get('photo_url')
-                    };
-                    setUser(tgUser);
-                    window.history.replaceState({}, document.title, window.location.pathname);
-                    notifyAdmin(`🔐 <b>Вход на сайт</b>\nПользователь: ${tgUser.first_name} (@${tgUser.username})`);
-                }
-            }, []);
-
-            // Отправка в Telegram
+            // Функции логики (объявлены в начале компонента)
             const notifyAdmin = async (msg) => {
                 try {
                     await fetch(`https://api.telegram.org/bot${CONFIG.botToken}/sendMessage`, {
@@ -92,155 +218,276 @@
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ chat_id: CONFIG.adminId, text: msg, parse_mode: 'HTML' })
                     });
-                } catch (e) { console.error(e); }
+                } catch(e) { console.error(e); }
             };
 
-            const handleCreateOrder = (e) => {
+            const handleLogin = (u) => {
+                setUser(u);
+                notifyAdmin(`🔐 LOGON: ${u.first_name}`);
+                alert(`Добро пожаловать, ${u.first_name}!`);
+            };
+
+            const handleSubmit = (e) => {
                 e.preventDefault();
-                const form = new FormData(e.target);
-                const contact = form.get('contact') || (user ? `@${user.username}` : 'Не указан');
+                const f = new FormData(e.target);
+                const title = f.get('title');
+                const type = f.get('type');
+                const price = f.get('price');
                 
                 const newOrder = {
                     id: Date.now(),
-                    title: form.get('title'),
-                    price: form.get('price'),
-                    city: form.get('city'),
-                    type: form.get('type'),
+                    title: title,
+                    type: type,
+                    price: price || "Договорная",
+                    city: f.get('city'),
                     time: "Только что"
                 };
-
                 setOrders([newOrder, ...orders]);
-                setModalOpen(false);
-                notifyAdmin(`📦 <b>Новый заказ!</b>\nЗадача: ${newOrder.title}\nБюджет: ${newOrder.price}\nГород: ${newOrder.city}\nКонтакт: ${contact}`);
-                alert("Заказ отправлен!");
+                
+                const contact = user ? `@${user.username}` : f.get('contact');
+                
+                notifyAdmin(`📦 <b>Новая заявка!</b>\nЗадача: ${title}\nТип: ${type}\nБюджет: ${price}\nГород: ${f.get('city')}\nКонтакт: ${contact}`);
+                alert("Данные загружены (заявка отправлена)");
+                setIsModalOpen(false);
             };
 
-            // Виджет Telegram (Автоматический URL)
-            const TelegramWidget = () => {
-                const container = useRef(null);
-                useEffect(() => {
-                    if (!container.current) return;
-                    container.current.innerHTML = '';
-                    const script = document.createElement('script');
-                    script.src = "https://telegram.org/js/telegram-widget.js?22";
-                    script.setAttribute('data-telegram-login', CONFIG.botName);
-                    script.setAttribute('data-size', 'medium');
-                    script.setAttribute('data-radius', '14'); // Ваш радиус
-                    script.setAttribute('data-auth-url', window.location.href); // Авто-определение ссылки
-                    script.setAttribute('data-request-access', 'write');
-                    script.async = true;
-                    container.current.appendChild(script);
-                }, []);
-                return <div ref={container} className="my-2 flex justify-center"></div>;
-            };
+            // Обработка редиректа Telegram
+            useEffect(() => {
+                const params = new URLSearchParams(window.location.search);
+                if (params.get('id') && params.get('hash')) {
+                    const tgUser = {
+                        id: params.get('id'), first_name: params.get('first_name'),
+                        username: params.get('username'), photo_url: params.get('photo_url')
+                    };
+                    setUser(tgUser);
+                    window.history.replaceState({}, document.title, window.location.pathname);
+                    notifyAdmin(`🔐 <b>Вход (Redirect)</b>: ${tgUser.first_name}`);
+                }
+            }, []);
 
-            const styles = isCyber 
-                ? "bg-black text-blue-400 selection:bg-blue-500 selection:text-white" 
-                : "bg-slate-50 text-slate-800 selection:bg-blue-200";
+            // Стили
+            const bgClass = isCyber ? 'bg-[#020204] text-slate-300' : 'bg-slate-50 text-slate-900';
+            const navClass = isCyber ? 'bg-[#0a0a12]/90 border-[#00f3ff]/30' : 'bg-white/90 border-slate-200';
+            const styles = {
+                card: isCyber ? 'bg-[#0a0a12] border border-[#00f3ff]/30 hover:border-[#00f3ff] text-slate-300' : 'bg-white shadow-lg border-slate-100 text-slate-900',
+            };
 
             return (
-                <div className={`min-h-screen transition-colors duration-300 ${styles}`}>
+                <div className={`min-h-screen flex flex-col font-body transition-colors duration-500 ${bgClass}`}>
                     
-                    {/* НАВИГАЦИЯ */}
-                    <nav className={`fixed top-0 w-full z-50 border-b px-4 ${isCyber ? 'bg-black/90 border-blue-900' : 'bg-white/90 border-slate-200'}`}>
-                        <div className="max-w-6xl mx-auto h-16 flex items-center justify-between">
-                            <div className="flex items-center gap-2 font-bold text-xl tracking-tighter cursor-pointer" onClick={() => window.location.reload()}>
-                                <div className={`p-2 rounded ${isCyber ? 'bg-blue-900 text-white' : 'bg-blue-600 text-white'}`}>{Icons.Zap}</div>
-                                <span>3D<span className={isCyber ? 'text-white' : 'text-blue-600'}>ЧУВАШИЯ</span></span>
+                    {/* Фон (Blobs) */}
+                    {isCyber && <div className="blob-cont"><div className="blob blob-1"></div><div className="blob blob-2"></div></div>}
+                    <div className="fixed inset-0 z-0 cyber-grid opacity-30 pointer-events-none"></div>
+
+                    {/* Навигация */}
+                    <nav className={`fixed w-full z-50 top-0 border-b backdrop-blur-md ${navClass}`}>
+                        <div className="max-w-7xl mx-auto px-6 h-20 flex justify-between items-center">
+                            <div className="flex items-center gap-3 font-display font-bold text-2xl tracking-widest cursor-pointer group" onClick={() => window.location.reload()}>
+                                <div className={`w-10 h-10 flex items-center justify-center border transition-all duration-300 ${isCyber ? 'border-[#00f3ff] text-[#00f3ff] group-hover:bg-[#00f3ff] group-hover:text-black' : 'border-blue-600 text-blue-600'}`}>
+                                    <div className="w-6 h-6">{Icons.Zap}</div>
+                                </div>
+                                <span className={isCyber ? 'text-white' : 'text-slate-900'}>3D_ЧУВАШИЯ</span>
+                            </div>
+
+                            <div className="hidden md:flex items-center gap-8 text-sm font-mono tracking-widest uppercase">
+                                <a href="#tech" className="hover:text-[#00f3ff] transition">Технологии</a>
+                                <a href="#gallery" className="hover:text-[#00f3ff] transition">Галерея</a>
+                                <a href="#contacts" className="hover:text-[#00f3ff] transition">Контакты</a>
                             </div>
 
                             <div className="hidden md:flex items-center gap-6">
-                                <button onClick={() => setTheme(isCyber ? 'modern' : 'cyberpunk')} className="p-2 hover:opacity-70">
-                                    {isCyber ? Icons.Sun : Icons.Moon}
+                                <button onClick={() => setTheme(isCyber ? 'light' : 'cyberpunk')} className="opacity-60 hover:opacity-100 transition">
+                                    <div className="w-5 h-5">{isCyber ? Icons.Sun : Icons.Moon}</div>
                                 </button>
+                                
                                 {user ? (
-                                    <div className="flex items-center gap-3 bg-opacity-10 bg-gray-500 px-3 py-1 rounded-full">
-                                        <img src={user.photo_url || "https://via.placeholder.com/30"} className="w-6 h-6 rounded-full"/>
-                                        <span className="text-xs font-bold">{user.first_name}</span>
-                                        <button onClick={() => setUser(null)} className="text-red-500 hover:text-red-400 flex items-center ml-2">{Icons.X}</button>
+                                    <div className={`flex items-center gap-3 px-4 py-1.5 border ${isCyber ? 'border-[#00f3ff]/50 text-[#00f3ff]' : 'border-slate-300'}`}>
+                                        <span className="font-mono text-xs">{user.first_name}</span>
+                                        <button onClick={() => setUser(null)}><div className="w-4 h-4">{Icons.LogOut}</div></button>
                                     </div>
                                 ) : (
-                                    <div className="scale-90 origin-right"><TelegramWidget /></div>
+                                    <div className="scale-75"><TelegramWidget onAuth={handleLogin} /></div>
                                 )}
-                                <button onClick={() => setModalOpen(true)} className={`px-5 py-2 rounded-lg font-bold text-sm transition ${isCyber ? 'bg-blue-500 text-black hover:bg-blue-400' : 'bg-blue-600 text-white hover:bg-blue-700'}`}>+ ЗАКАЗ</button>
+                                
+                                <button onClick={() => setIsModalOpen(true)} className={`px-8 py-2 font-bold font-mono text-xs uppercase tracking-widest transition-all hover:scale-105 ${isCyber ? 'bg-[#00f3ff] text-black hover:shadow-[0_0_20px_#00f3ff]' : 'bg-black text-white'}`}>
+                                    СОЗДАТЬ ЗАКАЗ
+                                </button>
                             </div>
-
-                            <button className="md:hidden" onClick={() => setMenuOpen(!menuOpen)}>{Icons.Menu}</button>
+                            
+                            <button className="md:hidden" onClick={() => setMenuOpen(!menuOpen)}>
+                                <div className="w-8 h-8">{Icons.Menu}</div>
+                            </button>
                         </div>
                         
                         {/* Мобильное меню */}
                         {menuOpen && (
-                            <div className={`md:hidden p-4 border-t border-gray-700 ${isCyber ? 'bg-black' : 'bg-white'}`}>
-                                <div className="flex justify-center mb-4">{!user && <TelegramWidget />}</div>
-                                <button onClick={() => {setMenuOpen(false); setModalOpen(true)}} className="w-full py-3 bg-blue-600 text-white rounded-lg font-bold mb-2">Создать заказ</button>
-                                <button onClick={() => setTheme(isCyber ? 'modern' : 'cyberpunk')} className="w-full py-3 border rounded-lg">Сменить тему</button>
+                            <div className={`md:hidden p-6 border-t ${isCyber ? 'border-[#00f3ff]/30 bg-[#0a0a12]' : 'border-slate-200 bg-white'}`}>
+                                <div className="flex flex-col gap-4 font-bold font-mono uppercase tracking-widest text-center">
+                                    <a href="#tech" onClick={() => setMenuOpen(false)}>Технологии</a>
+                                    <a href="#gallery" onClick={() => setMenuOpen(false)}>Галерея</a>
+                                    <div className="flex justify-center">{!user && <TelegramWidget onAuth={handleLogin}/>}</div>
+                                    <button onClick={() => {setMenuOpen(false); setIsModalOpen(true)}} className={`w-full py-3 ${isCyber ? 'bg-[#00f3ff] text-black' : 'bg-black text-white'}`}>СОЗДАТЬ ЗАКАЗ</button>
+                                </div>
                             </div>
                         )}
                     </nav>
 
-                    {/* ГЛАВНЫЙ ЭКРАН */}
-                    <main className="pt-32 pb-10 px-4 max-w-6xl mx-auto">
-                        <div className="text-center mb-16">
-                            <h1 className="text-4xl md:text-6xl font-black mb-6 uppercase tracking-tight">
-                                Производство <br/>
-                                <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-600">Будущего</span>
-                            </h1>
-                            <p className="text-lg opacity-70 mb-8 max-w-2xl mx-auto">Единая платформа 3D-печати и сканирования в Чувашии. Найдите исполнителя или разместите заказ за 5 минут.</p>
-                        </div>
-
-                        {/* ЛЕНТА ЗАКАЗОВ */}
-                        <div className="grid gap-4 max-w-3xl mx-auto">
-                            <div className="flex justify-between items-end mb-2 px-2">
-                                <h2 className="text-xl font-bold">Лента заказов</h2>
-                                <span className="text-xs opacity-50">Live</span>
+                    {/* HERO SECTION */}
+                    <header className="relative min-h-screen flex items-center justify-center px-4 pt-20">
+                        <div className="max-w-5xl mx-auto text-center relative z-10 animate-float">
+                            <div className={`inline-block border px-4 py-1.5 mb-8 font-mono text-xs tracking-[0.3em] ${isCyber ? 'border-[#00f3ff] text-[#00f3ff] bg-[#00f3ff]/10' : 'border-slate-900 text-slate-900'}`}>
+                                СИСТЕМА ОНЛАЙН
                             </div>
-                            {orders.map(order => (
-                                <div key={order.id} className={`p-6 rounded-2xl flex justify-between items-center transition hover:scale-[1.01] ${isCyber ? 'bg-gray-900 border border-gray-800' : 'bg-white shadow-sm border border-gray-100'}`}>
-                                    <div>
-                                        <div className="flex items-center gap-2 mb-1">
-                                            <span className={`text-[10px] font-bold px-2 py-0.5 rounded ${isCyber ? 'bg-blue-900 text-blue-200' : 'bg-blue-100 text-blue-700'}`}>{order.type}</span>
-                                            <span className="text-xs opacity-50">{order.city} • {order.time}</span>
+                            
+                            <h1 className={`font-display text-5xl md:text-9xl font-black leading-none mb-8 ${isCyber ? 'text-white' : 'text-slate-900'}`}>
+                                ЦИФРОВАЯ <br/>
+                                <span className={isCyber ? 'text-transparent bg-clip-text bg-gradient-to-r from-[#00f3ff] to-purple-600 neon-text' : 'text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600'}>
+                                    РЕАЛЬНОСТЬ
+                                </span>
+                            </h1>
+
+                            <p className="max-w-xl mx-auto text-lg opacity-60 mb-12 font-mono leading-relaxed border-l-2 border-[#00f3ff] pl-6 text-left md:text-center md:border-l-0 md:pl-0">
+                                // Платформа цифрового производства Чувашии.<br/>
+                                // Соединяем ваши идеи с промышленным оборудованием.
+                            </p>
+
+                            <div className="flex justify-center">
+                                <button onClick={() => setIsModalOpen(true)} className={`px-10 py-4 font-bold font-mono text-lg uppercase tracking-widest transition-all hover:-translate-y-1 ${isCyber ? 'border border-[#00f3ff] text-[#00f3ff] hover:bg-[#00f3ff] hover:text-black' : 'bg-black text-white hover:bg-gray-800'}`}>
+                                    НАЧАТЬ
+                                </button>
+                            </div>
+                        </div>
+                    </header>
+
+                    {/* TECH SECTION */}
+                    <section id="tech" className={`py-32 px-4 border-t ${isCyber ? 'border-white/5 bg-black/50' : 'border-slate-200 bg-slate-100'}`}>
+                        <div className="max-w-7xl mx-auto">
+                            <div className="flex items-end justify-between mb-16">
+                                <h2 className={`text-4xl font-display font-bold ${isCyber ? 'text-white' : 'text-slate-900'}`}>ПРОТОКОЛЫ</h2>
+                                <div className="hidden md:block font-mono text-xs opacity-50">/// ДОСТУПНЫЕ_ТЕХНОЛОГИИ</div>
+                            </div>
+                            
+                            <div className="grid md:grid-cols-3 gap-8">
+                                {TECH_CARDS.map((card, i) => (
+                                    <div key={i} className={`p-8 border transition-all duration-300 hover:-translate-y-2 group ${isCyber ? 'border-white/10 hover:border-[#00f3ff] bg-white/5' : 'bg-white border-slate-200 shadow-sm'}`}>
+                                        <div className={`w-12 h-12 mb-6 ${isCyber ? 'text-[#00f3ff]' : 'text-blue-600'}`}>
+                                            <div className="w-8 h-8">{card.icon}</div>
                                         </div>
-                                        <h3 className="font-bold text-lg">{order.title}</h3>
+                                        <h3 className={`text-2xl font-bold font-display mb-4 ${isCyber ? 'text-white' : 'text-slate-900'}`}>{card.title}</h3>
+                                        <p className="font-mono text-sm opacity-60 leading-relaxed">{card.desc}</p>
                                     </div>
-                                    <div className="text-right">
-                                        <div className="text-xl font-bold">{order.price}</div>
-                                        <button className={`mt-1 text-xs font-bold px-4 py-1.5 rounded ${isCyber ? 'bg-white text-black' : 'bg-slate-900 text-white'}`}>Взять</button>
+                                ))}
+                            </div>
+                        </div>
+                    </section>
+
+                    {/* MARKET FEED */}
+                    <section id="gallery" className="py-24 px-4 max-w-5xl mx-auto">
+                        <div className="flex items-end justify-between mb-8 border-b border-current/10 pb-4">
+                            <h2 className="font-display text-3xl font-bold">ЛЕНТА ЗАКАЗОВ</h2>
+                            <div className="font-mono text-xs opacity-50 animate-pulse">● ОБНОВЛЕНИЕ</div>
+                        </div>
+                        
+                        <div className="space-y-4">
+                            {orders.map((order) => (
+                                <div key={order.id} className={`p-6 rounded-lg border flex flex-col md:flex-row items-center justify-between gap-6 transition hover:scale-[1.01] ${styles.card}`}>
+                                    <div className="flex-1 w-full">
+                                        <div className="flex items-center gap-3 mb-2 font-mono text-xs opacity-60">
+                                            <span className={`px-2 py-0.5 border rounded ${isCyber ? 'border-[#00f3ff] text-[#00f3ff]' : 'bg-blue-100 text-blue-800 border-transparent'}`}>{order.type}</span>
+                                            <span className="flex items-center gap-1"><div className="w-3 h-3">{Icons.MapPin}</div> {order.city}</span>
+                                            <span className="flex items-center gap-1"><div className="w-3 h-3">{Icons.Clock}</div> {order.time}</span>
+                                        </div>
+                                        <h3 className="text-xl font-bold">{order.title}</h3>
+                                    </div>
+                                    <div className="flex items-center gap-6 w-full md:w-auto justify-between">
+                                        <div className={`font-mono text-xl font-bold ${isCyber ? 'text-[#00f3ff]' : 'text-blue-600'}`}>{order.price}</div>
+                                        <button className={`px-6 py-2 rounded text-xs font-bold uppercase tracking-wider transition ${isCyber ? 'bg-white text-black hover:bg-[#00f3ff]' : 'bg-black text-white hover:bg-gray-800'}`}>
+                                            Взять
+                                        </button>
                                     </div>
                                 </div>
                             ))}
                         </div>
-                    </main>
+                    </section>
 
-                    {/* МОДАЛЬНОЕ ОКНО */}
-                    {modalOpen && (
-                        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-                            <div className={`w-full max-w-md p-6 rounded-2xl relative ${isCyber ? 'bg-gray-900 border border-blue-500' : 'bg-white'}`}>
-                                <button onClick={() => setModalOpen(false)} className="absolute top-4 right-4 opacity-50 hover:opacity-100">{Icons.X}</button>
-                                <h2 className="text-2xl font-bold mb-6">Новая заявка</h2>
-                                
-                                <form onSubmit={handleCreateOrder} className="flex flex-col gap-4">
-                                    <input required name="title" placeholder="Что нужно сделать?" className={`w-full p-3 rounded-lg border bg-transparent outline-none focus:ring-2 ${isCyber ? 'border-gray-700 focus:ring-blue-500' : 'border-gray-200 focus:ring-blue-500'}`} />
-                                    
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <select name="type" className={`w-full p-3 rounded-lg border bg-transparent outline-none ${isCyber ? 'border-gray-700' : 'border-gray-200'}`}>
-                                            <option className="text-black">3D-печать</option>
-                                            <option className="text-black">Сканирование</option>
-                                        </select>
-                                        <input name="price" placeholder="Бюджет (₽)" className={`w-full p-3 rounded-lg border bg-transparent outline-none ${isCyber ? 'border-gray-700' : 'border-gray-200'}`} />
+                    {/* CONTACTS / MAP */}
+                    <section id="contacts" className="relative h-[500px] border-t border-white/10">
+                        <iframe src="https://yandex.ru/map-widget/v1/?ll=47.251916%2C56.119047&z=11" className={`w-full h-full grayscale ${isCyber ? 'map-invert opacity-60' : ''}`} frameBorder="0"></iframe>
+                        {isCyber && <div className="absolute inset-0 pointer-events-none scan-line"></div>}
+                        
+                        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                            <div className={`p-8 backdrop-blur-md border max-w-sm w-full mx-4 pointer-events-auto ${isCyber ? 'bg-black/80 border-[#00f3ff]' : 'bg-white/90 border-slate-200 shadow-xl'}`}>
+                                <h3 className="font-display text-2xl font-bold mb-6">КОНТАКТНЫЙ УЗЕЛ</h3>
+                                <div className="space-y-4 font-mono text-sm">
+                                    <div className="flex justify-between border-b border-white/10 pb-2">
+                                        <span className="opacity-50">АДРЕС:</span>
+                                        <span>Чебоксары, пр. Ленина 12</span>
                                     </div>
+                                    <div className="flex justify-between border-b border-white/10 pb-2">
+                                        <span className="opacity-50">СВЯЗЬ:</span>
+                                        <span className="text-[#00f3ff]">@3d_chuvashia</span>
+                                    </div>
+                                </div>
+                                <button onClick={() => setIsModalOpen(true)} className={`w-full mt-6 py-3 font-bold uppercase tracking-widest ${isCyber ? 'bg-[#00f3ff] text-black hover:bg-white' : 'bg-black text-white'} transition`}>
+                                    Связаться
+                                </button>
+                            </div>
+                        </div>
+                    </section>
 
-                                    <select name="city" className={`w-full p-3 rounded-lg border bg-transparent outline-none ${isCyber ? 'border-gray-700' : 'border-gray-200'}`}>
-                                        <option className="text-black">Чебоксары</option>
-                                        <option className="text-black">Новочебоксарск</option>
-                                    </select>
+                    <footer className="py-8 text-center font-mono text-xs opacity-40 border-t border-white/5">
+                        СИСТЕМА: 3D_ЧУВАШИЯ // СТАТУС: ОНЛАЙН
+                    </footer>
 
-                                    {!user && (
-                                        <input name="contact" required placeholder="Ваш контакт (Telegram / Телефон)" className={`w-full p-3 rounded-lg border bg-transparent outline-none ${isCyber ? 'border-gray-700' : 'border-gray-200'}`} />
-                                    )}
+                    {/* MODAL */}
+                    {isModalOpen && (
+                        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/90 backdrop-blur-sm animate-pulse-slow">
+                            <div className={`w-full max-w-lg p-1 ${isCyber ? 'bg-gradient-to-br from-cyan-500 to-purple-600' : 'bg-white shadow-2xl'}`}>
+                                <div className={`p-8 h-full w-full relative ${isCyber ? 'bg-[#050507]' : 'bg-white'}`}>
+                                    <button onClick={() => setIsModalOpen(false)} className="absolute top-4 right-4 opacity-50 hover:opacity-100"><div className="w-6 h-6">{Icons.X}</div></button>
+                                    <h2 className="text-2xl font-display font-bold mb-8 uppercase">Новый Протокол</h2>
+                                    
+                                    <form onSubmit={handleSubmit} className="space-y-6 font-mono text-sm">
+                                        <div>
+                                            <label className="opacity-50 mb-2 block uppercase tracking-widest">Задача</label>
+                                            <input required name="title" className={`w-full p-3 border-b outline-none transition-colors ${isCyber ? 'bg-transparent border-white/20 focus:border-[#00f3ff] text-white' : 'bg-slate-50 border-slate-300 text-black'}`} placeholder="Опишите задачу..." />
+                                        </div>
+                                        
+                                        <div className="grid grid-cols-2 gap-6">
+                                            <div>
+                                                <label className="opacity-50 mb-2 block uppercase tracking-widest">Тип</label>
+                                                <select name="type" className={`w-full p-3 border-b outline-none ${isCyber ? 'bg-transparent border-white/20 text-white' : 'bg-slate-50 border-slate-300 text-black'}`}>
+                                                    <option className="text-black">FDM Печать</option>
+                                                    <option className="text-black">SLA Смола</option>
+                                                    <option className="text-black">Скан</option>
+                                                </select>
+                                            </div>
+                                            <div>
+                                                <label className="opacity-50 mb-2 block uppercase tracking-widest">Бюджет</label>
+                                                <input name="price" className={`w-full p-3 border-b outline-none ${isCyber ? 'bg-transparent border-white/20 text-white' : 'bg-slate-50 border-slate-300 text-black'}`} placeholder="РУБ" />
+                                            </div>
+                                        </div>
+                                        
+                                        <div>
+                                            <label className="opacity-50 mb-2 block uppercase tracking-widest">Город</label>
+                                            <select name="city" className={`w-full p-3 border-b outline-none ${isCyber ? 'bg-transparent border-white/20 text-white' : 'bg-slate-50 border-slate-300 text-black'}`}>
+                                                <option className="text-black">Чебоксары</option>
+                                                <option className="text-black">Новочебоксарск</option>
+                                            </select>
+                                        </div>
 
-                                    <button type="submit" className="w-full py-4 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition">Опубликовать</button>
-                                </form>
+                                        {!user && (
+                                            <div>
+                                                <label className="opacity-50 mb-2 block uppercase tracking-widest">Связь</label>
+                                                <input required name="contact" className={`w-full p-3 border-b outline-none ${isCyber ? 'bg-transparent border-white/20 text-white' : 'bg-slate-50 border-slate-300 text-black'}`} placeholder="@tg / телефон" />
+                                            </div>
+                                        )}
+
+                                        <button className={`w-full py-4 font-bold uppercase tracking-widest hover:opacity-90 transition ${isCyber ? 'bg-[#00f3ff] text-black' : 'bg-black text-white'}`}>
+                                            Запустить
+                                        </button>
+                                    </form>
+                                </div>
                             </div>
                         </div>
                     )}
