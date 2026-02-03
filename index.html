@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { 
   Box, 
@@ -33,36 +34,36 @@ const ADMIN_CHAT_ID = "334485676";
 const BOT_USERNAME = "d1f0_bot";
 const YANDEX_METRIKA_ID = 106603823;
 
-// --- ДАННЫЕ УСЛУГ ---
+// --- ДАННЫЕ УСЛУГ (Структура как на референсе) ---
 const SERVICES_DATA = [
   {
     id: "fdm",
     title: "FDM ПЕЧАТЬ",
     subTitle: "Industrial Filament Printing",
-    desc: "Промышленное производство из термопластиков. Идеально для функциональных прототипов, оснастки и конечных деталей.",
+    desc: "Промышленное производство из термопластиков. Идеально для функциональных прототипов, оснастки, корпусов и конечных деталей.",
     img: "https://images.unsplash.com/photo-1631541909061-71e349d1f203?q=80&w=1200&auto=format&fit=crop",
     icon: <Printer size={28} />,
-    specs: ["Точность: ±0.1мм на 100мм", "Материалы: ABS, Carbon, Nylon, TPU", "Область печати: до 500х500х500мм"],
+    specs: ["Точность: ±0.1мм", "Материалы: ABS, PETG, TPU, Nylon", "Область: до 400х400мм"],
     accent: "cyan"
   },
   {
     id: "sla",
     title: "SLA / LCD ПЕЧАТЬ",
     subTitle: "High-Resolution Resin",
-    desc: "Печать фотополимерными смолами с микронной точностью. Гладкая поверхность и детализация, недоступная другим методам.",
+    desc: "Печать фотополимерными смолами с микронной точностью. Гладкая поверхность и высокая детализация для мастер-моделей.",
     img: "https://images.unsplash.com/photo-1612815154858-60aa4c59eaa6?q=80&w=1200&auto=format&fit=crop",
     icon: <Box size={28} />,
-    specs: ["Слой: от 25 микрон", "Материалы: Инженерные, Стоматологические", "Идеально для: Ювелирного дела, Медицины"],
+    specs: ["Слой: от 25 микрон", "Материалы: Standard, Tough, Castable", "Для: Ювелиров, Стоматологии"],
     accent: "purple"
   },
   {
     id: "scan",
     title: "3D СКАНИРОВАНИЕ",
     subTitle: "Laser Metrology Grade",
-    desc: "Создание цифровых двойников физических объектов. Высокоточный реверс-инжиниринг и контроль качества.",
+    desc: "Создание цифровых двойников физических объектов. Высокоточный реверс-инжиниринг и контроль качества геометрии.",
     img: "https://images.unsplash.com/photo-1581092162384-8987c1d64718?q=80&w=1200&auto=format&fit=crop",
     icon: <Scan size={28} />,
-    specs: ["Точность: до 0.02мм", "Формат: STL, STEP, OBJ", "Выезд: по всей Чувашии"],
+    specs: ["Точность: до 0.04мм", "Формат: STL, OBJ, STEP", "Выездное сканирование"],
     accent: "yellow"
   }
 ];
@@ -91,7 +92,7 @@ const SmartImage = ({ src, alt, className }) => {
   );
 };
 
-const TelegramLogin = ({ onLogin }) => {
+const TelegramLogin = ({ theme, onLogin }) => {
   const containerRef = useRef(null);
   useEffect(() => {
     if (!containerRef.current) return;
@@ -109,13 +110,10 @@ const TelegramLogin = ({ onLogin }) => {
   }, [onLogin]);
 
   return (
-    <div className="flex flex-col items-center gap-3">
+    <div className="flex flex-col items-center gap-2">
       <div ref={containerRef} />
-      <div className="flex items-center gap-2 px-3 py-1.5 bg-cyan-500/20 border border-cyan-500/50 rounded-lg animate-pulse shadow-[0_0_15px_rgba(0,243,255,0.2)]">
-        <BellRing size={12} className="text-cyan-400" />
-        <span className="text-[10px] text-cyan-400 font-bold uppercase font-mono tracking-tighter">
-          Подтвердите вход в Telegram
-        </span>
+      <div className="hidden md:flex items-center gap-2 px-2 py-0.5 bg-blue-500/10 border border-blue-500/30 rounded text-[9px] text-blue-400 font-bold uppercase tracking-widest animate-pulse">
+        Подтвердите вход в Telegram
       </div>
     </div>
   );
@@ -129,12 +127,11 @@ export default function App() {
 
   const isCyber = theme === 'cyberpunk';
 
-  // Инициализация Яндекс.Метрики и отслеживание скролла
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 50);
     window.addEventListener('scroll', handleScroll);
-
-    // Код Яндекс.Метрики (сохранен и интегрирован)
+    
+    // Инициализация метрики
     if (!window.ym) {
         (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
         m[i].l=1*new Date();
@@ -166,30 +163,29 @@ export default function App() {
 
   const handleLogin = (tgUser) => {
     setUser(tgUser);
-    sendTelegramMessage(`🔐 <b>Вход в систему:</b> ${tgUser.first_name} (@${tgUser.username || 'null'})`);
+    sendTelegramMessage(`🔐 <b>Вход:</b> ${tgUser.first_name} (@${tgUser.username || 'null'})`);
   };
 
   const handleOrder = async (e) => {
     e.preventDefault();
     const f = new FormData(e.target);
-    const msg = `🚀 <b>Новый заказ!</b>\n\n<b>Объект:</b> ${f.get('title')}\n<b>Тип:</b> ${f.get('type')}\n<b>Бюджет:</b> ${f.get('price')} ₽\n<b>Контакт:</b> ${f.get('contact')}\n<b>Клиент:</b> ${user ? '@'+user.username : 'Гость'}`;
+    const msg = `🚀 <b>Новый заказ!</b>\n\n<b>Объект:</b> ${f.get('title')}\n<b>Тип:</b> ${f.get('type')}\n<b>Контакт:</b> ${f.get('contact')}\n<b>Пользователь:</b> ${user ? '@'+user.username : 'Гость'}`;
     await sendTelegramMessage(msg);
+    alert("Заявка принята! Мы свяжемся с вами в Telegram.");
     setIsModalOpen(false);
-    
-    // Цель в Метрике для аналитики рекламы
     if (window.ym) window.ym(YANDEX_METRIKA_ID, 'reachGoal', 'order_submitted');
   };
 
   return (
     <div className={`min-h-screen transition-colors duration-500 ${isCyber ? 'bg-black text-white' : 'bg-slate-50 text-slate-900'}`}>
       
-      {/* Сетка фона */}
+      {/* Background Grids */}
       {isCyber && (
         <div className="fixed inset-0 z-0 opacity-20 pointer-events-none" 
              style={{ backgroundImage: 'radial-gradient(#00f3ff 0.5px, transparent 0.5px)', backgroundSize: '30px 30px' }} />
       )}
 
-      {/* Навигация */}
+      {/* Navigation */}
       <nav className={`fixed top-0 w-full z-50 transition-all duration-300 ${scrolled ? (isCyber ? 'bg-black/90 border-b border-cyan-500/30' : 'bg-white/90 shadow-lg') : 'bg-transparent'} backdrop-blur-md`}>
         <div className="max-w-7xl mx-auto px-6 h-20 flex justify-between items-center">
           <div className="flex items-center gap-4 cursor-pointer group" onClick={() => window.scrollTo({top: 0, behavior: 'smooth'})}>
@@ -198,13 +194,13 @@ export default function App() {
             </div>
             <div className="flex flex-col">
               <span className={`font-display font-bold text-xl tracking-tighter uppercase ${isCyber ? 'text-white' : 'text-slate-900'}`}>3D_CHUVASHIA</span>
-              <span className="text-[10px] font-mono opacity-50 uppercase tracking-widest text-cyan-500">Additive Studio</span>
+              <span className="text-[10px] font-mono opacity-50 uppercase tracking-widest">Additive Studio</span>
             </div>
           </div>
 
           <div className="hidden lg:flex items-center gap-10 font-display font-bold text-xs uppercase tracking-widest">
-            <a href="#services" className="hover:text-cyan-400 transition-colors">Сервис</a>
-            <a href="#portfolio" className="hover:text-cyan-400 transition-colors">Кейсы</a>
+            <a href="#services" className="hover:text-cyan-400 transition-colors">Услуги</a>
+            <a href="#portfolio" className="hover:text-cyan-400 transition-colors">Работы</a>
             <a href="#contacts" className="hover:text-cyan-400 transition-colors">Контакты</a>
           </div>
 
@@ -214,7 +210,7 @@ export default function App() {
             </button>
             {user ? (
               <div className="flex items-center gap-3 bg-white/5 p-1 pr-3 border border-white/10 rounded-full">
-                <img src={user.photo_url || `https://ui-avatars.com/api/?name=${user.first_name}`} className="w-8 h-8 rounded-full border border-cyan-500/50" alt="avatar" />
+                <img src={user.photo_url || `https://ui-avatars.com/api/?name=${user.first_name}`} className="w-8 h-8 rounded-full" alt="avatar" />
                 <span className="text-xs font-bold hidden sm:inline">{user.first_name}</span>
                 <button onClick={() => setUser(null)}><LogOut size={14} className="text-red-500" /></button>
               </div>
@@ -229,19 +225,19 @@ export default function App() {
       {/* Hero Section */}
       <header className="relative h-screen flex items-center justify-center px-6 overflow-hidden">
         <div className="max-w-6xl mx-auto text-center z-10">
-          <div className={`inline-flex items-center gap-2 mb-8 px-4 py-1 rounded-full border text-[10px] font-bold uppercase tracking-[0.3em] ${isCyber ? 'border-cyan-500/50 bg-cyan-950/20 text-cyan-400' : 'border-indigo-100 bg-indigo-50 text-indigo-600'}`}>
-            <ShieldCheck size={12} /> System Status: Online
+          <div className={`inline-flex items-center gap-2 mb-8 px-4 py-1 rounded-full border text-[10px] font-bold uppercase tracking-[0.3em] animate-bounce ${isCyber ? 'border-cyan-500/50 bg-cyan-950/20 text-cyan-400' : 'border-indigo-100 bg-indigo-50 text-indigo-600'}`}>
+            <ShieldCheck size={12} /> Система готова к работе
           </div>
           <h1 className={`font-display text-6xl md:text-[140px] font-black leading-none mb-10 tracking-tighter ${isCyber ? 'text-white italic' : 'text-slate-900'}`}>
             DIGITAL<br/>
             <span className={`text-transparent bg-clip-text bg-gradient-to-r ${isCyber ? 'from-cyan-400 to-purple-500' : 'from-indigo-600 to-violet-600'}`}>CRAFT_21</span>
           </h1>
-          <p className="max-w-2xl mx-auto text-lg md:text-xl opacity-60 mb-12 font-medium leading-relaxed uppercase tracking-tight">
-            Профессиональное бюро 3D технологий в Чебоксарах. Мы превращаем терабайты цифровых данных в безупречную физическую форму.
+          <p className="max-w-2xl mx-auto text-lg md:text-xl opacity-60 mb-12 font-medium leading-relaxed">
+            Передовые технологии аддитивного производства в сердце Чувашии. Мы превращаем терабайты данных в физическую реальность.
           </p>
           <div className="flex flex-col sm:flex-row justify-center gap-6">
             <button onClick={() => setIsModalOpen(true)} className={`px-12 py-5 font-display font-bold uppercase tracking-widest flex items-center justify-center gap-3 transition-all ${isCyber ? 'bg-white text-black hover:bg-cyan-400' : 'bg-slate-900 text-white hover:bg-indigo-600'}`}>
-              Рассчитать стоимость <Calculator size={20} />
+              Начать проект <ChevronRight size={20} />
             </button>
             <a href="#services" className={`px-12 py-5 border font-display font-bold uppercase tracking-widest transition-all ${isCyber ? 'border-white/20 hover:bg-white/5 text-white' : 'border-slate-200 hover:bg-white text-slate-900 shadow-sm'}`}>
               Услуги
@@ -249,18 +245,19 @@ export default function App() {
           </div>
         </div>
         
+        {/* Background Visual */}
         <div className="absolute inset-0 z-0">
           <div className={`absolute inset-0 bg-gradient-to-b ${isCyber ? 'from-black via-transparent to-black' : 'from-slate-50 via-transparent to-slate-50'} z-10`} />
           <SmartImage src="https://images.unsplash.com/photo-1635070041078-e363dbe005cb?q=80&w=1600" className="w-full h-full opacity-30 grayscale" alt="hero-bg" />
         </div>
       </header>
 
-      {/* Секция Услуг (DigitalCraft Style) */}
+      {/* Services Grid (Improved Layout) */}
       <section id="services" className={`py-32 px-6 relative z-10 border-t ${isCyber ? 'border-white/5' : 'border-slate-200'}`}>
         <div className="max-w-7xl mx-auto">
           <div className="mb-24 flex flex-col md:flex-row justify-between items-end gap-6 border-b pb-12 border-current opacity-20">
-            <h2 className="font-display text-5xl md:text-8xl font-black uppercase tracking-tighter">Наши <br/> Технологии</h2>
-            <div className="font-mono text-xs text-right tracking-[0.5em]">// ADVANCED_PRODUCTION_STACK</div>
+            <h2 className="font-display text-5xl md:text-8xl font-black uppercase tracking-tighter">Наши <br/> Сервисы</h2>
+            <div className="font-mono text-xs text-right tracking-[0.5em]">// TECHNOLOGICAL_CAPABILITIES</div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -286,7 +283,7 @@ export default function App() {
                     ))}
                   </ul>
                   <button onClick={() => setIsModalOpen(true)} className={`mt-10 py-4 border font-display font-bold text-[10px] uppercase tracking-[0.3em] transition-all ${isCyber ? 'border-cyan-500/30 text-cyan-400 hover:bg-cyan-500 hover:text-black' : 'border-slate-200 hover:bg-slate-900 hover:text-white'}`}>
-                    Начать проект
+                    Рассчитать проект
                   </button>
                 </div>
               </div>
@@ -295,10 +292,10 @@ export default function App() {
         </div>
       </section>
 
-      {/* Портфолио */}
+      {/* Portfolio Showcase */}
       <section id="portfolio" className={`py-32 px-6 ${isCyber ? 'bg-slate-950/50' : 'bg-white border-y border-slate-100'}`}>
         <div className="max-w-7xl mx-auto">
-          <h2 className="font-display text-5xl md:text-7xl font-black mb-20 uppercase tracking-tighter text-center italic">Gallery Showcase</h2>
+          <h2 className="font-display text-5xl md:text-7xl font-black mb-20 uppercase tracking-tighter text-center italic">Showcase</h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {PORTFOLIO.map(p => (
               <div key={p.id} className="aspect-square relative group overflow-hidden cursor-crosshair border border-white/5">
@@ -313,7 +310,7 @@ export default function App() {
         </div>
       </section>
 
-      {/* Карта */}
+      {/* Contacts / Map */}
       <section id="contacts" className="relative h-[700px] border-t border-white/10">
         <iframe 
           src="https://yandex.ru/map-widget/v1/?ll=47.251916%2C56.119047&z=14" 
@@ -334,10 +331,10 @@ export default function App() {
         </div>
       </section>
 
-      {/* Футер (ИНН И ОГРНИП УДАЛЕНЫ) */}
+      {/* Footer */}
       <footer className="py-20 px-6 border-t border-white/5 text-center font-mono">
         <div className="max-w-7xl mx-auto opacity-30 text-[10px] uppercase tracking-[0.5em] space-y-4">
-          <div>© 2026 3D_CHUVASHIA // CORE_SYSTEM_VER_10.1</div>
+          <div>© 2026 3D_CHUVASHIA // CORE_SYSTEM_VER_10.0</div>
           <div className="flex justify-center gap-6">
             <a href="#" className="hover:text-cyan-400">Политика конфиденциальности</a>
             <a href="#" className="hover:text-cyan-400">Правила сервиса</a>
@@ -345,18 +342,18 @@ export default function App() {
         </div>
       </footer>
 
-      {/* Форма заказа */}
+      {/* Modal Form */}
       {isModalOpen && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/95 backdrop-blur-3xl">
           <div className={`w-full max-w-lg relative p-1 bg-gradient-to-br from-cyan-500 to-purple-600 ${isCyber ? '' : 'rounded-2xl'}`}>
-            <div className={`p-10 ${isCyber ? 'bg-black' : 'bg-white rounded-2xl text-slate-900'}`}>
+            <div className={`p-10 ${isCyber ? 'bg-black' : 'bg-white rounded-2xl'}`}>
               <button onClick={() => setIsModalOpen(false)} className="absolute top-8 right-8 opacity-50 hover:opacity-100 transition-opacity"><X size={24}/></button>
               <h2 className="font-display text-3xl font-black mb-2 uppercase italic tracking-tighter">Новый Протокол</h2>
-              <p className="font-mono text-[9px] opacity-50 mb-10 uppercase tracking-widest">Initialising production link...</p>
+              <p className="font-mono text-[9px] opacity-50 mb-10 uppercase tracking-widest">Initialising direct production link...</p>
               <form onSubmit={handleOrder} className="space-y-6 font-mono">
                 <input required name="title" className={`w-full p-4 border outline-none text-xs transition-all ${isCyber ? 'bg-white/5 border-white/10 focus:border-cyan-500' : 'bg-slate-50 border-slate-200 focus:ring-2 focus:ring-indigo-600'}`} placeholder="Что нужно изготовить?" />
                 <div className="grid grid-cols-2 gap-4">
-                  <select name="type" className={`p-4 border text-xs outline-none ${isCyber ? 'bg-black border-white/10' : 'bg-slate-50 border-slate-200'}`}>
+                  <select name="type" className={`p-4 border text-xs outline-none ${isCyber ? 'bg-white/5 border-white/10' : 'bg-slate-50 border-slate-200'}`}>
                     <option>FDM ПЛАСТИК</option>
                     <option>SLA СМОЛА</option>
                     <option>3D СКАН</option>
@@ -368,7 +365,7 @@ export default function App() {
                   <input type="checkbox" required className="mt-1" />
                   <span className="text-[9px] opacity-40 group-hover:opacity-100 transition-opacity uppercase">Я принимаю условия обработки данных и политику конфиденциальности</span>
                 </label>
-                <button className={`w-full py-5 font-display font-bold uppercase tracking-widest transition-all ${isCyber ? 'bg-cyan-500 text-black hover:shadow-[0_0_30px_#00f3ff]' : 'bg-slate-900 text-white'}`}>Запустить процесс</button>
+                <button className={`w-full py-5 font-display font-bold uppercase tracking-widest transition-all ${isCyber ? 'bg-cyan-500 text-black' : 'bg-slate-900 text-white'}`}>Запустить процесс</button>
               </form>
             </div>
           </div>
