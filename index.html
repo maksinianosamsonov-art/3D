@@ -8,23 +8,19 @@
 -->
 
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="ru" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>3D CHUVASHIA | CYBER NEXUS</title>
     
-    <!-- Tailwind CSS -->
+    <!-- CSS & Libs -->
     <script src="https://cdn.tailwindcss.com"></script>
-    
-    <!-- React & ReactDOM (Стабильные версии UMD) -->
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    
-    <!-- Babel -->
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
-    <!-- Шрифты -->
+    <!-- Fonts -->
     <link href="https://api.fontshare.com/v2/css?f[]=clash-display@200,400,600,700&f[]=general-sans@200,400,500,600&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
 
@@ -40,24 +36,17 @@
                     },
                     colors: {
                         cyber: {
-                            black: '#020204',
-                            dark: '#0a0a12',
+                            black: '#050505',
+                            dark: '#0a0a0f',
                             neon: '#00f3ff',
                             purple: '#bc13fe',
                         }
                     },
                     animation: {
-                        'blob': 'blob 10s infinite',
-                        'float': 'float 6s ease-in-out infinite',
                         'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'float': 'float 6s ease-in-out infinite',
                     },
                     keyframes: {
-                        blob: {
-                            '0%': { transform: 'translate(0px, 0px) scale(1)' },
-                            '33%': { transform: 'translate(30px, -50px) scale(1.1)' },
-                            '66%': { transform: 'translate(-20px, 20px) scale(0.9)' },
-                            '100%': { transform: 'translate(0px, 0px) scale(1)' },
-                        },
                         float: {
                             '0%, 100%': { transform: 'translateY(0)' },
                             '50%': { transform: 'translateY(-20px)' },
@@ -70,20 +59,27 @@
 
     <style>
         body { 
-            background-color: #020204; 
+            background-color: #050505; 
             color: #e2e8f0; 
-            overflow-x: hidden;
             margin: 0;
+            overflow-x: hidden;
+            font-family: 'General Sans', sans-serif;
         }
+        
+        .font-cyber { font-family: 'Share Tech Mono', monospace; }
+        .font-display { font-family: 'Clash Display', sans-serif; }
 
-        /* Неоновое свечение */
-        .neon-text { text-shadow: 0 0 10px rgba(0, 243, 255, 0.7); }
-        .neon-box { box-shadow: 0 0 15px rgba(0, 243, 255, 0.15); border: 1px solid rgba(0, 243, 255, 0.3); }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: #050505; }
+        ::-webkit-scrollbar-thumb { background: #00f3ff; }
 
-        /* Сетка на фоне */
+        /* Neon Glows */
+        .neon-text-blue { text-shadow: 0 0 10px rgba(0, 243, 255, 0.7); }
+        
+        /* Grid & Backgrounds */
         .cyber-grid {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background-image: 
                 linear-gradient(rgba(0, 243, 255, 0.03) 1px, transparent 1px),
                 linear-gradient(90deg, rgba(0, 243, 255, 0.03) 1px, transparent 1px);
@@ -93,25 +89,30 @@
             pointer-events: none;
         }
 
-        /* Стекло */
-        .glass {
-            background: rgba(10, 10, 20, 0.7);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.05);
+        /* Card Hover Effects */
+        .tech-card-bg {
+            transition: transform 0.7s ease, opacity 0.5s ease;
+        }
+        .group:hover .tech-card-bg {
+            transform: scale(1.1);
+            opacity: 0.4 !important;
         }
 
-        /* Живой фон (Blobs) */
-        .blob-cont {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -2; overflow: hidden;
+        /* Заглушка (Fallback) */
+        .img-placeholder {
+            background: radial-gradient(circle at center, #1e1b4b 0%, #000000 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+            color: rgba(255,255,255,0.2);
+            text-align: center;
+            padding: 1rem;
         }
-        .blob {
-            position: absolute; filter: blur(90px); opacity: 0.4;
-            animation: blob 15s infinite alternate;
-        }
-        .blob-1 { top: 0; left: -10%; width: 50vw; height: 50vw; background: #4f46e5; }
-        .blob-2 { bottom: 0; right: -10%; width: 50vw; height: 50vw; background: #bd00ff; animation-delay: -5s; }
-
-        /* Анимация сканера */
+        
+        /* Scan Line */
         .scan-line {
             position: absolute; width: 100%; height: 2px; background: #00f3ff;
             opacity: 0.5; animation: scan 3s linear infinite;
@@ -119,12 +120,7 @@
         }
         @keyframes scan { 0% { top: 0%; opacity: 0; } 50% { opacity: 1; } 100% { top: 100%; opacity: 0; } }
 
-        /* Инверсия карты */
         .map-invert { filter: invert(1) hue-rotate(180deg) brightness(0.7) contrast(1.2); }
-        
-        ::-webkit-scrollbar { width: 6px; }
-        ::-webkit-scrollbar-track { background: #020204; }
-        ::-webkit-scrollbar-thumb { background: #00f3ff; border-radius: 3px; }
     </style>
 </head>
 <body>
@@ -133,14 +129,14 @@
     <script type="text/babel">
         const { useState, useEffect, useRef } = React;
 
-        // --- КОНФИГУРАЦИЯ ---
+        // --- CONFIG ---
         const CONFIG = {
             botToken: "8453938307:AAGcU3fQdoPZC7I5y5ueFFnK3HZLAfg680Q",
             adminId: "334485676",
             botName: "d1f0_bot"
         };
 
-        // --- ИКОНКИ (SVG) ---
+        // --- ICONS ---
         const Icon = ({ path, className }) => (
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className={className}>
                 {path}
@@ -165,20 +161,37 @@
             Printer: <Icon path={<><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></>} />
         };
 
-        // --- ДАННЫЕ ---
+        // --- ДАННЫЕ (PINTEREST AESTHETIC) ---
         const TECH_CARDS = [
-            { title: "FDM ПЕЧАТЬ", desc: "Термопластичная экструзия. Прототипирование и функциональные детали.", icon: Icons.Layers },
-            { title: "SLA/DLP", desc: "Фотополимерная печать. Высочайшая точность для ювелиров и медицины.", icon: Icons.Box },
-            { title: "3D СКАН", desc: "Оцифровка реальности. Реверс-инжиниринг и контроль геометрии.", icon: Icons.Scan }
+            { 
+                title: "FDM ПЕЧАТЬ", 
+                desc: "Функциональные детали и прототипы из прочных пластиков.", 
+                icon: Icons.Layers,
+                img: "https://images.unsplash.com/photo-1595166299166-5120684f501d?auto=format&fit=crop&q=80&w=800" 
+            },
+            { 
+                title: "SLA / ФОТОПОЛИМЕР", 
+                desc: "Ювелирная точность для художественных и медицинских задач.", 
+                icon: Icons.Box,
+                img: "https://images.unsplash.com/photo-1563770095765-afbc80993445?auto=format&fit=crop&q=80&w=800"
+            },
+            { 
+                title: "3D СКАНИРОВАНИЕ", 
+                desc: "Оцифровка реальности в 3D. Реверс-инжиниринг.", 
+                icon: Icons.Scan,
+                img: "https://images.unsplash.com/photo-1627454819213-177891782320?auto=format&fit=crop&q=80&w=800"
+            }
         ];
 
-        const INITIAL_ORDERS = [
-            { id: 1, title: "Корпус для Arduino", type: "FDM Печать", price: "800 ₽", city: "Чебоксары", time: "1ч назад" },
-            { id: 2, title: "Шестерня (копия)", type: "Моделирование", price: "1 500 ₽", city: "Новочебоксарск", time: "3ч назад" },
-            { id: 3, title: "Фигурка 15см", type: "SLA Печать", price: "3 000 ₽", city: "Чебоксары", time: "Вчера" }
+        const PORTFOLIO_ITEMS = [
+            { id: 1, title: "Кибер-Протез", cat: "BIONICS", img: "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&q=80&w=800" },
+            { id: 2, title: "Архитектура", cat: "MODEL", img: "https://images.unsplash.com/photo-1486312338219-ce68d2c6f44d?auto=format&fit=crop&q=80&w=800" },
+            { id: 3, title: "Арт-Скульптура", cat: "ART", img: "https://images.unsplash.com/photo-1544161513-0179fe746d32?auto=format&fit=crop&q=80&w=800" },
+            { id: 4, title: "Инженерия", cat: "PARTS", img: "https://images.unsplash.com/photo-1581093450021-4a7360e9a6b5?auto=format&fit=crop&q=80&w=800" },
         ];
 
-        // --- ВИДЖЕТ TELEGRAM ---
+        // --- КОМПОНЕНТЫ ---
+        
         const TelegramWidget = ({ onAuth }) => {
             const ref = useRef(null);
             useEffect(() => {
@@ -193,24 +206,40 @@
                 script.setAttribute('data-size', 'medium');
                 script.setAttribute('data-radius', '0');
                 script.setAttribute('data-request-access', 'write');
-                script.setAttribute('data-auth-url', window.location.href);
+                script.setAttribute('data-auth-url', window.location.href); 
                 script.async = true;
                 ref.current.appendChild(script);
             }, []);
             return <div ref={ref} className="flex justify-center mix-blend-screen invert hue-rotate-180 contrast-200"></div>;
         };
 
-        // --- ГЛАВНОЕ ПРИЛОЖЕНИЕ ---
+        const ImageWithFallback = ({ src, alt, className }) => {
+            const [error, setError] = useState(false);
+            useEffect(() => { setError(false); }, [src]);
+
+            if (error) {
+                return (
+                    <div className={`img-placeholder ${className}`}>
+                        <div className="text-gray-600 mb-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+                        </div>
+                        <span className="text-[10px] font-mono uppercase tracking-widest">{alt}</span>
+                    </div>
+                );
+            }
+            return <img src={src} alt={alt} className={className} onError={() => setError(true)} loading="lazy" />;
+        };
+
+        // --- APP ---
         function App() {
             const [theme, setTheme] = useState('cyberpunk');
             const [user, setUser] = useState(null);
-            const [orders, setOrders] = useState(INITIAL_ORDERS);
             const [isModalOpen, setIsModalOpen] = useState(false);
             const [menuOpen, setMenuOpen] = useState(false);
 
             const isCyber = theme === 'cyberpunk';
 
-            // Функции логики (объявлены в начале компонента)
+            // --- Logic ---
             const notifyAdmin = async (msg) => {
                 try {
                     await fetch(`https://api.telegram.org/bot${CONFIG.botToken}/sendMessage`, {
@@ -223,7 +252,7 @@
 
             const handleLogin = (u) => {
                 setUser(u);
-                notifyAdmin(`🔐 LOGON: ${u.first_name}`);
+                notifyAdmin(`🔐 LOGON: ${u.first_name} (@${u.username})`);
                 alert(`Добро пожаловать, ${u.first_name}!`);
             };
 
@@ -233,28 +262,16 @@
                 const title = f.get('title');
                 const type = f.get('type');
                 const price = f.get('price');
-                
-                const newOrder = {
-                    id: Date.now(),
-                    title: title,
-                    type: type,
-                    price: price || "Договорная",
-                    city: f.get('city'),
-                    time: "Только что"
-                };
-                setOrders([newOrder, ...orders]);
-                
                 const contact = user ? `@${user.username}` : f.get('contact');
                 
                 notifyAdmin(`📦 <b>Новая заявка!</b>\nЗадача: ${title}\nТип: ${type}\nБюджет: ${price}\nГород: ${f.get('city')}\nКонтакт: ${contact}`);
-                alert("Данные загружены (заявка отправлена)");
+                alert("Заявка успешно отправлена! Мы свяжемся с вами.");
                 setIsModalOpen(false);
             };
 
-            // Обработка редиректа Telegram
             useEffect(() => {
                 const params = new URLSearchParams(window.location.search);
-                if (params.get('id') && params.get('hash')) {
+                if (params.get('id')) {
                     const tgUser = {
                         id: params.get('id'), first_name: params.get('first_name'),
                         username: params.get('username'), photo_url: params.get('photo_url')
@@ -265,21 +282,18 @@
                 }
             }, []);
 
-            // Стили
+            // Styles
             const bgClass = isCyber ? 'bg-[#020204] text-slate-300' : 'bg-slate-50 text-slate-900';
             const navClass = isCyber ? 'bg-[#0a0a12]/90 border-[#00f3ff]/30' : 'bg-white/90 border-slate-200';
-            const styles = {
-                card: isCyber ? 'bg-[#0a0a12] border border-[#00f3ff]/30 hover:border-[#00f3ff] text-slate-300' : 'bg-white shadow-lg border-slate-100 text-slate-900',
-            };
-
+            
             return (
                 <div className={`min-h-screen flex flex-col font-body transition-colors duration-500 ${bgClass}`}>
                     
-                    {/* Фон (Blobs) */}
+                    {/* Background */}
                     {isCyber && <div className="blob-cont"><div className="blob blob-1"></div><div className="blob blob-2"></div></div>}
                     <div className="fixed inset-0 z-0 cyber-grid opacity-30 pointer-events-none"></div>
 
-                    {/* Навигация */}
+                    {/* Nav */}
                     <nav className={`fixed w-full z-50 top-0 border-b backdrop-blur-md ${navClass}`}>
                         <div className="max-w-7xl mx-auto px-6 h-20 flex justify-between items-center">
                             <div className="flex items-center gap-3 font-display font-bold text-2xl tracking-widest cursor-pointer group" onClick={() => window.location.reload()}>
@@ -291,7 +305,7 @@
 
                             <div className="hidden md:flex items-center gap-8 text-sm font-mono tracking-widest uppercase">
                                 <a href="#tech" className="hover:text-[#00f3ff] transition">Технологии</a>
-                                <a href="#gallery" className="hover:text-[#00f3ff] transition">Галерея</a>
+                                <a href="#gallery" className="hover:text-[#00f3ff] transition">Портфолио</a>
                                 <a href="#contacts" className="hover:text-[#00f3ff] transition">Контакты</a>
                             </div>
 
@@ -310,7 +324,7 @@
                                 )}
                                 
                                 <button onClick={() => setIsModalOpen(true)} className={`px-8 py-2 font-bold font-mono text-xs uppercase tracking-widest transition-all hover:scale-105 ${isCyber ? 'bg-[#00f3ff] text-black hover:shadow-[0_0_20px_#00f3ff]' : 'bg-black text-white'}`}>
-                                    СОЗДАТЬ ЗАКАЗ
+                                    Оставить заявку
                                 </button>
                             </div>
                             
@@ -319,20 +333,20 @@
                             </button>
                         </div>
                         
-                        {/* Мобильное меню */}
+                        {/* Mobile Menu */}
                         {menuOpen && (
                             <div className={`md:hidden p-6 border-t ${isCyber ? 'border-[#00f3ff]/30 bg-[#0a0a12]' : 'border-slate-200 bg-white'}`}>
                                 <div className="flex flex-col gap-4 font-bold font-mono uppercase tracking-widest text-center">
                                     <a href="#tech" onClick={() => setMenuOpen(false)}>Технологии</a>
-                                    <a href="#gallery" onClick={() => setMenuOpen(false)}>Галерея</a>
+                                    <a href="#gallery" onClick={() => setMenuOpen(false)}>Портфолио</a>
                                     <div className="flex justify-center">{!user && <TelegramWidget onAuth={handleLogin}/>}</div>
-                                    <button onClick={() => {setMenuOpen(false); setIsModalOpen(true)}} className={`w-full py-3 ${isCyber ? 'bg-[#00f3ff] text-black' : 'bg-black text-white'}`}>СОЗДАТЬ ЗАКАЗ</button>
+                                    <button onClick={() => {setMenuOpen(false); setIsModalOpen(true)}} className={`w-full py-3 ${isCyber ? 'bg-[#00f3ff] text-black' : 'bg-black text-white'}`}>ОСТАВИТЬ ЗАЯВКУ</button>
                                 </div>
                             </div>
                         )}
                     </nav>
 
-                    {/* HERO SECTION */}
+                    {/* Hero */}
                     <header className="relative min-h-screen flex items-center justify-center px-4 pt-20">
                         <div className="max-w-5xl mx-auto text-center relative z-10 animate-float">
                             <div className={`inline-block border px-4 py-1.5 mb-8 font-mono text-xs tracking-[0.3em] ${isCyber ? 'border-[#00f3ff] text-[#00f3ff] bg-[#00f3ff]/10' : 'border-slate-900 text-slate-900'}`}>
@@ -347,70 +361,80 @@
                             </h1>
 
                             <p className="max-w-xl mx-auto text-lg opacity-60 mb-12 font-mono leading-relaxed border-l-2 border-[#00f3ff] pl-6 text-left md:text-center md:border-l-0 md:pl-0">
-                                // Платформа цифрового производства Чувашии.<br/>
-                                // Соединяем ваши идеи с промышленным оборудованием.
+                                // Профессиональная 3D печать, сканирование и моделирование в Чувашии.<br/>
+                                // Воплощаем идеи в физические объекты.
                             </p>
 
-                            <div className="flex justify-center">
+                            <div className="flex justify-center gap-6">
                                 <button onClick={() => setIsModalOpen(true)} className={`px-10 py-4 font-bold font-mono text-lg uppercase tracking-widest transition-all hover:-translate-y-1 ${isCyber ? 'border border-[#00f3ff] text-[#00f3ff] hover:bg-[#00f3ff] hover:text-black' : 'bg-black text-white hover:bg-gray-800'}`}>
-                                    НАЧАТЬ
+                                    НАЧАТЬ ПРОЕКТ
                                 </button>
+                                <a href="#gallery" className={`px-10 py-4 font-bold font-mono text-lg uppercase tracking-widest transition-all hover:bg-opacity-10 ${isCyber ? 'text-white hover:bg-white' : 'text-slate-900 hover:bg-black'}`}>
+                                    ПОРТФОЛИО
+                                </a>
                             </div>
                         </div>
                     </header>
 
-                    {/* TECH SECTION */}
+                    {/* Tech */}
                     <section id="tech" className={`py-32 px-4 border-t ${isCyber ? 'border-white/5 bg-black/50' : 'border-slate-200 bg-slate-100'}`}>
                         <div className="max-w-7xl mx-auto">
                             <div className="flex items-end justify-between mb-16">
-                                <h2 className={`text-4xl font-display font-bold ${isCyber ? 'text-white' : 'text-slate-900'}`}>ПРОТОКОЛЫ</h2>
-                                <div className="hidden md:block font-mono text-xs opacity-50">/// ДОСТУПНЫЕ_ТЕХНОЛОГИИ</div>
+                                <h2 className={`text-4xl font-display font-bold ${isCyber ? 'text-white' : 'text-slate-900'}`}>ТЕХНОЛОГИИ</h2>
+                                <div className="hidden md:block font-mono text-xs opacity-50">/// AVAILABLE_TECH</div>
                             </div>
                             
                             <div className="grid md:grid-cols-3 gap-8">
                                 {TECH_CARDS.map((card, i) => (
-                                    <div key={i} className={`p-8 border transition-all duration-300 hover:-translate-y-2 group ${isCyber ? 'border-white/10 hover:border-[#00f3ff] bg-white/5' : 'bg-white border-slate-200 shadow-sm'}`}>
-                                        <div className={`w-12 h-12 mb-6 ${isCyber ? 'text-[#00f3ff]' : 'text-blue-600'}`}>
-                                            <div className="w-8 h-8">{card.icon}</div>
+                                    <div key={i} className={`relative overflow-hidden rounded-2xl group h-96 border transition-all duration-500 hover:-translate-y-2 ${isCyber ? 'border-white/10' : 'border-slate-200'}`}>
+                                        {/* Background Image */}
+                                        <div className="absolute inset-0 z-0 bg-gray-900">
+                                            <ImageWithFallback 
+                                                src={card.img} 
+                                                className="w-full h-full object-cover tech-card-bg opacity-40 grayscale group-hover:grayscale-0 transition-all duration-700" 
+                                                alt={card.title} 
+                                            />
+                                            <div className={`absolute inset-0 bg-gradient-to-t ${isCyber ? 'from-black via-black/80 to-transparent' : 'from-white via-white/80 to-transparent'}`}></div>
                                         </div>
-                                        <h3 className={`text-2xl font-bold font-display mb-4 ${isCyber ? 'text-white' : 'text-slate-900'}`}>{card.title}</h3>
-                                        <p className="font-mono text-sm opacity-60 leading-relaxed">{card.desc}</p>
+
+                                        <div className="relative z-10 p-8 h-full flex flex-col justify-end">
+                                            <div className={`w-12 h-12 mb-4 ${isCyber ? 'text-[#00f3ff]' : 'text-blue-600'}`}>
+                                                <div className="w-8 h-8">{card.icon}</div>
+                                            </div>
+                                            <h3 className={`text-2xl font-bold font-display mb-2 ${isCyber ? 'text-white' : 'text-slate-900'}`}>{card.title}</h3>
+                                            <p className="font-mono text-sm opacity-60 leading-relaxed">{card.desc}</p>
+                                        </div>
                                     </div>
                                 ))}
                             </div>
                         </div>
                     </section>
 
-                    {/* MARKET FEED */}
-                    <section id="gallery" className="py-24 px-4 max-w-5xl mx-auto">
-                        <div className="flex items-end justify-between mb-8 border-b border-current/10 pb-4">
-                            <h2 className="font-display text-3xl font-bold">ЛЕНТА ЗАКАЗОВ</h2>
-                            <div className="font-mono text-xs opacity-50 animate-pulse">● ОБНОВЛЕНИЕ</div>
+                    {/* Gallery */}
+                    <section id="gallery" className="py-24 px-4 max-w-7xl mx-auto">
+                        <div className="flex items-end justify-between mb-12 border-b border-current/10 pb-4">
+                            <h2 className="font-display text-4xl font-bold">ГАЛЕРЕЯ РАБОТ</h2>
+                            <div className="font-mono text-xs opacity-50">/// PORTFOLIO</div>
                         </div>
                         
-                        <div className="space-y-4">
-                            {orders.map((order) => (
-                                <div key={order.id} className={`p-6 rounded-lg border flex flex-col md:flex-row items-center justify-between gap-6 transition hover:scale-[1.01] ${styles.card}`}>
-                                    <div className="flex-1 w-full">
-                                        <div className="flex items-center gap-3 mb-2 font-mono text-xs opacity-60">
-                                            <span className={`px-2 py-0.5 border rounded ${isCyber ? 'border-[#00f3ff] text-[#00f3ff]' : 'bg-blue-100 text-blue-800 border-transparent'}`}>{order.type}</span>
-                                            <span className="flex items-center gap-1"><div className="w-3 h-3">{Icons.MapPin}</div> {order.city}</span>
-                                            <span className="flex items-center gap-1"><div className="w-3 h-3">{Icons.Clock}</div> {order.time}</span>
-                                        </div>
-                                        <h3 className="text-xl font-bold">{order.title}</h3>
-                                    </div>
-                                    <div className="flex items-center gap-6 w-full md:w-auto justify-between">
-                                        <div className={`font-mono text-xl font-bold ${isCyber ? 'text-[#00f3ff]' : 'text-blue-600'}`}>{order.price}</div>
-                                        <button className={`px-6 py-2 rounded text-xs font-bold uppercase tracking-wider transition ${isCyber ? 'bg-white text-black hover:bg-[#00f3ff]' : 'bg-black text-white hover:bg-gray-800'}`}>
-                                            Взять
-                                        </button>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 h-auto md:h-[600px]">
+                             {PORTFOLIO_ITEMS.map((item, idx) => (
+                                <div key={item.id} className={`relative group overflow-hidden rounded-xl border bg-gray-900 ${isCyber ? 'border-white/10' : 'border-slate-200'} ${idx === 0 ? 'md:col-span-2 md:row-span-2' : ''}`}>
+                                    <ImageWithFallback 
+                                        src={item.img} 
+                                        className="w-full h-full object-cover transition duration-700 group-hover:scale-110 grayscale group-hover:grayscale-0" 
+                                        alt={item.title} 
+                                    />
+                                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-transparent flex flex-col justify-end p-6">
+                                        <span className={`text-xs font-bold px-2 py-1 w-max mb-2 rounded ${isCyber ? 'bg-[#00f3ff] text-black' : 'bg-white text-black'}`}>{item.cat}</span>
+                                        <h3 className="text-xl font-bold text-white">{item.title}</h3>
                                     </div>
                                 </div>
-                            ))}
+                             ))}
                         </div>
                     </section>
 
-                    {/* CONTACTS / MAP */}
+                    {/* Contacts */}
                     <section id="contacts" className="relative h-[500px] border-t border-white/10">
                         <iframe src="https://yandex.ru/map-widget/v1/?ll=47.251916%2C56.119047&z=11" className={`w-full h-full grayscale ${isCyber ? 'map-invert opacity-60' : ''}`} frameBorder="0"></iframe>
                         {isCyber && <div className="absolute inset-0 pointer-events-none scan-line"></div>}
@@ -439,7 +463,7 @@
                         СИСТЕМА: 3D_ЧУВАШИЯ // СТАТУС: ОНЛАЙН
                     </footer>
 
-                    {/* MODAL */}
+                    {/* Modal */}
                     {isModalOpen && (
                         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/90 backdrop-blur-sm animate-pulse-slow">
                             <div className={`w-full max-w-lg p-1 ${isCyber ? 'bg-gradient-to-br from-cyan-500 to-purple-600' : 'bg-white shadow-2xl'}`}>
