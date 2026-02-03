@@ -1,394 +1,379 @@
-<!DOCTYPE html>
-<html lang="ru" class="scroll-smooth">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+import React, { useState, useEffect, useRef } from 'react';
+import { 
+  Box, 
+  Scan, 
+  Printer, 
+  MapPin, 
+  Search, 
+  ArrowRight, 
+  Menu, 
+  X,
+  Clock,
+  Zap,
+  Cpu,
+  Activity,
+  Terminal,
+  Sun,
+  Moon,
+  Layers,
+  Send,
+  User,
+  LogOut,
+  MessageCircle,
+  ShieldCheck,
+  CheckCircle2,
+  ChevronRight,
+  BellRing,
+  Calculator
+} from 'lucide-react';
+
+// --- КОНФИГУРАЦИЯ (ВСЕ ДАННЫЕ СОХРАНЕНЫ) ---
+const TELEGRAM_BOT_TOKEN = "8453938307:AAGcU3fQdoPZC7I5y5ueFFnK3HZLAfg680Q";
+const ADMIN_CHAT_ID = "334485676";
+const BOT_USERNAME = "d1f0_bot";
+const YANDEX_METRIKA_ID = 106603823;
+
+// --- ДАННЫЕ УСЛУГ ---
+const SERVICES_DATA = [
+  {
+    id: "fdm",
+    title: "FDM ПЕЧАТЬ",
+    subTitle: "Industrial Filament Printing",
+    desc: "Промышленное производство из термопластиков. Идеально для функциональных прототипов, оснастки и конечных деталей.",
+    img: "https://images.unsplash.com/photo-1631541909061-71e349d1f203?q=80&w=1200&auto=format&fit=crop",
+    icon: <Printer size={28} />,
+    specs: ["Точность: ±0.1мм на 100мм", "Материалы: ABS, Carbon, Nylon, TPU", "Область печати: до 500х500х500мм"],
+    accent: "cyan"
+  },
+  {
+    id: "sla",
+    title: "SLA / LCD ПЕЧАТЬ",
+    subTitle: "High-Resolution Resin",
+    desc: "Печать фотополимерными смолами с микронной точностью. Гладкая поверхность и детализация, недоступная другим методам.",
+    img: "https://images.unsplash.com/photo-1612815154858-60aa4c59eaa6?q=80&w=1200&auto=format&fit=crop",
+    icon: <Box size={28} />,
+    specs: ["Слой: от 25 микрон", "Материалы: Инженерные, Стоматологические", "Идеально для: Ювелирного дела, Медицины"],
+    accent: "purple"
+  },
+  {
+    id: "scan",
+    title: "3D СКАНИРОВАНИЕ",
+    subTitle: "Laser Metrology Grade",
+    desc: "Создание цифровых двойников физических объектов. Высокоточный реверс-инжиниринг и контроль качества.",
+    img: "https://images.unsplash.com/photo-1581092162384-8987c1d64718?q=80&w=1200&auto=format&fit=crop",
+    icon: <Scan size={28} />,
+    specs: ["Точность: до 0.02мм", "Формат: STL, STEP, OBJ", "Выезд: по всей Чувашии"],
+    accent: "yellow"
+  }
+];
+
+const PORTFOLIO = [
+  { id: 1, title: "Турбина ДВС", cat: "Engineering", img: "https://images.unsplash.com/photo-1537462715879-360eeb61a0ad?q=80&w=800&auto=format&fit=crop" },
+  { id: 2, title: "Протез кисти", cat: "Medical", img: "https://images.unsplash.com/photo-1589254065878-42c9da997008?q=80&w=800&auto=format&fit=crop" },
+  { id: 3, title: "Арт-объект", cat: "Art", img: "https://images.unsplash.com/photo-1549490349-8643362247b5?q=80&w=800&auto=format&fit=crop" },
+  { id: 4, title: "Корпус устройства", cat: "Electronic", img: "https://images.unsplash.com/photo-1517420704952-d9f39e95b43e?q=80&w=800&auto=format&fit=crop" }
+];
+
+// --- ВСПОМОГАТЕЛЬНЫЕ КОМПОНЕНТЫ ---
+
+const SmartImage = ({ src, alt, className }) => {
+  const [loaded, setLoaded] = useState(false);
+  return (
+    <div className={`relative overflow-hidden bg-slate-800 ${className}`}>
+      {!loaded && <div className="absolute inset-0 animate-pulse bg-slate-700" />}
+      <img 
+        src={src} 
+        alt={alt} 
+        className={`w-full h-full object-cover transition-all duration-1000 ${loaded ? 'scale-100 opacity-100' : 'scale-110 opacity-0'}`}
+        onLoad={() => setLoaded(true)}
+      />
+    </div>
+  );
+};
+
+const TelegramLogin = ({ onLogin }) => {
+  const containerRef = useRef(null);
+  useEffect(() => {
+    if (!containerRef.current) return;
+    containerRef.current.innerHTML = "";
+    const script = document.createElement("script");
+    script.src = "https://telegram.org/js/telegram-widget.js?22";
+    script.setAttribute("data-telegram-login", BOT_USERNAME);
+    script.setAttribute("data-size", "medium");
+    script.setAttribute("data-radius", "8");
+    script.setAttribute("data-onauth", "onTelegramAuth(user)");
+    script.async = true;
+    window.onTelegramAuth = (user) => onLogin(user);
+    containerRef.current.appendChild(script);
+    return () => { delete window.onTelegramAuth; };
+  }, [onLogin]);
+
+  return (
+    <div className="flex flex-col items-center gap-3">
+      <div ref={containerRef} />
+      <div className="flex items-center gap-2 px-3 py-1.5 bg-cyan-500/20 border border-cyan-500/50 rounded-lg animate-pulse shadow-[0_0_15px_rgba(0,243,255,0.2)]">
+        <BellRing size={12} className="text-cyan-400" />
+        <span className="text-[10px] text-cyan-400 font-bold uppercase font-mono tracking-tighter">
+          Подтвердите вход в Telegram
+        </span>
+      </div>
+    </div>
+  );
+};
+
+export default function App() {
+  const [theme, setTheme] = useState('cyberpunk'); 
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [user, setUser] = useState(null);
+  const [scrolled, setScrolled] = useState(false);
+
+  const isCyber = theme === 'cyberpunk';
+
+  // Инициализация Яндекс.Метрики и отслеживание скролла
+  useEffect(() => {
+    const handleScroll = () => setScrolled(window.scrollY > 50);
+    window.addEventListener('scroll', handleScroll);
+
+    // Код Яндекс.Метрики (сохранен и интегрирован)
+    if (!window.ym) {
+        (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+        m[i].l=1*new Date();
+        for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+        k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
+        })(window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
+
+        window.ym(YANDEX_METRIKA_ID, "init", {
+             clickmap:true,
+             trackLinks:true,
+             accurateTrackBounce:true,
+             webvisor:true,
+             ecommerce:"dataLayer"
+        });
+    }
+
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const sendTelegramMessage = async (text) => {
+    try {
+      await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ chat_id: ADMIN_CHAT_ID, text: text, parse_mode: 'HTML' })
+      });
+    } catch (e) { console.error(e); }
+  };
+
+  const handleLogin = (tgUser) => {
+    setUser(tgUser);
+    sendTelegramMessage(`🔐 <b>Вход в систему:</b> ${tgUser.first_name} (@${tgUser.username || 'null'})`);
+  };
+
+  const handleOrder = async (e) => {
+    e.preventDefault();
+    const f = new FormData(e.target);
+    const msg = `🚀 <b>Новый заказ!</b>\n\n<b>Объект:</b> ${f.get('title')}\n<b>Тип:</b> ${f.get('type')}\n<b>Бюджет:</b> ${f.get('price')} ₽\n<b>Контакт:</b> ${f.get('contact')}\n<b>Клиент:</b> ${user ? '@'+user.username : 'Гость'}`;
+    await sendTelegramMessage(msg);
+    setIsModalOpen(false);
     
-    <!-- SEO Мета-теги для Яндекса -->
-    <title>3D Печать и Сканирование в Чебоксарах | 3D CHUVASHIA - Аддитивные Технологии</title>
-    <meta name="description" content="Услуги профессиональной 3D печати (FDM, SLA) и высокоточного 3D сканирования в Чебоксарах и Чувашии. Изготовление деталей, прототипов и макетов любой сложности.">
-    <meta name="keywords" content="3d печать чебоксары, 3д сканирование чувашия, заказать 3д печать, sla печать смолой, fdm печать пластиком, прототипирование">
-    <meta name="robots" content="index, follow">
+    // Цель в Метрике для аналитики рекламы
+    if (window.ym) window.ym(YANDEX_METRIKA_ID, 'reachGoal', 'order_submitted');
+  };
 
-    <!-- Yandex.Metrika counter -->
-    <script type="text/javascript">
-       (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
-       m[i].l=1*new Date();
-       for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
-       k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
-       })(window, document, "script", "https://mc.yandex.ru/metrika/tag.js?id=106603823", "ym");
+  return (
+    <div className={`min-h-screen transition-colors duration-500 ${isCyber ? 'bg-black text-white' : 'bg-slate-50 text-slate-900'}`}>
+      
+      {/* Сетка фона */}
+      {isCyber && (
+        <div className="fixed inset-0 z-0 opacity-20 pointer-events-none" 
+             style={{ backgroundImage: 'radial-gradient(#00f3ff 0.5px, transparent 0.5px)', backgroundSize: '30px 30px' }} />
+      )}
 
-       ym(106603823, "init", {
-            ssr: true,
-            clickmap:true,
-            trackLinks:true,
-            accurateTrackBounce:true,
-            webvisor:true,
-            ecommerce:"dataLayer"
-       });
-    </script>
-    <noscript><div><img src="https://mc.yandex.ru/watch/106603823" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
-    <!-- /Yandex.Metrika counter -->
-    
-    <!-- Подключение библиотек через CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
+      {/* Навигация */}
+      <nav className={`fixed top-0 w-full z-50 transition-all duration-300 ${scrolled ? (isCyber ? 'bg-black/90 border-b border-cyan-500/30' : 'bg-white/90 shadow-lg') : 'bg-transparent'} backdrop-blur-md`}>
+        <div className="max-w-7xl mx-auto px-6 h-20 flex justify-between items-center">
+          <div className="flex items-center gap-4 cursor-pointer group" onClick={() => window.scrollTo({top: 0, behavior: 'smooth'})}>
+            <div className={`w-10 h-10 flex items-center justify-center transition-all ${isCyber ? 'border border-cyan-500 text-cyan-400 shadow-[0_0_15px_#00f3ff]' : 'bg-indigo-600 rounded-lg text-white'}`}>
+              <Zap size={20} />
+            </div>
+            <div className="flex flex-col">
+              <span className={`font-display font-bold text-xl tracking-tighter uppercase ${isCyber ? 'text-white' : 'text-slate-900'}`}>3D_CHUVASHIA</span>
+              <span className="text-[10px] font-mono opacity-50 uppercase tracking-widest text-cyan-500">Additive Studio</span>
+            </div>
+          </div>
 
-    <!-- Шрифты -->
-    <link href="https://api.fontshare.com/v2/css?f[]=clash-display@600,700&f[]=general-sans@400,500,600&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono&display=swap" rel="stylesheet">
+          <div className="hidden lg:flex items-center gap-10 font-display font-bold text-xs uppercase tracking-widest">
+            <a href="#services" className="hover:text-cyan-400 transition-colors">Сервис</a>
+            <a href="#portfolio" className="hover:text-cyan-400 transition-colors">Кейсы</a>
+            <a href="#contacts" className="hover:text-cyan-400 transition-colors">Контакты</a>
+          </div>
 
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        display: ['Clash Display', 'sans-serif'],
-                        body: ['General Sans', 'sans-serif'],
-                        mono: ['JetBrains Mono', 'monospace'],
-                    },
-                    colors: {
-                        cyber: {
-                            neon: '#00f3ff',
-                            purple: '#bc13fe',
-                            dark: '#050507',
-                            surface: '#0a0a12',
-                        }
-                    },
-                    animation: {
-                        'slow-spin': 'spin 15s linear infinite',
-                        'float': 'float 5s ease-in-out infinite',
-                    },
-                    keyframes: {
-                        float: {
-                            '0%, 100%': { transform: 'translateY(0)' },
-                            '50%': { transform: 'translateY(-15px)' },
-                        }
-                    }
-                }
-            }
-        }
-    </script>
+          <div className="flex items-center gap-6">
+            <button onClick={() => setTheme(isCyber ? 'modern' : 'cyberpunk')} className={`p-2 rounded-full border transition-all ${isCyber ? 'border-yellow-400 text-yellow-400' : 'border-slate-200 text-slate-600'}`}>
+              {isCyber ? <Sun size={18} /> : <Moon size={18} />}
+            </button>
+            {user ? (
+              <div className="flex items-center gap-3 bg-white/5 p-1 pr-3 border border-white/10 rounded-full">
+                <img src={user.photo_url || `https://ui-avatars.com/api/?name=${user.first_name}`} className="w-8 h-8 rounded-full border border-cyan-500/50" alt="avatar" />
+                <span className="text-xs font-bold hidden sm:inline">{user.first_name}</span>
+                <button onClick={() => setUser(null)}><LogOut size={14} className="text-red-500" /></button>
+              </div>
+            ) : <TelegramLogin onLogin={handleLogin} />}
+            <button onClick={() => setIsModalOpen(true)} className={`px-6 py-2.5 font-display font-bold text-xs uppercase tracking-widest transition-all ${isCyber ? 'bg-cyan-500 text-black hover:shadow-[0_0_25px_#00f3ff]' : 'bg-slate-900 text-white hover:bg-indigo-600'}`}>
+              Заказать
+            </button>
+          </div>
+        </div>
+      </nav>
 
-    <style>
-        body { 
-            background-color: #050507; 
-            color: #f1f5f9; 
-            margin: 0;
-            overflow-x: hidden;
-            font-family: 'General Sans', sans-serif;
-        }
-        .neon-glow { text-shadow: 0 0 10px rgba(0, 243, 255, 0.4); }
-        .glass-card {
-            background: rgba(10, 10, 18, 0.7);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
-        }
-        .glass-card:hover {
-            border-color: rgba(0, 243, 255, 0.4);
-            transform: translateY(-8px);
-            box-shadow: 0 20px 40px -20px rgba(0, 0, 0, 0.5);
-        }
-        ::-webkit-scrollbar { width: 5px; }
-        ::-webkit-scrollbar-track { background: #050507; }
-        ::-webkit-scrollbar-thumb { background: #00f3ff; border-radius: 10px; }
-        .bg-cyber-grid {
-            background-image: linear-gradient(rgba(0, 243, 255, 0.05) 1px, transparent 1px),
-                              linear-gradient(90deg, rgba(0, 243, 255, 0.05) 1px, transparent 1px);
-            background-size: 50px 50px;
-            mask-image: radial-gradient(circle at center, black 40%, transparent 90%);
-        }
-        .map-style { filter: invert(1) hue-rotate(180deg) brightness(0.75) contrast(1.2) grayscale(0.5); }
-        #telegram-login-container iframe {
-            border-radius: 8px !important;
-            box-shadow: 0 0 10px rgba(0, 243, 255, 0.2);
-        }
-    </style>
-</head>
-<body>
-    <div id="root"></div>
+      {/* Hero Section */}
+      <header className="relative h-screen flex items-center justify-center px-6 overflow-hidden">
+        <div className="max-w-6xl mx-auto text-center z-10">
+          <div className={`inline-flex items-center gap-2 mb-8 px-4 py-1 rounded-full border text-[10px] font-bold uppercase tracking-[0.3em] ${isCyber ? 'border-cyan-500/50 bg-cyan-950/20 text-cyan-400' : 'border-indigo-100 bg-indigo-50 text-indigo-600'}`}>
+            <ShieldCheck size={12} /> System Status: Online
+          </div>
+          <h1 className={`font-display text-6xl md:text-[140px] font-black leading-none mb-10 tracking-tighter ${isCyber ? 'text-white italic' : 'text-slate-900'}`}>
+            DIGITAL<br/>
+            <span className={`text-transparent bg-clip-text bg-gradient-to-r ${isCyber ? 'from-cyan-400 to-purple-500' : 'from-indigo-600 to-violet-600'}`}>CRAFT_21</span>
+          </h1>
+          <p className="max-w-2xl mx-auto text-lg md:text-xl opacity-60 mb-12 font-medium leading-relaxed uppercase tracking-tight">
+            Профессиональное бюро 3D технологий в Чебоксарах. Мы превращаем терабайты цифровых данных в безупречную физическую форму.
+          </p>
+          <div className="flex flex-col sm:flex-row justify-center gap-6">
+            <button onClick={() => setIsModalOpen(true)} className={`px-12 py-5 font-display font-bold uppercase tracking-widest flex items-center justify-center gap-3 transition-all ${isCyber ? 'bg-white text-black hover:bg-cyan-400' : 'bg-slate-900 text-white hover:bg-indigo-600'}`}>
+              Рассчитать стоимость <Calculator size={20} />
+            </button>
+            <a href="#services" className={`px-12 py-5 border font-display font-bold uppercase tracking-widest transition-all ${isCyber ? 'border-white/20 hover:bg-white/5 text-white' : 'border-slate-200 hover:bg-white text-slate-900 shadow-sm'}`}>
+              Услуги
+            </a>
+          </div>
+        </div>
+        
+        <div className="absolute inset-0 z-0">
+          <div className={`absolute inset-0 bg-gradient-to-b ${isCyber ? 'from-black via-transparent to-black' : 'from-slate-50 via-transparent to-slate-50'} z-10`} />
+          <SmartImage src="https://images.unsplash.com/photo-1635070041078-e363dbe005cb?q=80&w=1600" className="w-full h-full opacity-30 grayscale" alt="hero-bg" />
+        </div>
+      </header>
 
-    <script type="text/babel">
-        const { useState, useEffect, useRef } = React;
+      {/* Секция Услуг (DigitalCraft Style) */}
+      <section id="services" className={`py-32 px-6 relative z-10 border-t ${isCyber ? 'border-white/5' : 'border-slate-200'}`}>
+        <div className="max-w-7xl mx-auto">
+          <div className="mb-24 flex flex-col md:flex-row justify-between items-end gap-6 border-b pb-12 border-current opacity-20">
+            <h2 className="font-display text-5xl md:text-8xl font-black uppercase tracking-tighter">Наши <br/> Технологии</h2>
+            <div className="font-mono text-xs text-right tracking-[0.5em]">// ADVANCED_PRODUCTION_STACK</div>
+          </div>
 
-        const Icon = ({ name, size = 20, className = "" }) => {
-            useEffect(() => {
-                if (window.lucide) window.lucide.createIcons();
-            }, [name]);
-            return <i data-lucide={name} className={className} style={{ width: size, height: size }}></i>;
-        };
-
-        const BOT_TOKEN = "8453938307:AAGcU3fQdoPZC7I5y5ueFFnK3HZLAfg680Q";
-        const ADMIN_ID = "334485676";
-        const BOT_USERNAME = "d1f0_bot";
-
-        const SERVICES = [
-            { 
-                title: "FDM ПЕЧАТЬ", 
-                img: "https://images.unsplash.com/photo-1581092162384-8987c1d64718?q=80&w=800&auto=format&fit=crop",
-                icon: "cpu",
-                desc: "Промышленная печать прочными пластиками (ABS, PETG, Nylon). Создание функциональных деталей и корпусов."
-            },
-            { 
-                title: "SLA / RESIN", 
-                img: "https://images.unsplash.com/photo-1615822461544-66f9166f3630?q=80&w=800&auto=format&fit=crop",
-                icon: "gem",
-                desc: "Высокоточная печать фотополимером. Идеальная гладкость и детализация до 0.05 мм для медицины и арта."
-            },
-            { 
-                title: "3D СКАНИРОВАНИЕ", 
-                img: "https://images.unsplash.com/photo-1590856029826-c7a73142bbf1?q=80&w=800&auto=format&fit=crop",
-                icon: "scan-face",
-                desc: "Профессиональная оцифровка объектов. Создание 3D-моделей по реальным образцам для реверс-инжиниринга."
-            }
-        ];
-
-        const PORTFOLIO = [
-            { id: 1, title: "Кибер-Протез", cat: "Bionics", img: "https://images.unsplash.com/photo-1589254065878-42c9da997008?q=80&w=800&auto=format&fit=crop" },
-            { id: 2, title: "Турбина ДВС", cat: "Engineering", img: "https://images.unsplash.com/photo-1537462715879-360eeb61a0ad?q=80&w=800&auto=format&fit=crop" },
-            { id: 3, title: "Скульптура", cat: "Art", img: "https://images.unsplash.com/photo-1549490349-8643362247b5?q=80&w=800&auto=format&fit=crop" },
-            { id: 4, title: "Макет здания", cat: "Architecture", img: "https://images.unsplash.com/photo-1487958449943-2429e8be8625?q=80&w=800&auto=format&fit=crop" }
-        ];
-
-        const TelegramLogin = ({ onLogin }) => {
-            const containerRef = useRef(null);
-            useEffect(() => {
-                if (!containerRef.current) return;
-                containerRef.current.innerHTML = "";
-                const script = document.createElement("script");
-                script.src = "https://telegram.org/js/telegram-widget.js?22";
-                script.setAttribute("data-telegram-login", BOT_USERNAME);
-                script.setAttribute("data-size", "medium");
-                script.setAttribute("data-radius", "4");
-                script.setAttribute("data-onauth", "onTelegramAuth(user)");
-                script.setAttribute("data-request-access", "write");
-                script.async = true;
-                window.onTelegramAuth = (user) => onLogin(user);
-                containerRef.current.appendChild(script);
-                return () => { delete window.onTelegramAuth; };
-            }, [onLogin]);
-            return (
-                <div className="flex flex-col items-center gap-2 group relative">
-                    <div id="telegram-login-container" ref={containerRef}></div>
-                    <div className="flex items-center gap-1.5 px-3 py-1 bg-cyber-neon/10 border border-cyber-neon/20 rounded-md animate-pulse">
-                        <Icon name="bell-ring" size={10} className="text-cyber-neon" />
-                        <span className="text-[9px] text-cyber-neon font-bold uppercase font-mono tracking-wider text-center max-w-[150px]">
-                            Подтвердите вход в Telegram
-                        </span>
-                    </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {SERVICES_DATA.map((service) => (
+              <div key={service.id} className={`group flex flex-col h-full border transition-all duration-500 overflow-hidden ${isCyber ? 'bg-slate-900/40 border-white/5 hover:border-cyan-500/50' : 'bg-white border-slate-100 shadow-sm hover:shadow-xl hover:border-indigo-200'}`}>
+                <div className="h-[280px] relative overflow-hidden">
+                  <SmartImage src={service.img} className="w-full h-full group-hover:scale-110 transition-transform duration-1000" alt={service.title} />
+                  <div className={`absolute top-6 right-6 w-14 h-14 flex items-center justify-center backdrop-blur-xl border ${isCyber ? 'bg-black/60 border-cyan-500/30 text-cyan-400' : 'bg-white/80 border-slate-100 text-indigo-600'}`}>
+                    {service.icon}
+                  </div>
                 </div>
-            );
-        };
-
-        const SmartImage = ({ src, alt, className }) => {
-            const [loaded, setLoaded] = useState(false);
-            const [error, setError] = useState(false);
-            if (error) return <div className={`flex flex-col items-center justify-center bg-slate-900 ${className}`}><Icon name="image-off" size={32} className="opacity-20 mb-2" /><span className="text-[10px] uppercase font-mono opacity-30 tracking-widest">{alt}</span></div>;
-            return <div className={`relative overflow-hidden ${className}`}>{!loaded && <div className="absolute inset-0 bg-slate-800 animate-pulse"></div>}<img src={src} alt={alt} className={`w-full h-full object-cover transition-opacity duration-700 ${loaded ? 'opacity-100' : 'opacity-0'}`} onLoad={() => setLoaded(true)} onError={() => setError(true)} /></div>;
-        };
-
-        function App() {
-            const [isModalOpen, setIsModalOpen] = useState(false);
-            const [notification, setNotification] = useState(null);
-            const [user, setUser] = useState(null);
-
-            const showToast = (text) => { setNotification(text); setTimeout(() => setNotification(null), 4000); };
-
-            const sendBotMessage = async (text) => {
-                try {
-                    await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ chat_id: ADMIN_ID, text: text, parse_mode: 'HTML' })
-                    });
-                } catch (e) { console.error(e); }
-            };
-
-            const handleLogin = (tgUser) => {
-                setUser(tgUser);
-                sendBotMessage(`🔐 <b>Вход:</b> ${tgUser.first_name} (@${tgUser.username || 'null'})`);
-                showToast(`ДОБРО ПОЖАЛОВАТЬ, ${tgUser.first_name.toUpperCase()}`);
-            };
-
-            const handleLogout = () => { setUser(null); showToast("ВЫХОД ВЫПОЛНЕН"); };
-
-            const handleSubmit = async (e) => {
-                e.preventDefault();
-                const f = new FormData(e.target);
-                if (!f.get('privacy')) { showToast("НУЖНО СОГЛАСИЕ С ПОЛИТИКОЙ"); return; }
-                const userName = user ? `@${user.username} (${user.first_name})` : "Гость";
-                const msg = `🚀 <b>Новый заказ!</b>\n\n<b>Объект:</b> ${f.get('title')}\n<b>Тип:</b> ${f.get('type')}\n<b>Бюджет:</b> ${f.get('price')} ₽\n<b>Контакт:</b> ${f.get('contact')}\n<b>Клиент:</b> ${userName}`;
-                try { await sendBotMessage(msg); showToast("ПРОТОКОЛ ПРИНЯТ. СВЯЖЕМСЯ С ВАМИ."); setIsModalOpen(false); } catch (err) { showToast("ОШИБКА СЕТИ."); }
-            };
-
-            return (
-                <div className="min-h-screen flex flex-col bg-cyber-dark">
-                    <div className="fixed inset-0 z-0 bg-cyber-grid pointer-events-none"></div>
-
-                    <header>
-                        <nav className="fixed w-full z-50 top-0 border-b border-white/5 backdrop-blur-md bg-black/40">
-                            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex justify-between items-center">
-                                <div className="flex items-center gap-3 cursor-pointer group" onClick={() => window.scrollTo(0,0)}>
-                                    <div className="w-10 h-10 flex items-center justify-center border border-cyber-neon text-cyber-neon rounded transition-all group-hover:bg-cyber-neon group-hover:text-black">
-                                        <Icon name="zap" size={20} />
-                                    </div>
-                                    <span className="font-display font-bold text-xl tracking-tighter text-white uppercase hidden sm:block">3D_CHUVASHIA</span>
-                                </div>
-
-                                <div className="flex items-center gap-4 sm:gap-10">
-                                    <div className="hidden md:flex items-center gap-10 font-mono text-[10px] uppercase tracking-[0.3em]">
-                                        <a href="#services" className="text-white/40 hover:text-cyber-neon transition-colors">Технологии</a>
-                                        <a href="#gallery" className="text-white/40 hover:text-cyber-neon transition-colors">Портфолио</a>
-                                        <a href="#contacts" className="text-white/40 hover:text-cyber-neon transition-colors">Контакты</a>
-                                    </div>
-                                    {user ? (
-                                        <div className="flex items-center gap-3 bg-white/5 border border-white/10 py-1 pl-1 pr-3 rounded-full">
-                                            <img src={user.photo_url || "https://ui-avatars.com/api/?name="+user.first_name} className="w-7 h-7 rounded-full border border-cyber-neon/30" alt="Avatar" />
-                                            <span className="text-[10px] font-mono text-white uppercase hidden md:inline">{user.first_name}</span>
-                                            <button onClick={handleLogout} className="text-white/30 hover:text-red-500 transition-colors"><Icon name="log-out" size={14} /></button>
-                                        </div>
-                                    ) : <TelegramLogin onLogin={handleLogin} />}
-                                    <button onClick={() => setIsModalOpen(true)} className="bg-cyber-neon text-black px-4 sm:px-8 py-2.5 font-bold hover:shadow-[0_0_20px_#00f3ff] transition-all text-xs uppercase tracking-widest text-shadow-none">ЗАКАЗАТЬ</button>
-                                </div>
-                            </div>
-                        </nav>
-                    </header>
-
-                    <main>
-                        <section id="hero" className="relative h-screen flex items-center justify-center px-6 overflow-hidden pt-20">
-                            <div className="max-w-6xl mx-auto text-center z-10 animate-float">
-                                <div className="inline-block border border-cyber-neon/20 px-6 py-1 rounded-full mb-8 font-mono text-[10px] tracking-[0.5em] text-cyber-neon uppercase bg-cyber-neon/5">
-                                    [ system_online: Cheboksary ]
-                                </div>
-                                <h1 className="font-display text-5xl md:text-[120px] font-bold leading-[0.85] text-white uppercase tracking-tighter mb-10 text-neon">
-                                    3D ПЕЧАТЬ <br/> <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyber-neon to-cyber-purple italic">ЧУВАШИЯ</span>
-                                </h1>
-                                <p className="max-w-2xl mx-auto text-lg md:text-xl opacity-60 mb-12 font-body leading-relaxed border-l-2 border-cyber-neon pl-8 text-left md:text-center md:border-l-0 md:pl-0 uppercase">
-                                    Профессиональные услуги 3D печати и сканирования в Чебоксарах. Высокая точность, широкий выбор материалов, кратчайшие сроки.
-                                </p>
-                                <div className="flex flex-col sm:flex-row justify-center gap-6">
-                                    <button onClick={() => setIsModalOpen(true)} className="px-12 py-5 bg-cyber-neon text-black font-bold uppercase tracking-widest hover:shadow-[0_0_30px_#00f3ff] transition-all flex items-center justify-center gap-3">
-                                        Начать проект <Icon name="arrow-right" size={20}/>
-                                    </button>
-                                    <a href="#gallery" className="px-12 py-5 border border-white/10 text-white font-bold uppercase tracking-widest hover:bg-white/5 transition-all text-shadow-none">Наши работы</a>
-                                </div>
-                            </div>
-                            <div className="absolute inset-0 z-0 opacity-20">
-                                <SmartImage src="https://images.unsplash.com/photo-1635070041078-e363dbe005cb?q=80&w=1200&auto=format&fit=crop" alt="3D технологии фон" className="w-full h-full object-cover grayscale" />
-                                <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-cyber-dark"></div>
-                            </div>
-                        </section>
-
-                        <section id="services" className="py-32 px-6 relative z-10 border-t border-white/5 bg-black/20">
-                            <div className="max-w-7xl mx-auto">
-                                <div className="flex flex-col md:flex-row justify-between items-end mb-20 gap-4">
-                                    <h2 className="font-display text-5xl md:text-6xl font-bold text-white uppercase tracking-tight">Наши <span className="text-cyber-neon">Услуги</span></h2>
-                                    <div className="font-mono text-xs opacity-30 uppercase tracking-widest">// Производственные протоколы</div>
-                                </div>
-                                <div className="grid md:grid-cols-3 gap-8">
-                                    {SERVICES.map((s, i) => (
-                                        <div key={i} className="glass-card rounded-2xl overflow-hidden group">
-                                            <SmartImage src={s.img} alt={s.title} className="h-64" />
-                                            <div className="p-8">
-                                                <div className="text-cyber-neon mb-4"><Icon name={s.icon} size={32} /></div>
-                                                <h3 className="font-display text-2xl font-bold text-white mb-4 uppercase">{s.title}</h3>
-                                                <p className="text-sm opacity-50 font-body leading-relaxed">{s.desc}</p>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-                        </section>
-
-                        <section id="gallery" className="py-32 px-6 bg-[#0a0a12]/40">
-                            <div className="max-w-7xl mx-auto">
-                                <h2 className="font-display text-5xl md:text-6xl font-bold text-white uppercase tracking-tight mb-20 text-center">Примеры <span className="text-cyber-purple italic">Работ</span></h2>
-                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                                    {PORTFOLIO.map(p => (
-                                        <div key={p.id} className="group relative aspect-square glass-card rounded-2xl overflow-hidden cursor-crosshair">
-                                            <SmartImage src={p.img} alt={p.title} className="w-full h-full transition-transform duration-1000 group-hover:scale-110 opacity-70 group-hover:opacity-100" />
-                                            <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-80"></div>
-                                            <div className="absolute bottom-0 left-0 p-8 w-full translate-y-4 group-hover:translate-y-0 transition-transform">
-                                                <span className="text-[10px] font-mono text-cyber-neon bg-cyber-neon/10 border border-cyber-neon/30 px-2 py-1 mb-2 inline-block rounded uppercase tracking-widest">{p.cat}</span>
-                                                <h4 className="text-xl font-bold text-white uppercase tracking-tight">{p.title}</h4>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-                        </section>
-
-                        <section id="contacts" className="relative h-[600px] border-t border-white/10 overflow-hidden">
-                            <iframe src="https://yandex.ru/map-widget/v1/?ll=47.251916%2C56.119047&z=14" className="w-full h-full map-style opacity-40" frameBorder="0"></iframe>
-                            <div className="absolute inset-0 pointer-events-none flex items-center justify-center p-6">
-                                <div className="pointer-events-auto p-12 bg-[#050508]/90 border border-cyber-neon/30 backdrop-blur-2xl max-w-sm w-full font-mono text-center shadow-2xl">
-                                    <Icon name="map-pin" className="text-cyber-neon mx-auto mb-6" size={40} />
-                                    <h3 className="text-2xl font-bold text-white mb-6 uppercase tracking-widest">ЛОКАЦИЯ</h3>
-                                    <div className="space-y-4 text-xs opacity-60 mb-10 leading-relaxed uppercase">
-                                        Чебоксары, проспект Ленина 12<br/>
-                                        Прием заказов: 09:00 - 20:00<br/>
-                                        @3d_chuvashia
-                                    </div>
-                                    <button onClick={() => setIsModalOpen(true)} className="w-full py-4 bg-cyber-neon text-black font-bold uppercase tracking-widest hover:bg-white transition-colors">Связаться</button>
-                                </div>
-                            </div>
-                        </section>
-                    </main>
-
-                    <footer className="py-12 border-t border-white/5 text-center font-mono text-[10px] opacity-20 uppercase tracking-[0.5em]">
-                        <div className="mb-4 text-white">
-                            3D CHUVASHIA // Юридический адрес: г. Чебоксары, пр. Ленина 12<br/>
-                            ИНН: 000000000000 | ОГРНИП: 0000000000000000
-                        </div>
-                        © 2026 3D_CHUVASHIA // CORE_SYSTEM_VER_9.2
-                    </footer>
-
-                    {isModalOpen && (
-                        <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/95 backdrop-blur-xl">
-                            <div className="w-full max-w-lg relative p-[1px] bg-gradient-to-br from-cyber-neon to-cyber-purple rounded-2xl overflow-hidden">
-                                <div className="bg-cyber-dark p-10 rounded-2xl relative">
-                                    <button onClick={() => setIsModalOpen(false)} className="absolute top-8 right-8 text-white/40 hover:text-white transition-colors"><Icon name="x" size={24}/></button>
-                                    <h2 className="font-display text-3xl font-bold text-white mb-2 uppercase tracking-tighter text-shadow-neon">Новый Заказ</h2>
-                                    <p className="font-mono text-[10px] text-cyber-neon/50 mb-10 uppercase tracking-widest">Заполните данные для расчета стоимости</p>
-                                    <form onSubmit={handleSubmit} className="space-y-6 font-mono text-white">
-                                        <input required name="title" className="w-full bg-white/5 border border-white/10 p-4 rounded-xl focus:border-cyber-neon outline-none text-white transition-all text-xs" placeholder="Что печатаем?" />
-                                        <div className="grid grid-cols-2 gap-4">
-                                            <select name="type" className="bg-white/5 border border-white/10 p-4 rounded-xl text-white/50 focus:text-white outline-none text-xs">
-                                                <option className="bg-black">FDM ПЛАСТИК</option>
-                                                <option className="bg-black">SLA СМОЛА</option>
-                                                <option className="bg-black">3D СКАН</option>
-                                            </select>
-                                            <input name="price" className="bg-white/5 border border-white/10 p-4 rounded-xl outline-none text-white text-xs" placeholder="Бюджет ₽" />
-                                        </div>
-                                        <input required name="contact" className="w-full bg-white/5 border border-white/10 p-4 rounded-xl focus:border-cyber-neon outline-none text-white transition-all text-xs" placeholder="@tg / телефон" />
-                                        
-                                        <label className="flex items-start gap-3 cursor-pointer group text-shadow-none">
-                                            <input type="checkbox" name="privacy" required className="mt-1" />
-                                            <span className="text-[10px] opacity-40 group-hover:opacity-100 transition-opacity">Я согласен на обработку персональных данных и принимаю политику конфиденциальности</span>
-                                        </label>
-
-                                        <button className="w-full py-5 bg-cyber-neon text-black font-bold uppercase tracking-widest rounded-xl hover:shadow-[0_0_20px_rgba(0,243,255,0.6)] transition-all">Запустить</button>
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
-                    )}
-
-                    {notification && (
-                        <div className="fixed bottom-10 left-1/2 -translate-x-1/2 z-[200] bg-cyber-neon text-black px-10 py-4 font-mono font-bold uppercase text-xs tracking-widest shadow-[0_0_30px_rgba(0,243,255,0.5)] border border-white/20">
-                            {notification}
-                        </div>
-                    )}
+                <div className="p-10 flex flex-col flex-grow">
+                  <div className="mb-6">
+                    <span className="text-[10px] font-mono font-bold text-cyan-500 uppercase tracking-widest">{service.subTitle}</span>
+                    <h3 className="font-display text-3xl font-black mt-2 uppercase tracking-tighter">{service.title}</h3>
+                  </div>
+                  <p className="opacity-60 text-sm leading-relaxed mb-8">{service.desc}</p>
+                  <ul className="mt-auto space-y-3">
+                    {service.specs.map((spec, i) => (
+                      <li key={i} className="flex items-center gap-3 text-[11px] font-bold opacity-40 uppercase tracking-tight">
+                        <CheckCircle2 size={14} className="text-cyan-500 shrink-0" /> {spec}
+                      </li>
+                    ))}
+                  </ul>
+                  <button onClick={() => setIsModalOpen(true)} className={`mt-10 py-4 border font-display font-bold text-[10px] uppercase tracking-[0.3em] transition-all ${isCyber ? 'border-cyan-500/30 text-cyan-400 hover:bg-cyan-500 hover:text-black' : 'border-slate-200 hover:bg-slate-900 hover:text-white'}`}>
+                    Начать проект
+                  </button>
                 </div>
-            );
-        }
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
 
-        const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(<App />);
-    </script>
-</body>
-</html>
+      {/* Портфолио */}
+      <section id="portfolio" className={`py-32 px-6 ${isCyber ? 'bg-slate-950/50' : 'bg-white border-y border-slate-100'}`}>
+        <div className="max-w-7xl mx-auto">
+          <h2 className="font-display text-5xl md:text-7xl font-black mb-20 uppercase tracking-tighter text-center italic">Gallery Showcase</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {PORTFOLIO.map(p => (
+              <div key={p.id} className="aspect-square relative group overflow-hidden cursor-crosshair border border-white/5">
+                <SmartImage src={p.img} alt={p.title} className="w-full h-full grayscale group-hover:grayscale-0 group-hover:scale-110 transition-all duration-1000" />
+                <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity p-8 flex flex-col justify-end">
+                  <span className="text-[9px] font-mono text-cyan-400 mb-2 uppercase">{p.cat}</span>
+                  <h4 className="text-xl font-black uppercase text-white">{p.title}</h4>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Карта */}
+      <section id="contacts" className="relative h-[700px] border-t border-white/10">
+        <iframe 
+          src="https://yandex.ru/map-widget/v1/?ll=47.251916%2C56.119047&z=14" 
+          className={`w-full h-full map-style opacity-50 ${isCyber ? 'invert brightness-50' : ''}`} 
+          frameBorder="0"
+        />
+        <div className="absolute inset-0 pointer-events-none flex items-center justify-center p-6">
+          <div className={`pointer-events-auto p-12 max-w-sm w-full font-mono text-center shadow-2xl backdrop-blur-2xl border ${isCyber ? 'bg-black/90 border-cyan-500/30' : 'bg-white border-slate-200'}`}>
+            <MapPin className="text-cyan-500 mx-auto mb-6" size={40} />
+            <h3 className="text-2xl font-bold mb-6 uppercase tracking-widest">ЛОКАЦИЯ_21</h3>
+            <div className="space-y-4 text-xs opacity-60 mb-10 leading-relaxed uppercase">
+              Чебоксары, проспект Ленина 12<br/>
+              Заказы принимаются 24/7 онлайн<br/>
+              TG: @3d_chuvashia
+            </div>
+            <button onClick={() => setIsModalOpen(true)} className={`w-full py-4 font-bold uppercase tracking-widest transition-colors ${isCyber ? 'bg-cyan-500 text-black' : 'bg-slate-900 text-white'}`}>Связаться</button>
+          </div>
+        </div>
+      </section>
+
+      {/* Футер (ИНН И ОГРНИП УДАЛЕНЫ) */}
+      <footer className="py-20 px-6 border-t border-white/5 text-center font-mono">
+        <div className="max-w-7xl mx-auto opacity-30 text-[10px] uppercase tracking-[0.5em] space-y-4">
+          <div>© 2026 3D_CHUVASHIA // CORE_SYSTEM_VER_10.1</div>
+          <div className="flex justify-center gap-6">
+            <a href="#" className="hover:text-cyan-400">Политика конфиденциальности</a>
+            <a href="#" className="hover:text-cyan-400">Правила сервиса</a>
+          </div>
+        </div>
+      </footer>
+
+      {/* Форма заказа */}
+      {isModalOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/95 backdrop-blur-3xl">
+          <div className={`w-full max-w-lg relative p-1 bg-gradient-to-br from-cyan-500 to-purple-600 ${isCyber ? '' : 'rounded-2xl'}`}>
+            <div className={`p-10 ${isCyber ? 'bg-black' : 'bg-white rounded-2xl text-slate-900'}`}>
+              <button onClick={() => setIsModalOpen(false)} className="absolute top-8 right-8 opacity-50 hover:opacity-100 transition-opacity"><X size={24}/></button>
+              <h2 className="font-display text-3xl font-black mb-2 uppercase italic tracking-tighter">Новый Протокол</h2>
+              <p className="font-mono text-[9px] opacity-50 mb-10 uppercase tracking-widest">Initialising production link...</p>
+              <form onSubmit={handleOrder} className="space-y-6 font-mono">
+                <input required name="title" className={`w-full p-4 border outline-none text-xs transition-all ${isCyber ? 'bg-white/5 border-white/10 focus:border-cyan-500' : 'bg-slate-50 border-slate-200 focus:ring-2 focus:ring-indigo-600'}`} placeholder="Что нужно изготовить?" />
+                <div className="grid grid-cols-2 gap-4">
+                  <select name="type" className={`p-4 border text-xs outline-none ${isCyber ? 'bg-black border-white/10' : 'bg-slate-50 border-slate-200'}`}>
+                    <option>FDM ПЛАСТИК</option>
+                    <option>SLA СМОЛА</option>
+                    <option>3D СКАН</option>
+                  </select>
+                  <input name="price" className={`p-4 border outline-none text-xs ${isCyber ? 'bg-white/5 border-white/10' : 'bg-slate-50 border-slate-200'}`} placeholder="Бюджет ₽" />
+                </div>
+                <input required name="contact" className={`w-full p-4 border outline-none text-xs ${isCyber ? 'bg-white/5 border-white/10 focus:border-cyan-500' : 'bg-slate-50 border-slate-200 focus:ring-2 focus:ring-indigo-600'}`} placeholder="@tg или Телефон" />
+                <label className="flex items-start gap-3 cursor-pointer group">
+                  <input type="checkbox" required className="mt-1" />
+                  <span className="text-[9px] opacity-40 group-hover:opacity-100 transition-opacity uppercase">Я принимаю условия обработки данных и политику конфиденциальности</span>
+                </label>
+                <button className={`w-full py-5 font-display font-bold uppercase tracking-widest transition-all ${isCyber ? 'bg-cyan-500 text-black hover:shadow-[0_0_30px_#00f3ff]' : 'bg-slate-900 text-white'}`}>Запустить процесс</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
