@@ -172,11 +172,14 @@
                 return () => { delete window.onTelegramAuth; };
             }, [onLogin]);
             return (
-                <div className="flex flex-col items-center gap-1 group relative">
+                <div className="flex flex-col items-center gap-2 group relative">
                     <div id="telegram-login-container" ref={containerRef}></div>
-                    <span className="text-[8px] text-cyber-neon/40 uppercase font-mono tracking-tighter text-center max-w-[120px] hidden md:block">
-                        Подтвердите вход в приложении Telegram
-                    </span>
+                    <div className="flex items-center gap-1.5 px-3 py-1 bg-cyber-neon/10 border border-cyber-neon/20 rounded-md animate-pulse">
+                        <Icon name="bell-ring" size={10} className="text-cyber-neon" />
+                        <span className="text-[9px] text-cyber-neon font-bold uppercase font-mono tracking-wider text-center max-w-[150px]">
+                            Подтвердите вход в Telegram
+                        </span>
+                    </div>
                 </div>
             );
         };
@@ -249,7 +252,7 @@
                                             <button onClick={handleLogout} className="text-white/30 hover:text-red-500 transition-colors"><Icon name="log-out" size={14} /></button>
                                         </div>
                                     ) : <TelegramLogin onLogin={handleLogin} />}
-                                    <button onClick={() => setIsModalOpen(true)} className="bg-cyber-neon text-black px-4 sm:px-8 py-2.5 font-bold hover:shadow-[0_0_20px_#00f3ff] transition-all text-xs uppercase tracking-widest">ЗАКАЗАТЬ</button>
+                                    <button onClick={() => setIsModalOpen(true)} className="bg-cyber-neon text-black px-4 sm:px-8 py-2.5 font-bold hover:shadow-[0_0_20px_#00f3ff] transition-all text-xs uppercase tracking-widest text-shadow-none">ЗАКАЗАТЬ</button>
                                 </div>
                             </div>
                         </nav>
@@ -261,8 +264,8 @@
                                 <div className="inline-block border border-cyber-neon/20 px-6 py-1 rounded-full mb-8 font-mono text-[10px] tracking-[0.5em] text-cyber-neon uppercase bg-cyber-neon/5">
                                     [ system_online: Cheboksary ]
                                 </div>
-                                <h1 className="font-display text-5xl md:text-[120px] font-bold leading-[0.85] text-white uppercase tracking-tighter mb-10">
-                                    3D ПЕЧАТЬ <br/> <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyber-neon to-cyber-purple neon-text italic">ЧУВАШИЯ</span>
+                                <h1 className="font-display text-5xl md:text-[120px] font-bold leading-[0.85] text-white uppercase tracking-tighter mb-10 text-neon">
+                                    3D ПЕЧАТЬ <br/> <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyber-neon to-cyber-purple italic">ЧУВАШИЯ</span>
                                 </h1>
                                 <p className="max-w-2xl mx-auto text-lg md:text-xl opacity-60 mb-12 font-body leading-relaxed border-l-2 border-cyber-neon pl-8 text-left md:text-center md:border-l-0 md:pl-0 uppercase">
                                     Профессиональные услуги 3D печати и сканирования в Чебоксарах. Высокая точность, широкий выбор материалов, кратчайшие сроки.
@@ -271,7 +274,7 @@
                                     <button onClick={() => setIsModalOpen(true)} className="px-12 py-5 bg-cyber-neon text-black font-bold uppercase tracking-widest hover:shadow-[0_0_30px_#00f3ff] transition-all flex items-center justify-center gap-3">
                                         Начать проект <Icon name="arrow-right" size={20}/>
                                     </button>
-                                    <a href="#gallery" className="px-12 py-5 border border-white/10 text-white font-bold uppercase tracking-widest hover:bg-white/5 transition-all">Наши работы</a>
+                                    <a href="#gallery" className="px-12 py-5 border border-white/10 text-white font-bold uppercase tracking-widest hover:bg-white/5 transition-all text-shadow-none">Наши работы</a>
                                 </div>
                             </div>
                             <div className="absolute inset-0 z-0 opacity-20">
@@ -292,7 +295,7 @@
                                             <SmartImage src={s.img} alt={s.title} className="h-64" />
                                             <div className="p-8">
                                                 <div className="text-cyber-neon mb-4"><Icon name={s.icon} size={32} /></div>
-                                                <h3 className="font-display text-2xl font-bold text-white mb-4">{s.title}</h3>
+                                                <h3 className="font-display text-2xl font-bold text-white mb-4 uppercase">{s.title}</h3>
                                                 <p className="text-sm opacity-50 font-body leading-relaxed">{s.desc}</p>
                                             </div>
                                         </div>
@@ -337,11 +340,11 @@
                     </main>
 
                     <footer className="py-12 border-t border-white/5 text-center font-mono text-[10px] opacity-20 uppercase tracking-[0.5em]">
-                        <div className="mb-4">
+                        <div className="mb-4 text-white">
                             3D CHUVASHIA // Юридический адрес: г. Чебоксары, пр. Ленина 12<br/>
                             ИНН: 000000000000 | ОГРНИП: 0000000000000000
                         </div>
-                        © 2026 3D_CHUVASHIA // CORE_SYSTEM_VER_9.1
+                        © 2026 3D_CHUVASHIA // CORE_SYSTEM_VER_9.2
                     </footer>
 
                     {isModalOpen && (
@@ -363,7 +366,7 @@
                                         </div>
                                         <input required name="contact" className="w-full bg-white/5 border border-white/10 p-4 rounded-xl focus:border-cyber-neon outline-none text-white transition-all text-xs" placeholder="@tg / телефон" />
                                         
-                                        <label className="flex items-start gap-3 cursor-pointer group">
+                                        <label className="flex items-start gap-3 cursor-pointer group text-shadow-none">
                                             <input type="checkbox" name="privacy" required className="mt-1" />
                                             <span className="text-[10px] opacity-40 group-hover:opacity-100 transition-opacity">Я согласен на обработку персональных данных и принимаю политику конфиденциальности</span>
                                         </label>
