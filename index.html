@@ -171,7 +171,14 @@
                 containerRef.current.appendChild(script);
                 return () => { delete window.onTelegramAuth; };
             }, [onLogin]);
-            return <div id="telegram-login-container" ref={containerRef}></div>;
+            return (
+                <div className="flex flex-col items-center gap-1 group relative">
+                    <div id="telegram-login-container" ref={containerRef}></div>
+                    <span className="text-[8px] text-cyber-neon/40 uppercase font-mono tracking-tighter text-center max-w-[120px] hidden md:block">
+                        Подтвердите вход в приложении Telegram
+                    </span>
+                </div>
+            );
         };
 
         const SmartImage = ({ src, alt, className }) => {
@@ -334,7 +341,7 @@
                             3D CHUVASHIA // Юридический адрес: г. Чебоксары, пр. Ленина 12<br/>
                             ИНН: 000000000000 | ОГРНИП: 0000000000000000
                         </div>
-                        © 2026 3D_CHUVASHIA // CORE_SYSTEM_VER_9.0
+                        © 2026 3D_CHUVASHIA // CORE_SYSTEM_VER_9.1
                     </footer>
 
                     {isModalOpen && (
