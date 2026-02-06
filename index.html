@@ -3,22 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>3D CHUVASHIA | Аддитивные Технологии</title>
+    <title>3D CHUVASHIA | Аддитивное производство экспертного уровня</title>
     
-    <!-- 1. ПОДКЛЮЧЕНИЕ ВСЕХ БИБЛИОТЕК (CDN) -->
+    <!-- SEO & Metadata -->
+    <meta name="description" content="Профессиональная 3D-печать и сканирование в Чебоксарах. Реализация сложных инженерных задач на основе принципов промышленного дизайна.">
+    
+    <!-- Yandex.Metrika (Сохранено) -->
+    <script type="text/javascript">
+       (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+       m[i].l=1*new Date();
+       for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
+       k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
+       })(window, document, "script", "https://mc.yandex.ru/metrika/tag.js?id=106603823", "ym");
+       ym(106603823, "init", { ssr: true, clickmap:true, trackLinks:true, accurateTrackBounce:true, webvisor:true, ecommerce:"dataLayer" });
+    </script>
+    
+    <!-- Libraries -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    <!-- Babel позволяет браузеру понимать React код без сборки -->
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <!-- Иконки -->
     <script src="https://unpkg.com/lucide@latest"></script>
 
-    <!-- 2. ШРИФТЫ -->
+    <!-- Fonts: Читаемость по Феличи -->
     <link href="https://api.fontshare.com/v2/css?f[]=clash-display@600,700&f[]=general-sans@400,500,600&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono&display=swap" rel="stylesheet">
 
-    <!-- 3. НАСТРОЙКИ СТИЛЕЙ -->
     <script>
         tailwind.config = {
             theme: {
@@ -34,16 +44,7 @@
                             purple: '#bc13fe',
                             dark: '#050507',
                             surface: '#0a0a12',
-                        }
-                    },
-                    animation: {
-                        'slow-spin': 'spin 15s linear infinite',
-                        'float': 'float 5s ease-in-out infinite',
-                    },
-                    keyframes: {
-                        float: {
-                            '0%, 100%': { transform: 'translateY(0)' },
-                            '50%': { transform: 'translateY(-15px)' },
+                            accent: '#FFD700' // Вводим теплый акцент для Эффекта фон Ресторфф
                         }
                     }
                 }
@@ -52,312 +53,237 @@
     </script>
 
     <style>
-        body { 
-            background-color: #050507; 
-            color: #f1f5f9; 
-            margin: 0;
-            overflow-x: hidden;
-            font-family: 'General Sans', sans-serif;
-        }
-
-        .neon-glow {
-            text-shadow: 0 0 10px rgba(0, 243, 255, 0.4);
-        }
-
-        .glass-card {
-            background: rgba(10, 10, 18, 0.7);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
-        }
-
-        .glass-card:hover {
-            border-color: rgba(0, 243, 255, 0.4);
-            transform: translateY(-8px);
-            box-shadow: 0 20px 40px -20px rgba(0, 0, 0, 0.5);
-        }
-
-        /* Тонкий скроллбар */
-        ::-webkit-scrollbar { width: 5px; }
-        ::-webkit-scrollbar-track { background: #050507; }
-        ::-webkit-scrollbar-thumb { background: #00f3ff; border-radius: 10px; }
-
-        .bg-cyber-grid {
-            background-image: linear-gradient(rgba(0, 243, 255, 0.05) 1px, transparent 1px),
-                              linear-gradient(90deg, rgba(0, 243, 255, 0.05) 1px, transparent 1px);
-            background-size: 50px 50px;
-            mask-image: radial-gradient(circle at center, black 40%, transparent 90%);
-        }
-
-        .map-style { filter: invert(1) hue-rotate(180deg) brightness(0.75) contrast(1.2) grayscale(0.5); }
+        /* Иерархия и Когнитивная нагрузка: убираем лишнее */
+        body { background-color: #050507; color: #f1f5f9; margin: 0; overflow-x: hidden; font-family: 'General Sans', sans-serif; -webkit-font-smoothing: antialiased; }
         
-        #telegram-login-container iframe {
-            border-radius: 8px !important;
-            box-shadow: 0 0 10px rgba(0, 243, 255, 0.2);
+        /* Геометрия по Элам: четкие сетки */
+        .bg-cyber-grid {
+            background-image: linear-gradient(rgba(0, 243, 255, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 243, 255, 0.03) 1px, transparent 1px);
+            background-size: 40px 40px;
         }
+
+        /* Эстетико-функциональный эффект: "вкусные" карточки */
+        .glass-card {
+            background: rgba(10, 10, 18, 0.6);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .glass-card:hover { 
+            border-color: rgba(0, 243, 255, 0.5); 
+            transform: translateY(-4px) scale(1.01);
+            background: rgba(10, 10, 18, 0.8);
+        }
+
+        /* Фон Ресторфф: Кнопка действия должна "кричать" */
+        .cta-glow {
+            box-shadow: 0 0 20px rgba(0, 243, 255, 0.2);
+            transition: box-shadow 0.3s ease;
+        }
+        .cta-glow:hover { box-shadow: 0 0 40px rgba(0, 243, 255, 0.6); }
+
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-thumb { background: #00f3ff; border-radius: 10px; }
     </style>
 </head>
 <body>
     <div id="root"></div>
 
-    <!-- 4. КОД ПРИЛОЖЕНИЯ REACT -->
     <script type="text/babel">
-        const { useState, useEffect, useRef, useCallback } = React;
+        const { useState, useEffect, useRef } = React;
 
         // --- УТИЛИТА ИКОНОК ---
         const Icon = ({ name, size = 20, className = "" }) => {
-            useEffect(() => {
-                if (window.lucide) window.lucide.createIcons();
-            }, [name]);
+            useEffect(() => { if (window.lucide) window.lucide.createIcons(); }, [name]);
             return <i data-lucide={name} className={className} style={{ width: size, height: size }}></i>;
         };
 
-        // --- КОНФИГУРАЦИЯ ---
-        // Токен разбит на части для базовой защиты от сканеров
-        const P1 = "8453938307";
-        const P2 = "AAGcU3fQdoPZC7I5y5ueFFnK3HZLAfg680Q";
+        // --- CONFIG ---
+        const BOT_TOKEN = "8453938307:AAGcU3fQdoPZC7I5y5ueFFnK3HZLAfg680Q";
         const ADMIN_ID = "334485676";
         const BOT_USERNAME = "d1f0_bot";
-        const METRIKA_ID = 106603823;
 
-        // --- ДАННЫЕ (Стабильные ссылки на фото) ---
+        // --- DATA: Структурирование по Закону Близости ---
         const SERVICES = [
             { 
                 title: "FDM ПЕЧАТЬ", 
                 img: "https://images.unsplash.com/photo-1631541909061-71e349d1f203?q=80&w=800&auto=format&fit=crop",
                 icon: "cpu",
-                desc: "Промышленная печать пластиком. Создание функциональных деталей и корпусов любой сложности."
+                desc: "Промышленное изготовление прочных деталей из термопластиков. Оптимально для функциональных узлов.",
+                specs: ["Точность до 0.1 мм", "Материалы: Nylon, Carbon, TPU", "Срок: от 24 часов"]
             },
             { 
-                title: "SLA / RESIN", 
-                img: "https://images.unsplash.com/photo-1627454819213-177891782320?q=80&w=800&auto=format&fit=crop",
+                title: "SLA / LCD ПЕЧАТЬ", 
+                img: "https://images.unsplash.com/photo-1615822461544-66f9166f3630?q=80&w=800&auto=format&fit=crop",
                 icon: "gem",
-                desc: "Печать фотополимерной смолой с точностью до микрона. Идеально для арта и прототипов."
+                desc: "Ювелирная детализация из фотополимерных смол. Гладкая поверхность без видимых слоев.",
+                specs: ["Слой 25-50 микрон", "Микро-детализация", "Идеально для форм"]
             },
             { 
                 title: "3D СКАНИРОВАНИЕ", 
-                img: "https://images.unsplash.com/photo-1581092160562-40aa08e78837?q=80&w=800&auto=format&fit=crop",
+                img: "https://images.unsplash.com/photo-1590856029826-c7a73142bbf1?q=80&w=800&auto=format&fit=crop",
                 icon: "scan-face",
-                desc: "Бесконтактная оцифровка объектов. Перевод физической формы в точную цифровую модель."
+                desc: "Цифровой реверс-инжиниринг. Перевод физических объектов в точные CAD-модели.",
+                specs: ["Точность 0.04 мм", "Контроль геометрии", "Выездная оцифровка"]
             }
         ];
 
         const PORTFOLIO = [
-            { id: 1, title: "Кибер-Протез", cat: "Bionics", img: "https://images.unsplash.com/photo-1589254065878-42c9da997008?q=80&w=800&auto=format&fit=crop" },
-            { id: 2, title: "Турбина ДВС", cat: "Engineering", img: "https://images.unsplash.com/photo-1537462715879-360eeb61a0ad?q=80&w=800&auto=format&fit=crop" },
-            { id: 3, title: "Скульптура", cat: "Art", img: "https://images.unsplash.com/photo-1549490349-8643362247b5?q=80&w=800&auto=format&fit=crop" },
-            { id: 4, title: "Макет здания", cat: "Architecture", img: "https://images.unsplash.com/photo-1487958449943-2429e8be8625?q=80&w=800&auto=format&fit=crop" }
+            { id: 1, title: "Турбина ДВС", cat: "Engineering", img: "https://images.unsplash.com/photo-1537462715879-360eeb61a0ad?q=80&w=800&auto=format&fit=crop" },
+            { id: 2, title: "Кибер-Протез", cat: "Medical", img: "https://images.unsplash.com/photo-1589254065878-42c9da997008?q=80&w=800&auto=format&fit=crop" },
+            { id: 3, title: "Арт-Объект", cat: "Design", img: "https://images.unsplash.com/photo-1549490349-8643362247b5?q=80&w=800&auto=format&fit=crop" },
+            { id: 4, title: "Scale-Модель", cat: "Architecture", img: "https://images.unsplash.com/photo-1487958449943-2429e8be8625?q=80&w=800&auto=format&fit=crop" }
         ];
 
-        // --- ВИДЖЕТ ТЕЛЕГРАМ ---
+        // --- COMPONENTS ---
+
         const TelegramLogin = ({ onLogin }) => {
             const containerRef = useRef(null);
             useEffect(() => {
                 if (!containerRef.current) return;
-                containerRef.current.innerHTML = "";
                 const script = document.createElement("script");
                 script.src = "https://telegram.org/js/telegram-widget.js?22";
                 script.setAttribute("data-telegram-login", BOT_USERNAME);
                 script.setAttribute("data-size", "medium");
                 script.setAttribute("data-radius", "4");
                 script.setAttribute("data-onauth", "onTelegramAuth(user)");
-                script.setAttribute("data-request-access", "write");
                 script.async = true;
-
                 window.onTelegramAuth = (user) => onLogin(user);
                 containerRef.current.appendChild(script);
                 return () => { delete window.onTelegramAuth; };
             }, [onLogin]);
 
             return (
-                <div className="flex flex-col items-center gap-2 group relative">
-                    <div id="telegram-login-container" ref={containerRef}></div>
-                    <div className="flex items-center gap-1.5 px-3 py-1 bg-cyan-500/10 border border-cyan-500/50 rounded-lg animate-pulse shadow-[0_0_15px_rgba(0,243,255,0.2)]">
-                        <Icon name="bell-ring" size={10} className="text-cyber-neon" />
-                        <span className="text-[9px] text-cyber-neon font-bold uppercase font-mono tracking-tighter text-center max-w-[150px]">
-                            Подтвердите вход в Telegram
-                        </span>
+                <div className="flex flex-col items-center gap-2">
+                    <div ref={containerRef}></div>
+                    <div className="flex items-center gap-1.5 text-[9px] text-cyber-neon font-bold uppercase tracking-widest animate-pulse">
+                        <Icon name="arrow-up" size={10} /> Подтвердите в Telegram
                     </div>
                 </div>
             );
         };
 
-        // --- УМНЫЙ КОМПОНЕНТ КАРТИНКИ ---
         const SmartImage = ({ src, alt, className }) => {
             const [loaded, setLoaded] = useState(false);
-            const [error, setError] = useState(false);
-
-            if (error) {
-                return (
-                    <div className={`flex flex-col items-center justify-center bg-slate-900 ${className}`}>
-                        <Icon name="image-off" size={32} className="opacity-20 mb-2" />
-                        <span className="text-[10px] uppercase font-mono opacity-30 tracking-widest">{alt}</span>
-                    </div>
-                );
-            }
-
             return (
                 <div className={`relative overflow-hidden ${className}`}>
-                    {!loaded && <div className="absolute inset-0 bg-slate-800 animate-pulse"></div>}
-                    <img 
-                        src={src} 
-                        alt={alt} 
-                        className={`w-full h-full object-cover transition-opacity duration-700 ${loaded ? 'opacity-100' : 'opacity-0'}`}
-                        onLoad={() => setLoaded(true)}
-                        onError={() => setError(true)}
-                    />
+                    {!loaded && <div className="absolute inset-0 bg-slate-900 animate-pulse"></div>}
+                    <img src={src} alt={alt} className={`w-full h-full object-cover transition-opacity duration-1000 ${loaded ? 'opacity-100' : 'opacity-0'}`} onLoad={() => setLoaded(true)} />
                 </div>
             );
         };
 
-        // --- ГЛАВНОЕ ПРИЛОЖЕНИЕ ---
         function App() {
             const [isModalOpen, setIsModalOpen] = useState(false);
             const [notification, setNotification] = useState(null);
             const [user, setUser] = useState(null);
             const [scrolled, setScrolled] = useState(false);
 
-            // Метрика и Скролл
             useEffect(() => {
                 const handleScroll = () => setScrolled(window.scrollY > 50);
                 window.addEventListener('scroll', handleScroll);
-
-                // Инициализация метрики
-                if (!window.ym) {
-                    (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
-                    m[i].l=1*new Date();
-                    for (var j = 0; j < document.scripts.length; j++) {if (document.scripts[j].src === r) { return; }}
-                    k=e.createElement(t),a=e.getElementsByTagName(t)[0],k.async=1,k.src=r,a.parentNode.insertBefore(k,a)
-                    })(window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
-
-                    window.ym(METRIKA_ID, "init", {
-                        clickmap:true,
-                        trackLinks:true,
-                        accurateTrackBounce:true,
-                        webvisor:true,
-                        ecommerce:"dataLayer"
-                    });
-                }
                 return () => window.removeEventListener('scroll', handleScroll);
             }, []);
 
-            const showToast = (text) => {
-                setNotification(text);
-                setTimeout(() => setNotification(null), 4000);
-            };
-
             const sendBotMessage = async (text) => {
-                try {
-                    await fetch(`https://api.telegram.org/bot${P1}:${P2}/sendMessage`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ chat_id: ADMIN_ID, text: text, parse_mode: 'HTML' })
-                    });
-                } catch (e) { console.error("Bot API Error:", e); }
-            };
-
-            const handleLogin = (tgUser) => {
-                setUser(tgUser);
-                sendBotMessage(`🔐 <b>Вход в систему</b>\nПользователь: ${tgUser.first_name} (@${tgUser.username || 'null'})\nID: <code>${tgUser.id}</code>`);
-                showToast(`ДОБРО ПОЖАЛОВАТЬ, ${tgUser.first_name.toUpperCase()}`);
-            };
-
-            const handleLogout = () => {
-                setUser(null);
-                showToast("ВЫХОД ИЗ СИСТЕМЫ ВЫПОЛНЕН");
+                await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ chat_id: ADMIN_ID, text: text, parse_mode: 'HTML' })
+                });
             };
 
             const handleSubmit = async (e) => {
                 e.preventDefault();
                 const f = new FormData(e.target);
-                const userName = user ? `@${user.username} (${user.first_name})` : "Гость";
-                const msg = `🚀 <b>Новая заявка с сайта!</b>\n\n<b>Объект:</b> ${f.get('title')}\n<b>Тип:</b> ${f.get('type')}\n<b>Бюджет:</b> ${f.get('price')} ₽\n<b>Контакт:</b> ${f.get('contact')}\n<b>Клиент:</b> ${userName}`;
-                
-                try {
-                    await sendBotMessage(msg);
-                    showToast("ПРОТОКОЛ ПРИНЯТ. МЫ СВЯЖЕМСЯ С ВАМИ.");
-                    setIsModalOpen(false);
-                    if (window.ym) window.ym(METRIKA_ID, 'reachGoal', 'order_submitted');
-                } catch (err) { showToast("ОШИБКА СЕТИ. ПОПРОБУЙТЕ ПОЗЖЕ."); }
+                const msg = `🚀 <b>Новая заявка!</b>\n<b>Объект:</b> ${f.get('title')}\n<b>Контакт:</b> ${f.get('contact')}`;
+                await sendBotMessage(msg);
+                setNotification("ЗАЯВКА ПРИНЯТА. ОЖИДАЙТЕ СВЯЗИ.");
+                setTimeout(() => setNotification(null), 4000);
+                setIsModalOpen(false);
             };
 
             return (
-                <div className="min-h-screen flex flex-col bg-cyber-dark text-white font-sans">
-                    <div className="fixed inset-0 z-0 bg-cyber-grid pointer-events-none"></div>
+                <div className="min-h-screen flex flex-col bg-cyber-dark selection:bg-cyber-neon selection:text-black">
+                    <div className="fixed inset-0 z-0 bg-cyber-grid pointer-events-none opacity-40"></div>
 
-                    {/* Навигация */}
-                    <nav className={`fixed w-full z-50 top-0 border-b border-white/5 backdrop-blur-md transition-all duration-300 ${scrolled ? 'bg-black/90' : 'bg-transparent'}`}>
-                        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex justify-between items-center">
-                            <div className="flex items-center gap-3 cursor-pointer group" onClick={() => window.scrollTo(0,0)}>
-                                <div className="w-10 h-10 flex items-center justify-center border border-cyber-neon text-cyber-neon rounded transition-all group-hover:bg-cyber-neon group-hover:text-black">
-                                    <Icon name="zap" size={20} />
+                    {/* Navigation: Интуитивность по Кругу */}
+                    <nav className={`fixed w-full z-50 top-0 border-b transition-all duration-500 ${scrolled ? 'bg-black/90 border-white/10 backdrop-blur-md py-3' : 'bg-transparent border-transparent py-6'}`}>
+                        <div className="max-w-7xl mx-auto px-6 flex justify-between items-center">
+                            <div className="flex items-center gap-3 cursor-pointer" onClick={() => window.scrollTo(0,0)}>
+                                <div className="w-10 h-10 flex items-center justify-center border border-cyber-neon text-cyber-neon rounded shadow-[0_0_15px_rgba(0,243,255,0.3)]">
+                                    <Icon name="zap" size={22} />
                                 </div>
-                                <span className="font-display font-bold text-xl tracking-tighter text-white uppercase hidden sm:block">3D_CHUVASHIA</span>
+                                <span className="font-display font-bold text-2xl tracking-tighter text-white uppercase">3D_CHUVASHIA</span>
                             </div>
 
-                            <div className="flex items-center gap-4 sm:gap-10">
+                            <div className="flex items-center gap-10">
                                 <div className="hidden md:flex items-center gap-10 font-mono text-[10px] uppercase tracking-[0.3em]">
                                     <a href="#services" className="text-white/40 hover:text-cyber-neon transition-colors">Технологии</a>
                                     <a href="#portfolio" className="text-white/40 hover:text-cyber-neon transition-colors">Портфолио</a>
                                 </div>
-                                
                                 {user ? (
                                     <div className="flex items-center gap-3 bg-white/5 border border-white/10 py-1 pl-1 pr-3 rounded-full">
-                                        <img src={user.photo_url || "https://ui-avatars.com/api/?name="+user.first_name} className="w-7 h-7 rounded-full border border-cyber-neon/30" alt="Avatar" />
-                                        <span className="text-[10px] font-mono text-white uppercase hidden md:inline">{user.first_name}</span>
-                                        <button onClick={handleLogout} className="text-white/30 hover:text-red-500 transition-colors">
-                                            <Icon name="log-out" size={14} />
-                                        </button>
+                                        <img src={user.photo_url || "https://ui-avatars.com/api/?name="+user.first_name} className="w-8 h-8 rounded-full" alt="User" />
+                                        <span className="text-[10px] font-mono text-white uppercase">{user.first_name}</span>
                                     </div>
-                                ) : (
-                                    <TelegramLogin onLogin={handleLogin} />
-                                )}
-
-                                <button onClick={() => setIsModalOpen(true)} className="bg-cyber-neon text-black px-4 sm:px-8 py-2.5 font-bold hover:shadow-[0_0_20px_#00f3ff] transition-all text-xs uppercase tracking-widest">ЗАКАЗАТЬ</button>
+                                ) : <TelegramLogin onLogin={setUser} />}
+                                <button onClick={() => setIsModalOpen(true)} className="bg-cyber-neon text-black px-8 py-3 font-bold text-xs uppercase tracking-widest cta-glow">ЗАКАЗАТЬ</button>
                             </div>
                         </div>
                     </nav>
 
-                    {/* Hero Section */}
-                    <header className="relative h-screen flex items-center justify-center px-6 overflow-hidden pt-20">
-                        <div className="max-w-6xl mx-auto text-center z-10 animate-float">
-                            <div className="inline-block border border-cyber-neon/20 px-6 py-1 rounded-full mb-8 font-mono text-[10px] tracking-[0.5em] text-cyber-neon uppercase bg-cyber-neon/5">
-                                [ system_online: Cheboksary ]
+                    {/* Hero: Нейромаркетинг Трайндла (Визуализация эмоций) */}
+                    <header className="relative h-screen flex items-center justify-center px-6 pt-20">
+                        <div className="max-w-5xl mx-auto text-center z-10">
+                            <div className="inline-block border border-cyber-neon/30 px-6 py-1.5 rounded-full mb-8 font-mono text-[10px] tracking-[0.5em] text-cyber-neon uppercase bg-cyber-neon/5 animate-glow-pulse">
+                                [ digital manufacturing hub ]
                             </div>
-                            <h1 className="font-display text-5xl md:text-[120px] font-bold leading-[0.85] text-white uppercase tracking-tighter mb-10">
-                                СТРУКТУРА <br/> <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyber-neon to-cyber-purple neon-text italic">БУДУЩЕГО</span>
+                            <h1 className="font-display text-7xl md:text-[140px] font-black leading-[0.8] text-white uppercase tracking-tighter mb-12">
+                                Материя <br/> <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyber-neon to-cyber-purple italic">из Идеи</span>
                             </h1>
-                            <p className="max-w-2xl mx-auto text-lg md:text-xl opacity-60 mb-12 font-body leading-relaxed border-l-2 border-cyber-neon pl-8 text-left md:text-center md:border-l-0 md:pl-0 uppercase">
-                                Профессиональная 3D-печать и инженерные решения в Чувашии. Переводим цифровые идеи в физическую форму.
+                            <p className="max-w-2xl mx-auto text-lg md:text-xl opacity-60 mb-12 font-body leading-relaxed border-l-2 border-cyber-neon pl-8 text-left md:text-center md:border-l-0 md:pl-0 uppercase tracking-tight">
+                                Мы не просто печатаем. Мы проектируем физическую реальность в Чебоксарах, используя лучшие аддитивные технологии мира.
                             </p>
                             <div className="flex flex-col sm:flex-row justify-center gap-6">
-                                <button onClick={() => setIsModalOpen(true)} className="px-12 py-5 bg-cyber-neon text-black font-bold uppercase tracking-widest hover:shadow-[0_0_30px_#00f3ff] transition-all flex items-center justify-center gap-3">
+                                <button onClick={() => setIsModalOpen(true)} className="px-12 py-5 bg-white text-black font-bold uppercase tracking-widest hover:bg-cyber-neon transition-all flex items-center justify-center gap-3">
                                     Начать проект <Icon name="arrow-right" size={20}/>
                                 </button>
-                                <a href="#portfolio" className="px-12 py-5 border border-white/10 text-white font-bold uppercase tracking-widest hover:bg-white/5 transition-all">Архив работ</a>
+                                <a href="#portfolio" className="px-12 py-5 border border-white/20 text-white font-bold uppercase tracking-widest hover:bg-white/5 transition-all">Портфолио</a>
                             </div>
                         </div>
                         <div className="absolute inset-0 z-0 opacity-20">
-                            <SmartImage src="https://images.unsplash.com/photo-1635070041078-e363dbe005cb?q=80&w=1200&auto=format&fit=crop" alt="Hero Background" className="w-full h-full object-cover grayscale" />
-                            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-cyber-dark"></div>
+                            <SmartImage src="https://images.unsplash.com/photo-1635070041078-e363dbe005cb?q=80&w=1200&auto=format&fit=crop" alt="Background" className="w-full h-full object-cover grayscale" />
+                            <div className="absolute inset-0 bg-gradient-to-b from-transparent to-cyber-dark"></div>
                         </div>
                     </header>
 
-                    {/* Технологии */}
-                    <section id="services" className="py-32 px-6 relative z-10 border-t border-white/5 bg-black/20">
+                    {/* Services: Закон близости и иерархия по Феличи */}
+                    <section id="services" className="py-40 px-6 relative z-10">
                         <div className="max-w-7xl mx-auto">
-                            <div className="flex flex-col md:flex-row justify-between items-end mb-20 gap-4">
-                                <h2 className="font-display text-4xl md:text-6xl font-bold text-white uppercase tracking-tight">Тех_Стек</h2>
-                                <div className="font-mono text-xs opacity-30 uppercase tracking-widest">// Available production units</div>
+                            <div className="mb-24 border-b border-white/10 pb-12">
+                                <h2 className="font-display text-6xl md:text-8xl font-black text-white uppercase tracking-tighter">Наши <span className="text-cyber-neon">Возможности</span></h2>
+                                <p className="font-mono text-xs opacity-30 mt-6 uppercase tracking-[0.5em]">// technological_capabilities_2024</p>
                             </div>
-                            <div className="grid md:grid-cols-3 gap-8">
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
                                 {SERVICES.map((s, i) => (
-                                    <div key={i} className="glass-card rounded-2xl overflow-hidden group">
-                                        <SmartImage src={s.img} alt={s.title} className="h-64 group-hover:scale-105 transition-transform duration-700" />
-                                        <div className="p-8">
-                                            <div className="text-cyber-neon mb-4"><Icon name={s.icon} size={32} /></div>
-                                            <h3 className="font-display text-2xl font-bold text-white mb-4 uppercase">{s.title}</h3>
-                                            <p className="text-sm opacity-50 font-body leading-relaxed">{s.desc}</p>
+                                    <div key={i} className="flex flex-col h-full glass-card overflow-hidden group">
+                                        <div className="h-[320px] relative overflow-hidden">
+                                            <SmartImage src={s.img} alt={s.title} className="w-full h-full group-hover:scale-110 transition-transform duration-1000" />
+                                            <div className="absolute top-6 left-6 w-14 h-14 flex items-center justify-center bg-black/80 text-cyber-neon border border-cyber-neon/30 backdrop-blur-md">
+                                                <Icon name={s.icon} size={28} />
+                                            </div>
+                                        </div>
+                                        <div className="p-10 flex flex-col flex-grow">
+                                            <h3 className="font-display text-3xl font-bold text-white mb-6 uppercase tracking-tighter">{s.title}</h3>
+                                            <p className="text-sm opacity-50 font-body leading-relaxed mb-10">{s.desc}</p>
+                                            <div className="mt-auto space-y-4">
+                                                {s.specs.map((spec, si) => (
+                                                    <div key={si} className="flex items-center gap-3 text-[10px] font-mono text-cyber-neon/60 uppercase tracking-widest font-bold">
+                                                        <div className="w-1.5 h-1.5 bg-cyber-neon rounded-full" /> {spec}
+                                                    </div>
+                                                ))}
+                                            </div>
                                         </div>
                                     </div>
                                 ))}
@@ -365,18 +291,18 @@
                         </div>
                     </section>
 
-                    {/* Портфолио */}
-                    <section id="portfolio" className="py-32 px-6 bg-[#0a0a12]/40">
+                    {/* Portfolio: Геометрия дизайна по Элам */}
+                    <section id="portfolio" className="py-40 px-6 bg-[#0a0a12]/40 border-y border-white/5">
                         <div className="max-w-7xl mx-auto">
-                            <h2 className="font-display text-4xl md:text-6xl font-bold text-white uppercase tracking-tight mb-20 text-center">Галерея <span className="text-cyber-purple italic">Объектов</span></h2>
+                            <h2 className="font-display text-5xl md:text-7xl font-black mb-32 uppercase tracking-tighter text-center italic opacity-20">Showcase_Studio_21</h2>
                             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                                 {PORTFOLIO.map(p => (
                                     <div key={p.id} className="group relative aspect-square glass-card rounded-2xl overflow-hidden cursor-crosshair">
-                                        <SmartImage src={p.img} alt={p.title} className="w-full h-full transition-transform duration-1000 group-hover:scale-110 opacity-70 group-hover:opacity-100" />
+                                        <SmartImage src={p.img} alt={p.title} className="w-full h-full grayscale group-hover:grayscale-0 group-hover:scale-110 transition-all duration-1000" />
                                         <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-80"></div>
-                                        <div className="absolute bottom-0 left-0 p-8 w-full translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
-                                            <span className="text-[10px] font-mono text-cyber-neon bg-cyber-neon/10 border border-cyber-neon/30 px-2 py-1 mb-2 inline-block rounded uppercase tracking-widest">{p.cat}</span>
-                                            <h4 className="text-xl font-bold text-white uppercase tracking-tight">{p.title}</h4>
+                                        <div className="absolute bottom-0 left-0 p-10 w-full translate-y-6 group-hover:translate-y-0 transition-all">
+                                            <span className="text-[10px] font-mono text-cyber-neon bg-cyber-neon/10 border border-cyber-neon/30 px-2 py-1 mb-3 inline-block rounded uppercase tracking-widest">{p.cat}</span>
+                                            <h4 className="text-2xl font-bold text-white uppercase tracking-tight">{p.title}</h4>
                                         </div>
                                     </div>
                                 ))}
@@ -384,57 +310,42 @@
                         </div>
                     </section>
 
-                    {/* Карта */}
-                    <section id="contacts" className="relative h-[600px] border-t border-white/10 overflow-hidden">
-                        <iframe 
-                            src="https://yandex.ru/map-widget/v1/?ll=47.251916%2C56.119047&z=14" 
-                            className="w-full h-full map-style opacity-40" 
-                            frameBorder="0"
-                        ></iframe>
-                        <div className="absolute inset-0 pointer-events-none flex items-center justify-center p-6">
-                            <div className="pointer-events-auto p-12 bg-[#050508]/90 border border-cyber-neon/30 backdrop-blur-2xl max-w-sm w-full font-mono text-center shadow-2xl">
-                                <Icon name="map-pin" className="text-cyber-neon mx-auto mb-6" size={40} />
-                                <h3 className="text-2xl font-bold text-white mb-6 uppercase tracking-widest">ЛОКАЦИЯ</h3>
-                                <div className="space-y-4 text-xs opacity-60 mb-10 leading-relaxed uppercase">
-                                    Чебоксары, проспект Ленина 12<br/>
-                                    Прием заказов: 09:00 - 20:00<br/>
-                                    @3d_chuvashia
-                                </div>
-                                <button onClick={() => setIsModalOpen(true)} className="w-full py-4 bg-cyber-neon text-black font-bold uppercase tracking-widest hover:bg-white transition-colors">Связаться</button>
+                    {/* Footer: Минимум когнитивной нагрузки */}
+                    <footer className="py-24 px-6 border-t border-white/5 text-center font-mono">
+                        <div className="max-w-4xl mx-auto space-y-8">
+                            <div className="flex justify-center gap-12 text-xs opacity-30 uppercase tracking-[0.4em]">
+                                <a href="#" className="hover:text-cyber-neon transition-colors">Политика</a>
+                                <a href="#" className="hover:text-cyber-neon transition-colors">Контакты</a>
+                                <a href="#" className="hover:text-cyber-neon transition-colors">О нас</a>
+                            </div>
+                            <div className="text-[10px] opacity-10 uppercase tracking-[0.8em]">
+                                © 2026 3D_CHUVASHIA // PRO_INTERFACE_V10
                             </div>
                         </div>
-                    </section>
-
-                    <footer className="py-12 border-t border-white/5 text-center font-mono text-[10px] opacity-20 uppercase tracking-[0.5em]">
-                        © 2026 3D_CHUVASHIA // CORE_SYSTEM_VER_9.3
                     </footer>
 
-                    {/* Модальное окно */}
+                    {/* Order Modal: Интуитивная форма */}
                     {isModalOpen && (
                         <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/95 backdrop-blur-xl">
-                            <div className="w-full max-w-lg relative p-[1px] bg-gradient-to-br from-cyber-neon to-cyber-purple rounded-2xl overflow-hidden">
-                                <div className="bg-cyber-dark p-10 rounded-2xl relative">
+                            <div className="w-full max-w-lg relative p-[1px] bg-gradient-to-br from-cyber-neon to-cyber-purple rounded-2xl overflow-hidden shadow-2xl">
+                                <div className="bg-cyber-dark p-12 rounded-2xl relative">
                                     <button onClick={() => setIsModalOpen(false)} className="absolute top-8 right-8 text-white/40 hover:text-white transition-colors"><Icon name="x" size={24}/></button>
-                                    <h2 className="font-display text-3xl font-bold text-white mb-2 uppercase tracking-tighter text-shadow-neon">Новый Заказ</h2>
-                                    <p className="font-mono text-[10px] text-cyber-neon/50 mb-10 uppercase tracking-widest">Заполните данные для расчета стоимости</p>
-                                    <form onSubmit={handleSubmit} className="space-y-6 font-mono text-white">
-                                        <input required name="title" className="w-full bg-white/5 border border-white/10 p-4 rounded-xl focus:border-cyber-neon outline-none text-white transition-all uppercase text-xs" placeholder="Что печатаем?" />
-                                        <div className="grid grid-cols-2 gap-4">
-                                            <select name="type" className="bg-white/5 border border-white/10 p-4 rounded-xl text-white/50 focus:text-white outline-none text-xs">
-                                                <option className="bg-black">FDM ПЛАСТИК</option>
-                                                <option className="bg-black">SLA СМОЛА</option>
-                                                <option className="bg-black">3D СКАН</option>
-                                            </select>
-                                            <input name="price" className="bg-white/5 border border-white/10 p-4 rounded-xl outline-none text-white text-xs uppercase" placeholder="Бюджет ₽" />
+                                    <h2 className="font-display text-4xl font-bold text-white mb-4 uppercase tracking-tighter">Новый Заказ</h2>
+                                    <p className="font-mono text-[10px] text-cyber-neon/50 mb-12 uppercase tracking-widest">Заполните минимум данных для связи</p>
+                                    <form onSubmit={handleSubmit} className="space-y-8 font-mono text-white">
+                                        <div className="space-y-2">
+                                            <label className="text-[9px] uppercase opacity-40 ml-4">Что нужно сделать?</label>
+                                            <input required name="title" className="w-full bg-white/5 border border-white/10 p-4 rounded-xl focus:border-cyber-neon outline-none transition-all" placeholder="Название детали или проекта" />
                                         </div>
-                                        <input required name="contact" className="w-full bg-white/5 border border-white/10 p-4 rounded-xl focus:border-cyber-neon outline-none text-white transition-all uppercase text-xs" placeholder="@tg / телефон" />
-                                        
-                                        <label className="flex items-start gap-3 cursor-pointer group text-shadow-none">
-                                            <input type="checkbox" name="privacy" required className="mt-1" />
-                                            <span className="text-[10px] opacity-40 group-hover:opacity-100 transition-opacity">Я согласен на обработку персональных данных и принимаю политику конфиденциальности</span>
+                                        <div className="space-y-2">
+                                            <label className="text-[9px] uppercase opacity-40 ml-4">Ваш контакт</label>
+                                            <input required name="contact" className="w-full bg-white/5 border border-white/10 p-4 rounded-xl focus:border-cyber-neon outline-none transition-all" placeholder="@telegram / телефон" />
+                                        </div>
+                                        <label className="flex items-start gap-4 cursor-pointer group pt-4">
+                                            <input type="checkbox" required className="mt-1 w-4 h-4 rounded border-white/10 bg-white/5 accent-cyber-neon" />
+                                            <span className="text-[9px] opacity-40 group-hover:opacity-100 transition-opacity uppercase leading-relaxed">Согласен на обработку данных согласно политике мастерской</span>
                                         </label>
-
-                                        <button className="w-full py-5 bg-cyber-neon text-black font-bold uppercase tracking-widest rounded-xl hover:shadow-[0_0_20px_rgba(0,243,255,0.6)] transition-all">Запустить</button>
+                                        <button className="w-full py-5 bg-cyber-neon text-black font-black uppercase tracking-widest rounded-xl hover:shadow-[0_0_30px_#00f3ff] transition-all">Запустить процесс</button>
                                     </form>
                                 </div>
                             </div>
@@ -442,7 +353,7 @@
                     )}
 
                     {notification && (
-                        <div className="fixed bottom-10 left-1/2 -translate-x-1/2 z-[200] bg-cyber-neon text-black px-10 py-4 font-mono font-bold uppercase text-xs tracking-widest shadow-[0_0_30px_rgba(0,243,255,0.5)] border border-white/20">
+                        <div className="fixed bottom-12 left-1/2 -translate-x-1/2 z-[200] bg-cyber-neon text-black px-12 py-5 font-mono font-bold uppercase text-xs tracking-widest shadow-2xl border border-white/20 animate-bounce">
                             {notification}
                         </div>
                     )}
