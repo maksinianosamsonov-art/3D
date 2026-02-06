@@ -6,7 +6,7 @@
     <title>3D CHUVASHIA | Аддитивное производство экспертного уровня</title>
     
     <!-- SEO & Metadata -->
-    <meta name="description" content="Профессиональная 3D-печать и сканирование в Чебоксарах. Реализация сложных инженерных задач на основе принципов промышленного дизайна.">
+    <meta name="description" content="Профессиональная 3D-печать, сканирование и моделирование в Чебоксарах. Реализация сложных инженерных задач на основе принципов промышленного дизайна.">
     
     <!-- Yandex.Metrika (Сохранено) -->
     <script type="text/javascript">
@@ -25,7 +25,7 @@
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
 
-    <!-- Fonts: Читаемость по Феличи -->
+    <!-- Fonts -->
     <link href="https://api.fontshare.com/v2/css?f[]=clash-display@600,700&f[]=general-sans@400,500,600&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono&display=swap" rel="stylesheet">
 
@@ -44,7 +44,7 @@
                             purple: '#bc13fe',
                             dark: '#050507',
                             surface: '#0a0a12',
-                            accent: '#FFD700' // Вводим теплый акцент для Эффекта фон Ресторфф
+                            accent: '#FFD700'
                         }
                     }
                 }
@@ -53,16 +53,13 @@
     </script>
 
     <style>
-        /* Иерархия и Когнитивная нагрузка: убираем лишнее */
         body { background-color: #050507; color: #f1f5f9; margin: 0; overflow-x: hidden; font-family: 'General Sans', sans-serif; -webkit-font-smoothing: antialiased; }
         
-        /* Геометрия по Элам: четкие сетки */
         .bg-cyber-grid {
             background-image: linear-gradient(rgba(0, 243, 255, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 243, 255, 0.03) 1px, transparent 1px);
             background-size: 40px 40px;
         }
 
-        /* Эстетико-функциональный эффект: "вкусные" карточки */
         .glass-card {
             background: rgba(10, 10, 18, 0.6);
             backdrop-filter: blur(20px);
@@ -75,7 +72,6 @@
             background: rgba(10, 10, 18, 0.8);
         }
 
-        /* Фон Ресторфф: Кнопка действия должна "кричать" */
         .cta-glow {
             box-shadow: 0 0 20px rgba(0, 243, 255, 0.2);
             transition: box-shadow 0.3s ease;
@@ -92,18 +88,15 @@
     <script type="text/babel">
         const { useState, useEffect, useRef } = React;
 
-        // --- УТИЛИТА ИКОНОК ---
         const Icon = ({ name, size = 20, className = "" }) => {
             useEffect(() => { if (window.lucide) window.lucide.createIcons(); }, [name]);
             return <i data-lucide={name} className={className} style={{ width: size, height: size }}></i>;
         };
 
-        // --- CONFIG ---
         const BOT_TOKEN = "8453938307:AAGcU3fQdoPZC7I5y5ueFFnK3HZLAfg680Q";
         const ADMIN_ID = "334485676";
         const BOT_USERNAME = "d1f0_bot";
 
-        // --- DATA: Структурирование по Закону Близости ---
         const SERVICES = [
             { 
                 title: "FDM ПЕЧАТЬ", 
@@ -120,11 +113,18 @@
                 specs: ["Слой 25-50 микрон", "Микро-детализация", "Идеально для форм"]
             },
             { 
+                title: "3D МОДЕЛИРОВАНИЕ", 
+                img: "https://images.unsplash.com/photo-1581092160607-ee22621dd758?q=80&w=800&auto=format&fit=crop",
+                icon: "shapes",
+                desc: "Разработка цифровых 3D-моделей по чертежам или ТЗ. Проектирование с учетом аддитивных технологий.",
+                specs: ["CAD проектирование", "Реверс-инжиниринг", "Подготовка к печати"]
+            },
+            { 
                 title: "3D СКАНИРОВАНИЕ", 
                 img: "https://images.unsplash.com/photo-1590856029826-c7a73142bbf1?q=80&w=800&auto=format&fit=crop",
                 icon: "scan-face",
-                desc: "Цифровой реверс-инжиниринг. Перевод физических объектов в точные CAD-модели.",
-                specs: ["Точность 0.04 мм", "Контроль геометрии", "Выездная оцифровка"]
+                desc: "Цифровой перевод физических объектов в точные CAD-модели. Контроль геометрии.",
+                specs: ["Точность 0.04 мм", "Выездная оцифровка", "Любая сложность"]
             }
         ];
 
@@ -134,8 +134,6 @@
             { id: 3, title: "Арт-Объект", cat: "Design", img: "https://images.unsplash.com/photo-1549490349-8643362247b5?q=80&w=800&auto=format&fit=crop" },
             { id: 4, title: "Scale-Модель", cat: "Architecture", img: "https://images.unsplash.com/photo-1487958449943-2429e8be8625?q=80&w=800&auto=format&fit=crop" }
         ];
-
-        // --- COMPONENTS ---
 
         const TelegramLogin = ({ onLogin }) => {
             const containerRef = useRef(null);
@@ -207,7 +205,6 @@
                 <div className="min-h-screen flex flex-col bg-cyber-dark selection:bg-cyber-neon selection:text-black">
                     <div className="fixed inset-0 z-0 bg-cyber-grid pointer-events-none opacity-40"></div>
 
-                    {/* Navigation: Интуитивность по Кругу */}
                     <nav className={`fixed w-full z-50 top-0 border-b transition-all duration-500 ${scrolled ? 'bg-black/90 border-white/10 backdrop-blur-md py-3' : 'bg-transparent border-transparent py-6'}`}>
                         <div className="max-w-7xl mx-auto px-6 flex justify-between items-center">
                             <div className="flex items-center gap-3 cursor-pointer" onClick={() => window.scrollTo(0,0)}>
@@ -233,13 +230,12 @@
                         </div>
                     </nav>
 
-                    {/* Hero: Нейромаркетинг Трайндла (Визуализация эмоций) */}
                     <header className="relative h-screen flex items-center justify-center px-6 pt-20">
                         <div className="max-w-5xl mx-auto text-center z-10">
-                            <div className="inline-block border border-cyber-neon/30 px-6 py-1.5 rounded-full mb-8 font-mono text-[10px] tracking-[0.5em] text-cyber-neon uppercase bg-cyber-neon/5 animate-glow-pulse">
+                            <div className="inline-block border border-cyber-neon/30 px-6 py-1.5 rounded-full mb-8 font-mono text-[10px] tracking-[0.5em] text-cyber-neon uppercase bg-cyber-neon/5">
                                 [ digital manufacturing hub ]
                             </div>
-                            <h1 className="font-display text-7xl md:text-[140px] font-black leading-[0.8] text-white uppercase tracking-tighter mb-12">
+                            <h1 className="font-display text-7xl md:text-[140px] font-black leading-[0.8] text-white uppercase tracking-tighter mb-12 text-neon">
                                 Материя <br/> <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyber-neon to-cyber-purple italic">из Идеи</span>
                             </h1>
                             <p className="max-w-2xl mx-auto text-lg md:text-xl opacity-60 mb-12 font-body leading-relaxed border-l-2 border-cyber-neon pl-8 text-left md:text-center md:border-l-0 md:pl-0 uppercase tracking-tight">
@@ -258,29 +254,28 @@
                         </div>
                     </header>
 
-                    {/* Services: Закон близости и иерархия по Феличи */}
                     <section id="services" className="py-40 px-6 relative z-10">
                         <div className="max-w-7xl mx-auto">
                             <div className="mb-24 border-b border-white/10 pb-12">
                                 <h2 className="font-display text-6xl md:text-8xl font-black text-white uppercase tracking-tighter">Наши <span className="text-cyber-neon">Возможности</span></h2>
-                                <p className="font-mono text-xs opacity-30 mt-6 uppercase tracking-[0.5em]">// technological_capabilities_2024</p>
+                                <p className="font-mono text-xs opacity-30 mt-6 uppercase tracking-[0.5em]">// digital_design_and_production_2025</p>
                             </div>
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
                                 {SERVICES.map((s, i) => (
                                     <div key={i} className="flex flex-col h-full glass-card overflow-hidden group">
-                                        <div className="h-[320px] relative overflow-hidden">
+                                        <div className="h-[240px] relative overflow-hidden">
                                             <SmartImage src={s.img} alt={s.title} className="w-full h-full group-hover:scale-110 transition-transform duration-1000" />
-                                            <div className="absolute top-6 left-6 w-14 h-14 flex items-center justify-center bg-black/80 text-cyber-neon border border-cyber-neon/30 backdrop-blur-md">
-                                                <Icon name={s.icon} size={28} />
+                                            <div className="absolute top-4 left-4 w-12 h-12 flex items-center justify-center bg-black/80 text-cyber-neon border border-cyber-neon/30 backdrop-blur-md">
+                                                <Icon name={s.icon} size={24} />
                                             </div>
                                         </div>
-                                        <div className="p-10 flex flex-col flex-grow">
-                                            <h3 className="font-display text-3xl font-bold text-white mb-6 uppercase tracking-tighter">{s.title}</h3>
-                                            <p className="text-sm opacity-50 font-body leading-relaxed mb-10">{s.desc}</p>
-                                            <div className="mt-auto space-y-4">
+                                        <div className="p-8 flex flex-col flex-grow">
+                                            <h3 className="font-display text-xl font-bold text-white mb-4 uppercase tracking-tighter leading-tight">{s.title}</h3>
+                                            <p className="text-xs opacity-50 font-body leading-relaxed mb-8">{s.desc}</p>
+                                            <div className="mt-auto space-y-3">
                                                 {s.specs.map((spec, si) => (
-                                                    <div key={si} className="flex items-center gap-3 text-[10px] font-mono text-cyber-neon/60 uppercase tracking-widest font-bold">
-                                                        <div className="w-1.5 h-1.5 bg-cyber-neon rounded-full" /> {spec}
+                                                    <div key={si} className="flex items-center gap-2 text-[9px] font-mono text-cyber-neon/60 uppercase tracking-widest font-bold">
+                                                        <div className="w-1 h-1 bg-cyber-neon rounded-full" /> {spec}
                                                     </div>
                                                 ))}
                                             </div>
@@ -291,7 +286,6 @@
                         </div>
                     </section>
 
-                    {/* Portfolio: Геометрия дизайна по Элам */}
                     <section id="portfolio" className="py-40 px-6 bg-[#0a0a12]/40 border-y border-white/5">
                         <div className="max-w-7xl mx-auto">
                             <h2 className="font-display text-5xl md:text-7xl font-black mb-32 uppercase tracking-tighter text-center italic opacity-20">Showcase_Studio_21</h2>
@@ -310,7 +304,6 @@
                         </div>
                     </section>
 
-                    {/* Footer: Минимум когнитивной нагрузки */}
                     <footer className="py-24 px-6 border-t border-white/5 text-center font-mono">
                         <div className="max-w-4xl mx-auto space-y-8">
                             <div className="flex justify-center gap-12 text-xs opacity-30 uppercase tracking-[0.4em]">
@@ -319,12 +312,11 @@
                                 <a href="#" className="hover:text-cyber-neon transition-colors">О нас</a>
                             </div>
                             <div className="text-[10px] opacity-10 uppercase tracking-[0.8em]">
-                                © 2026 3D_CHUVASHIA // PRO_INTERFACE_V10
+                                © 2026 3D_CHUVASHIA // PRO_INTERFACE_V11
                             </div>
                         </div>
                     </footer>
 
-                    {/* Order Modal: Интуитивная форма */}
                     {isModalOpen && (
                         <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-black/95 backdrop-blur-xl">
                             <div className="w-full max-w-lg relative p-[1px] bg-gradient-to-br from-cyber-neon to-cyber-purple rounded-2xl overflow-hidden shadow-2xl">
